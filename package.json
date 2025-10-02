@@ -1,0 +1,29 @@
+{
+  "name": "booking-website",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.57.4",
+    "date-fns": "^4.1.0",
+    "next": "15.5.3",
+    "react": "19.1.0",
+    "react-big-calendar": "^1.19.4",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.3",
+    "eslint-plugin-react-hooks": "^6.1.0",
+    "supabase": "^2.47.2",
+    "tailwindcss": "^4"
+  }
+}
