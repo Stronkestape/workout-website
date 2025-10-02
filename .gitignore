@@ -69,4 +69,4 @@ supabase/.env
 supabase/.supabase
 
 # database
-schema.sql
+
