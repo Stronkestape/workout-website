@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 3MEkUWpiw1bHjeUYmjjY94YyZ4Az0XgAt8FBrZ9U0GbzvKoLcdD6pABlb5JRxAw
+\restrict 7lAQzffg0eEFu1BtLk0gOEJEnNHiZ9IlU2OlxY2LBBjdCAKhdSQFgsnwG2b1KOE
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -241,7 +241,7 @@ CREATE TABLE public.user_profiles (
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
     username character varying(50) NOT NULL,
-    CONSTRAINT user_profiles_user_tier_check CHECK (((user_tier)::text = ANY ((ARRAY['regular'::character varying, 'premium'::character varying])::text[]))),
+    CONSTRAINT user_profiles_user_tier_check CHECK (((user_tier)::text = ANY ((ARRAY['regular'::character varying, 'admin'::character varying])::text[]))),
     CONSTRAINT user_profiles_username_check CHECK (((username)::text ~ '^[a-z0-9_.]{3,20}$'::text)),
     CONSTRAINT username_format CHECK (((username)::text ~ '^[a-z0-9_]+$'::text))
 );
@@ -538,6 +538,68 @@ ALTER TABLE ONLY public.workout_classes
 
 
 --
+-- Name: class_sessions Admins can create sessions; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can create sessions" ON public.class_sessions FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
+   FROM (public.workout_classes wc
+     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
+  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: workout_classes Admins can create workouts; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can create workouts" ON public.workout_classes FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: class_sessions Admins can delete sessions; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can delete sessions" ON public.class_sessions FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM (public.workout_classes wc
+     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
+  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: workout_classes Admins can delete workouts; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can delete workouts" ON public.workout_classes FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: class_sessions Admins can update sessions; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can update sessions" ON public.class_sessions FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM (public.workout_classes wc
+     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
+  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+   FROM (public.workout_classes wc
+     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
+  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: workout_classes Admins can update workouts; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can update workouts" ON public.workout_classes FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
 -- Name: class_sessions Everyone can read class sessions; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -549,59 +611,6 @@ CREATE POLICY "Everyone can read class sessions" ON public.class_sessions FOR SE
 --
 
 CREATE POLICY "Everyone can read workout classes" ON public.workout_classes FOR SELECT USING ((is_active = true));
-
-
---
--- Name: class_sessions Premium users can create own workout sessions; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Premium users can create own workout sessions" ON public.class_sessions FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
-   FROM (public.workout_classes wc
-     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'premium'::text)))));
-
-
---
--- Name: workout_classes Premium users can create workouts; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Premium users can create workouts" ON public.workout_classes FOR INSERT TO authenticated WITH CHECK (((EXISTS ( SELECT 1
-   FROM public.user_profiles
-  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'premium'::text)))) AND (created_by = ( SELECT auth.uid() AS uid))));
-
-
---
--- Name: class_sessions Premium users can delete own workout sessions; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Premium users can delete own workout sessions" ON public.class_sessions FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
-   FROM public.workout_classes wc
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid))))));
-
-
---
--- Name: workout_classes Premium users can delete own workouts; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Premium users can delete own workouts" ON public.workout_classes FOR DELETE TO authenticated USING ((created_by = ( SELECT auth.uid() AS uid)));
-
-
---
--- Name: class_sessions Premium users can update own workout sessions; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Premium users can update own workout sessions" ON public.class_sessions FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
-   FROM public.workout_classes wc
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)))))) WITH CHECK ((EXISTS ( SELECT 1
-   FROM public.workout_classes wc
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid))))));
-
-
---
--- Name: workout_classes Premium users can update own workouts; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Premium users can update own workouts" ON public.workout_classes FOR UPDATE TO authenticated USING ((created_by = ( SELECT auth.uid() AS uid))) WITH CHECK ((created_by = ( SELECT auth.uid() AS uid)));
 
 
 --
@@ -701,5 +710,5 @@ ALTER TABLE public.workout_classes ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 3MEkUWpiw1bHjeUYmjjY94YyZ4Az0XgAt8FBrZ9U0GbzvKoLcdD6pABlb5JRxAw
+\unrestrict 7lAQzffg0eEFu1BtLk0gOEJEnNHiZ9IlU2OlxY2LBBjdCAKhdSQFgsnwG2b1KOE
 

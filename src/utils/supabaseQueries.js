@@ -79,7 +79,7 @@ export const bookWorkoutSession = async (userId, sessionId) => {
         session_id: sessionId,
         booking_status: 'confirmed'
       }
-    ]);
+    ]).select();
 
   return { error };
 };

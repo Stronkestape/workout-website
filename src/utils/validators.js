@@ -4,7 +4,7 @@ export const isValidEmail = (email) => {
 };
 
 export const validateUsername = (username) => {
-  const cleanUsername = username.trim.toLowerCase();
+  const cleanUsername = username.trim().toLowerCase();
   const usernameRegex = /^[a-z0-9_.]{3,20}$/;
 
   if (!cleanUsername) {
