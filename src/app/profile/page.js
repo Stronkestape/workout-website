@@ -15,10 +15,6 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
-
   const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -60,6 +56,12 @@ export default function ProfilePage() {
   const handleProfileUpdate = () => {
     fetchUserProfile();
   };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
+  
 
   if (loading) {
     return (

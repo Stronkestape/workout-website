@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   fetchUserBookingStatus, 
   bookWorkoutSession, 
@@ -14,12 +14,6 @@ export function useWorkoutBooking(workout, user, onBookingChange) {
   const [isOnWaitlist, setIsOnWaitlist] = useState(false);
   const [waitlistPosition, setWaitlistPosition] = useState(null);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (user && workout) {
-      checkUserBookingStatus();
-    }
-  }, [user, workout,checkUserBookingStatus]);
 
   const checkUserBookingStatus = useCallback(async () => {
     try {
@@ -43,6 +37,14 @@ export function useWorkoutBooking(workout, user, onBookingChange) {
       console.error('Error checking booking status:', error);
     }
   },[user,workout]);
+
+  useEffect(() => {
+    if (user && workout) {
+      checkUserBookingStatus();
+    }
+  }, [user, workout,checkUserBookingStatus]);
+
+  
 
   const handleBookWorkout = async () => {
     setLoading(true);

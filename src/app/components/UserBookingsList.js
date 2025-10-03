@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { formatDateTime, canCancelBooking } from "@/utils/calendarHelpers";
 import { fetchUserBookings, cancelBooking, leaveWaitlist } from "@/utils/supabaseQueries";
@@ -11,11 +11,7 @@ export default function UserBookingsList({ userId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!userId) {
-      return;
-    }
-    const fetchBookingsData = async () => {
+  const fetchBookingsData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -39,9 +35,15 @@ export default function UserBookingsList({ userId }) {
     } finally {
       setLoading(false);
     }
-  };
-    fetchBookingsData();
   }, [userId]);
+  
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+    
+    fetchBookingsData();
+  }, [userId,fetchBookingsData]);
 
   
 
@@ -276,5 +278,5 @@ export default function UserBookingsList({ userId }) {
       )}
     </div>
   );
-};
+}
               
