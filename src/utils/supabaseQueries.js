@@ -38,7 +38,7 @@ export const fetchUserBookingStatus = async (userId, sessionId) => {
 };
 
 /**
- * Fetches all active class sessions with workout details
+ * Fetches all active class sessions with workout details and instructor info
  */
 export const fetchClassSessions = async () => {
   const { data, error } = await supabaseBrowser
@@ -49,11 +49,16 @@ export const fetchClassSessions = async () => {
       end_time,
       current_bookings,
       is_active,
+      instructor_id,
       workout_classes (
         id,
         title,
-        instructor,
         max_capacity
+      ),
+      instructor:instructor_id (
+        id,
+        username,
+        full_name
       )
     `)
     .gte('start_time', new Date().toISOString())
@@ -127,7 +132,7 @@ export const leaveWaitlist = async (userId, sessionId) => {
 };
 
 /**
- * Fetches user's bookings for their profile page
+ * Fetches user's bookings for their profile page with instructor info
  */
 export const fetchUserBookings = async (userId) => {
   // Fetch confirmed bookings
@@ -141,9 +146,12 @@ export const fetchUserBookings = async (userId) => {
         id,
         start_time,
         end_time,
+        instructor:instructor_id (
+          username,
+          full_name
+        ),
         workout_classes (
           title,
-          instructor,
           max_capacity
         )
       )
@@ -164,9 +172,12 @@ export const fetchUserBookings = async (userId) => {
         id,
         start_time,
         end_time,
+        instructor:instructor_id (
+          username,
+          full_name
+        ),
         workout_classes (
-          title,
-          instructor
+          title
         )
       )
     `)

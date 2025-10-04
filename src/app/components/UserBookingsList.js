@@ -43,9 +43,7 @@ export default function UserBookingsList({ userId }) {
     }
     
     fetchBookingsData();
-  }, [userId,fetchBookingsData]);
-
-  
+  }, [userId, fetchBookingsData]);
 
   const handleCancelBooking = async (bookingId, sessionId) => {
     if (!confirm("Are you sure you want to cancel this booking?")) {
@@ -151,6 +149,10 @@ export default function UserBookingsList({ userId }) {
             {bookings.map((booking) => {
               const session = booking.class_sessions;
               const workout = session?.workout_classes;
+              const instructor = session?.instructor;
+              const instructorName = instructor 
+                ? (instructor.full_name || instructor.username)
+                : 'TBA';
               const { date, time } = formatDateTime(session?.start_time);
               const canCancel = canCancelBooking(session?.start_time);
 
@@ -165,7 +167,7 @@ export default function UserBookingsList({ userId }) {
                         {workout?.title}
                       </h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        with {workout?.instructor}
+                        with {instructorName}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
@@ -236,6 +238,10 @@ export default function UserBookingsList({ userId }) {
             {waitlist.map((entry) => {
               const session = entry.class_sessions;
               const workout = session?.workout_classes;
+              const instructor = session?.instructor;
+              const instructorName = instructor 
+                ? (instructor.full_name || instructor.username)
+                : 'TBA';
               const { date, time } = formatDateTime(session?.start_time);
 
               return (
@@ -254,7 +260,7 @@ export default function UserBookingsList({ userId }) {
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
-                        with {workout?.instructor}
+                        with {instructorName}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span>{date}</span>
@@ -279,4 +285,3 @@ export default function UserBookingsList({ userId }) {
     </div>
   );
 }
-              

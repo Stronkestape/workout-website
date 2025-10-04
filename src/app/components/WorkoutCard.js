@@ -38,6 +38,10 @@ export default function WorkoutCard({
   const isFull = spotsLeft <= SPOTS_FULL_THRESHOLD;
   const canCancel = userBooking && canCancelBooking(workout.start);
 
+  // Extract workout title and instructor from the event title
+  const workoutTitle = workout.title?.split(" - ")[0] || "Workout Class";
+  const instructorName = workout.resource?.instructorName || "TBA";
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-30 p-4">
       <div className="bg-white bg-opacity-95 rounded-xl border-1 shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -45,10 +49,10 @@ export default function WorkoutCard({
         <div className="flex justify-between items-start p-6 border-b">
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-1">
-              {workout.title?.split(" - ")[0] || "Workout Class"}
+              {workoutTitle}
             </h3>
             <p className="text-gray-600">
-              with {workout.resource?.instructor || "Instructor"}
+              with {instructorName}
             </p>
           </div>
           <button

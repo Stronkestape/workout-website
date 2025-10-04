@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict viQwzmErdIGJzu5K7V1VSWHyhW9BTOaYKBIpTLBi09KzbinMSKLNl9jFNo6acU2
+\restrict 6Lczjh2n3fkMYY7NNdNU2LGrzPzwPZ6D9KLPegc2KUmfaipdSvpTPcVdv4gG7Ve
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -31,6 +31,37 @@ CREATE SCHEMA public;
 --
 
 COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- Name: get_available_instructors(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.get_available_instructors() RETURNS TABLE(id uuid, username text, full_name text, email text)
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+BEGIN
+  -- Only admins can call this function
+  IF NOT EXISTS (
+    SELECT 1 FROM public.user_profiles 
+    WHERE user_profiles.id = auth.uid() 
+    AND user_tier = 'admin'
+  ) THEN
+    RAISE EXCEPTION 'Only admins can fetch instructors list';
+  END IF;
+
+  RETURN QUERY
+  SELECT 
+    up.id,
+    up.username::TEXT,
+    up.full_name::TEXT,
+    up.email::TEXT
+  FROM public.user_profiles up
+  WHERE up.user_tier IN ('instructor', 'admin')
+  ORDER BY up.username;
+END;
+$$;
 
 
 --
@@ -273,7 +304,8 @@ CREATE TABLE public.class_sessions (
     current_bookings integer DEFAULT 0,
     is_active boolean DEFAULT true,
     created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now()
+    updated_at timestamp with time zone DEFAULT now(),
+    instructor_id uuid
 );
 
 
@@ -309,7 +341,7 @@ CREATE TABLE public.user_profiles (
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
     username character varying(50) NOT NULL,
-    CONSTRAINT user_profiles_user_tier_check CHECK (((user_tier)::text = ANY ((ARRAY['regular'::character varying, 'admin'::character varying])::text[]))),
+    CONSTRAINT user_profiles_user_tier_check CHECK (((user_tier)::text = ANY ((ARRAY['regular'::character varying, 'instructor'::character varying, 'admin'::character varying])::text[]))),
     CONSTRAINT user_profiles_username_check CHECK (((username)::text ~ '^[a-z0-9_.]{3,20}$'::text)),
     CONSTRAINT username_format CHECK (((username)::text ~ '^[a-z0-9_]+$'::text))
 );
@@ -356,7 +388,6 @@ CREATE TABLE public.workout_classes (
     id integer NOT NULL,
     title character varying(255) NOT NULL,
     description text,
-    instructor character varying(255),
     duration integer NOT NULL,
     max_capacity integer DEFAULT 20 NOT NULL,
     created_by uuid,
@@ -494,6 +525,13 @@ CREATE UNIQUE INDEX idx_bookings_user_session_unique ON public.bookings USING bt
 
 
 --
+-- Name: idx_class_sessions_instructor_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_class_sessions_instructor_id ON public.class_sessions USING btree (instructor_id);
+
+
+--
 -- Name: idx_class_sessions_start_time; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -574,6 +612,14 @@ ALTER TABLE ONLY public.class_sessions
 
 
 --
+-- Name: class_sessions class_sessions_instructor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.class_sessions
+    ADD CONSTRAINT class_sessions_instructor_id_fkey FOREIGN KEY (instructor_id) REFERENCES public.user_profiles(id) ON DELETE SET NULL;
+
+
+--
 -- Name: user_profiles user_profiles_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -606,22 +652,39 @@ ALTER TABLE ONLY public.workout_classes
 
 
 --
+-- Name: bookings Admins can book users manually; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can book users manually" ON public.bookings FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
 -- Name: class_sessions Admins can create sessions; Type: POLICY; Schema: public; Owner: -
 --
 
 CREATE POLICY "Admins can create sessions" ON public.class_sessions FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
-   FROM (public.workout_classes wc
-     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text)))));
-
-
---
--- Name: workout_classes Admins can create workouts; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Admins can create workouts" ON public.workout_classes FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
    FROM public.user_profiles
-  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: workout_classes Admins can create workout templates; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can create workout templates" ON public.workout_classes FOR INSERT TO authenticated WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: bookings Admins can delete any booking; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can delete any booking" ON public.bookings FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
 
 
 --
@@ -629,18 +692,17 @@ CREATE POLICY "Admins can create workouts" ON public.workout_classes FOR INSERT 
 --
 
 CREATE POLICY "Admins can delete sessions" ON public.class_sessions FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
-   FROM (public.workout_classes wc
-     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text)))));
-
-
---
--- Name: workout_classes Admins can delete workouts; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Admins can delete workouts" ON public.workout_classes FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
    FROM public.user_profiles
-  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: workout_classes Admins can delete workout templates; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can delete workout templates" ON public.workout_classes FOR DELETE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
 
 
 --
@@ -648,23 +710,30 @@ CREATE POLICY "Admins can delete workouts" ON public.workout_classes FOR DELETE 
 --
 
 CREATE POLICY "Admins can update sessions" ON public.class_sessions FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
-   FROM (public.workout_classes wc
-     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
-   FROM (public.workout_classes wc
-     JOIN public.user_profiles up ON ((up.id = wc.created_by)))
-  WHERE ((wc.id = class_sessions.class_id) AND (wc.created_by = ( SELECT auth.uid() AS uid)) AND ((up.user_tier)::text = 'admin'::text)))));
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
 
 
 --
--- Name: workout_classes Admins can update workouts; Type: POLICY; Schema: public; Owner: -
+-- Name: workout_classes Admins can update workout templates; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Admins can update workouts" ON public.workout_classes FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
+CREATE POLICY "Admins can update workout templates" ON public.workout_classes FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
    FROM public.user_profiles
-  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
    FROM public.user_profiles
-  WHERE ((user_profiles.id = ( SELECT auth.uid() AS uid)) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
+
+
+--
+-- Name: bookings Admins can view all bookings; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can view all bookings" ON public.bookings FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.user_profiles
+  WHERE ((user_profiles.id = auth.uid()) AND ((user_profiles.user_tier)::text = 'admin'::text)))));
 
 
 --
@@ -778,5 +847,5 @@ ALTER TABLE public.workout_classes ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict viQwzmErdIGJzu5K7V1VSWHyhW9BTOaYKBIpTLBi09KzbinMSKLNl9jFNo6acU2
+\unrestrict 6Lczjh2n3fkMYY7NNdNU2LGrzPzwPZ6D9KLPegc2KUmfaipdSvpTPcVdv4gG7Ve
 

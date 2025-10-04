@@ -71,13 +71,19 @@ export default function CalendarPage() {
       const calendarEvents = data.map(session => {
         const spotsLeft = Math.max(0, session.workout_classes.max_capacity - (session.current_bookings || 0));
         
+        // Get instructor display name
+        const instructorName = session.instructor 
+          ? (session.instructor.full_name || session.instructor.username)
+          : 'TBA';
+        
         return {
           id: session.id,
-          title: `${session.workout_classes.title} - ${session.workout_classes.instructor}`,
+          title: `${session.workout_classes.title} - ${instructorName}`,
           start: new Date(session.start_time),
           end: new Date(session.end_time),
           resource: {
-            instructor: session.workout_classes.instructor,
+            instructorId: session.instructor_id,
+            instructorName: instructorName,
             spotsLeft: spotsLeft,
             maxCapacity: session.workout_classes.max_capacity,
             currentBookings: session.current_bookings || 0
@@ -193,4 +199,4 @@ export default function CalendarPage() {
       )}
     </>
   );
-};
+}
