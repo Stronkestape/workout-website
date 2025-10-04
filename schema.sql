@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 7lAQzffg0eEFu1BtLk0gOEJEnNHiZ9IlU2OlxY2LBBjdCAKhdSQFgsnwG2b1KOE
+\restrict viQwzmErdIGJzu5K7V1VSWHyhW9BTOaYKBIpTLBi09KzbinMSKLNl9jFNo6acU2
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -93,7 +93,24 @@ CREATE FUNCTION public.manage_waitlist_positions() RETURNS trigger
     SET search_path TO 'public', 'pg_temp'
     AS $$
 BEGIN
-  -- ... rest of your function
+  IF TG_OP = 'INSERT' THEN
+    NEW.position := COALESCE(
+      (SELECT MAX(position) + 1
+       FROM public.waitlist
+       WHERE session_id = NEW.session_id),
+      1
+    );
+    RETURN NEW;
+
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE public.waitlist
+    SET position = position - 1
+    WHERE session_id = OLD.session_id
+      AND position > OLD.position;
+    RETURN OLD;
+  END IF;
+
+  RETURN NULL;
 END;
 $$;
 
@@ -130,10 +147,41 @@ CREATE FUNCTION public.promote_from_waitlist() RETURNS trigger
     SET search_path TO 'public', 'pg_temp'
     AS $$
 DECLARE
-  v_next_user_id UUID;
-  v_session_id INT4;
+  v_next_user_id uuid;
+  v_session_id integer;
+  v_max_capacity integer;
+  v_current_bookings integer;
 BEGIN
-  -- ... rest of your function
+  IF OLD.booking_status IS NULL OR OLD.booking_status != 'confirmed' THEN
+    RETURN OLD;
+  END IF;
+
+  v_session_id := OLD.session_id;
+
+  SELECT wc.max_capacity, cs.current_bookings
+  INTO v_max_capacity, v_current_bookings
+  FROM public.class_sessions cs
+  JOIN public.workout_classes wc ON cs.class_id = wc.id
+  WHERE cs.id = v_session_id;
+
+  IF v_current_bookings < v_max_capacity THEN
+    SELECT user_id INTO v_next_user_id
+    FROM public.waitlist
+    WHERE session_id = v_session_id
+      AND position = 1
+    LIMIT 1;
+
+    IF v_next_user_id IS NOT NULL THEN
+      INSERT INTO public.bookings (user_id, session_id, booking_status)
+      VALUES (v_next_user_id, v_session_id, 'confirmed');
+
+      DELETE FROM public.waitlist
+      WHERE user_id = v_next_user_id
+        AND session_id = v_session_id;
+    END IF;
+  END IF;
+
+  RETURN OLD;
 END;
 $$;
 
@@ -147,9 +195,29 @@ CREATE FUNCTION public.update_current_bookings() RETURNS trigger
     SET search_path TO 'public', 'pg_temp'
     AS $$
 DECLARE
-  session_id_to_update INTEGER;
+  v_session_id integer;
+  v_new_count integer;
 BEGIN
-  -- ... rest of your function
+  IF TG_OP = 'DELETE' THEN
+    v_session_id := OLD.session_id;
+  ELSE
+    v_session_id := NEW.session_id;
+  END IF;
+
+  SELECT COUNT(*)::integer INTO v_new_count
+  FROM public.bookings
+  WHERE session_id = v_session_id
+    AND booking_status = 'confirmed';
+
+  UPDATE public.class_sessions
+  SET current_bookings = v_new_count
+  WHERE id = v_session_id;
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  ELSE
+    RETURN NEW;
+  END IF;
 END;
 $$;
 
@@ -464,7 +532,7 @@ CREATE TRIGGER prevent_user_tier_change_trigger BEFORE UPDATE ON public.user_pro
 -- Name: waitlist trigger_manage_waitlist; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trigger_manage_waitlist AFTER INSERT OR DELETE ON public.waitlist FOR EACH ROW EXECUTE FUNCTION public.manage_waitlist_positions();
+CREATE TRIGGER trigger_manage_waitlist BEFORE INSERT OR DELETE ON public.waitlist FOR EACH ROW EXECUTE FUNCTION public.manage_waitlist_positions();
 
 
 --
@@ -710,5 +778,5 @@ ALTER TABLE public.workout_classes ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7lAQzffg0eEFu1BtLk0gOEJEnNHiZ9IlU2OlxY2LBBjdCAKhdSQFgsnwG2b1KOE
+\unrestrict viQwzmErdIGJzu5K7V1VSWHyhW9BTOaYKBIpTLBi09KzbinMSKLNl9jFNo6acU2
 
