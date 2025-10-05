@@ -8,13 +8,14 @@ import { useRouter } from "next/navigation";
 export default function Navbar({ user }) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
   const [username, setUsername] = useState(null);
+  const [userTier, setUserTier] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
     // Initial user from server prop
     if (user) {
       setIsLoggedIn(true);
-      fetchUsername(user.id);
+      fetchUserProfile(user.id);
     }
 
     // Listen for changes
@@ -23,9 +24,10 @@ export default function Navbar({ user }) {
         setIsLoggedIn(!!session);
 
         if (session?.user) {
-          fetchUsername(session.user.id);
+          fetchUserProfile(session.user.id);
         } else {
           setUsername(null);
+          setUserTier(null);
         }
       }
     );
@@ -33,16 +35,19 @@ export default function Navbar({ user }) {
     return () => {
       listener.subscription.unsubscribe();
     };
-  }, [user]); // ← Runs when server prop changes
+  }, [user]);
 
-  const fetchUsername = async (userId) => {
+  const fetchUserProfile = async (userId) => {
     const { data } = await supabaseBrowser
       .from("user_profiles")
-      .select("username")
+      .select("username, user_tier")
       .eq("id", userId)
       .single();
 
-    if (data) setUsername(data.username);
+    if (data) {
+      setUsername(data.username);
+      setUserTier(data.user_tier);
+    }
   };
 
   const handleLogout = async () => {
@@ -51,6 +56,8 @@ export default function Navbar({ user }) {
       console.error("Logout error:", error.message);
     } else {
       setIsLoggedIn(false);
+      setUsername(null);
+      setUserTier(null);
     }
     router.push("/");
   };
@@ -59,7 +66,7 @@ export default function Navbar({ user }) {
     <nav className="bg-stone-800 text-white shadow-md relative z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <h1 className="text-xl font-bold">Workout Booking</h1>
+          <h1 className="text-xl font-bold">Mozgás Központ</h1>
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-2">
@@ -75,6 +82,17 @@ export default function Navbar({ user }) {
             >
               Calendar
             </Link>
+
+            {/* Admin Dashboard Link - Only show for admins */}
+            {isLoggedIn && userTier === 'admin' && (
+              <Link
+                href="/admin"
+                className="px-4 py-2 bg-purple-700 rounded hover:bg-purple-600 transition-colors font-medium flex items-center gap-1"
+              >
+                <span>⚡</span>
+                <span>Admin</span>
+              </Link>
+            )}
 
             {/* Conditional Auth Section */}
             {isLoggedIn ? (

@@ -51,7 +51,7 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  },[router]);
+  }, [router]);
 
   const handleProfileUpdate = () => {
     fetchUserProfile();
@@ -60,8 +60,6 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
-
-  
 
   if (loading) {
     return (
@@ -91,7 +89,8 @@ export default function ProfilePage() {
     );
   }
 
-  const isPremium = profile.user_tier === "premium";
+  const isAdmin = profile.user_tier === "admin";
+  const isInstructor = profile.user_tier === "instructor";
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -104,9 +103,14 @@ export default function ProfilePage() {
               Manage your account settings and view your bookings
             </p>
           </div>
-          {isPremium && (
+          {isAdmin && (
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
-              ⭐ Premium Member
+              ⚡ Admin
+            </div>
+          )}
+          {isInstructor && !isAdmin && (
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
+              🎯 Instructor
             </div>
           )}
         </div>
@@ -135,21 +139,33 @@ export default function ProfilePage() {
             <PasswordChangeForm />
           </div>
 
-          {/* Premium Features Section */}
-          {isPremium && (
+          {/* Admin Features Section */}
+          {isAdmin && (
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow-md p-6 border border-purple-200">
               <h2 className="text-xl font-semibold mb-4 text-gray-900">
-                Premium Features
+                Admin Features
               </h2>
               <p className="text-gray-700 mb-4">
-                As a premium member, you can create and manage workout classes.
+                As an admin, you can create and manage workout classes, sessions, and manually book users.
               </p>
               <Link
-                href="/calendar"
+                href="/admin"
                 className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
               >
-                Manage Workouts →
+                Go to Admin Dashboard →
               </Link>
+            </div>
+          )}
+
+          {/* Instructor Features Section */}
+          {isInstructor && !isAdmin && (
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md p-6 border border-blue-200">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                Instructor Profile
+              </h2>
+              <p className="text-gray-700 mb-4">
+                You are registered as an instructor. Admins can assign you to lead workout sessions.
+              </p>
             </div>
           )}
         </div>
@@ -159,7 +175,13 @@ export default function ProfilePage() {
           {/* User Summary Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
+              <div className={`w-20 h-20 ${
+                isAdmin 
+                  ? 'bg-gradient-to-br from-purple-500 to-pink-500' 
+                  : isInstructor
+                  ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                  : 'bg-gradient-to-br from-blue-500 to-purple-500'
+              } rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold`}>
                 {profile.username?.charAt(0).toUpperCase() || "U"}
               </div>
               <h3 className="text-xl font-semibold text-gray-900">
@@ -181,8 +203,14 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-600">Account type</span>
-                  <span className={`font-medium ${isPremium ? "text-purple-600" : "text-gray-900"}`}>
-                    {isPremium ? "Premium" : "Regular"}
+                  <span className={`font-medium ${
+                    isAdmin 
+                      ? 'text-purple-600' 
+                      : isInstructor
+                      ? 'text-blue-600'
+                      : 'text-gray-900'
+                  }`}>
+                    {isAdmin ? 'Admin' : isInstructor ? 'Instructor' : 'Regular'}
                   </span>
                 </div>
               </div>
