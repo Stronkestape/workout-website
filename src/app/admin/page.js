@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { supabaseBrowser } from '@/lib/browser';
 import WorkoutTemplateManager from './components/WorkoutTemplateManager';
+import SessionManager from './components/SessionManager';
+import ManualBookingManager from './components/ManualBookingManager';
+import SessionDetailView from './components/SessionDetailView';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('templates');
@@ -95,29 +98,11 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'templates' && <WorkoutTemplateManager />}
         
-        {activeTab === 'sessions' && (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Session Manager</h3>
-            <p className="text-gray-600">Coming soon...</p>
-          </div>
-        )}
+        {activeTab === 'sessions' && <SessionManager/>}
         
-        {activeTab === 'manual-booking' && (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <div className="text-6xl mb-4">👥</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Manual Booking</h3>
-            <p className="text-gray-600">Coming soon...</p>
-          </div>
-        )}
+        {activeTab === 'manual-booking' && <ManualBookingManager />}
         
-        {activeTab === 'session-details' && (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <div className="text-6xl mb-4">📊</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Session Details</h3>
-            <p className="text-gray-600">Coming soon...</p>
-          </div>
-        )}
+        {activeTab === 'session-details' && <SessionDetailView />}
       </div>
     </div>
   );
