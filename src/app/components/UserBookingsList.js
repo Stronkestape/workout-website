@@ -3,7 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { formatDateTime, canCancelBooking } from "@/utils/calendarHelpers";
-import { fetchUserBookings, cancelBooking, leaveWaitlist } from "@/utils/supabaseQueries";
+import {
+  fetchUserBookings,
+  cancelBooking,
+  leaveWaitlist,
+} from "@/utils/supabaseQueries";
 
 export default function UserBookingsList({ userId }) {
   const [bookings, setBookings] = useState([]);
@@ -15,7 +19,11 @@ export default function UserBookingsList({ userId }) {
     try {
       setLoading(true);
 
-      const { bookings: bookingsData, waitlist: waitlistData, errors } = await fetchUserBookings(userId);
+      const {
+        bookings: bookingsData,
+        waitlist: waitlistData,
+        errors,
+      } = await fetchUserBookings(userId);
 
       if (errors.bookingsError) {
         console.error("Error fetching bookings:", errors.bookingsError);
@@ -36,12 +44,12 @@ export default function UserBookingsList({ userId }) {
       setLoading(false);
     }
   }, [userId]);
-  
+
   useEffect(() => {
     if (!userId) {
       return;
     }
-    
+
     fetchBookingsData();
   }, [userId, fetchBookingsData]);
 
@@ -111,20 +119,8 @@ export default function UserBookingsList({ userId }) {
   if (!hasBookings && !hasWaitlist) {
     return (
       <div className="text-center py-12">
-        <div className="text-gray-400 mb-4">
-          <svg
-            className="w-16 h-16 mx-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+        <div className="text-gray-400 mb-4 text-6xl">
+          📅
         </div>
         <p className="text-gray-600 mb-4">No upcoming bookings</p>
         <Link
@@ -150,9 +146,9 @@ export default function UserBookingsList({ userId }) {
               const session = booking.class_sessions;
               const workout = session?.workout_classes;
               const instructor = session?.instructor;
-              const instructorName = instructor 
-                ? (instructor.full_name || instructor.username)
-                : 'TBA';
+              const instructorName = instructor
+                ? instructor.full_name || instructor.username
+                : "TBA";
               const { date, time } = formatDateTime(session?.start_time);
               const canCancel = canCancelBooking(session?.start_time);
 
@@ -171,36 +167,10 @@ export default function UserBookingsList({ userId }) {
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          {date}
+                          📅 {date}
                         </span>
                         <span className="flex items-center gap-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {time}
+                          🕐 {time}
                         </span>
                       </div>
                     </div>
@@ -239,9 +209,9 @@ export default function UserBookingsList({ userId }) {
               const session = entry.class_sessions;
               const workout = session?.workout_classes;
               const instructor = session?.instructor;
-              const instructorName = instructor 
-                ? (instructor.full_name || instructor.username)
-                : 'TBA';
+              const instructorName = instructor
+                ? instructor.full_name || instructor.username
+                : "TBA";
               const { date, time } = formatDateTime(session?.start_time);
 
               return (
@@ -269,7 +239,9 @@ export default function UserBookingsList({ userId }) {
                     </div>
                     <div className="ml-4">
                       <button
-                        onClick={() => handleLeaveWaitlist(entry.id, session.id)}
+                        onClick={() =>
+                          handleLeaveWaitlist(entry.id, session.id)
+                        }
                         className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                       >
                         Leave
