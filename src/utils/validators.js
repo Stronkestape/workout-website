@@ -5,7 +5,7 @@ export const isValidEmail = (email) => {
 
 export const validateUsername = (username) => {
   const cleanUsername = username.trim().toLowerCase();
-  const usernameRegex = /^[a-z0-9_.]{3,20}$/;
+  const usernameRegex = /^[a-z0-9_. ]{3,100}$/;
 
   if (!cleanUsername) {
     return {
@@ -14,17 +14,17 @@ export const validateUsername = (username) => {
     };
   }
 
-  if (cleanUsername.length > 20) {
+  if (cleanUsername.length > 100) {
     return {
       isValid: false,
-      error: "Username must be at most 20 characters"
+      error: "Username must be at most 100 characters"
     };
   }
 
   if (!usernameRegex.test(cleanUsername)) {
     return {
       isValid: false,
-      error: "Username can only contain lowercase letters, numbers, underscores, and dots"
+      error: "Username can only contain lowercase letters, numbers, underscores, dots, and spaces"
     };
   }
 

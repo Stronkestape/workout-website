@@ -99,8 +99,7 @@ export const fetchAllSessions = async () => {
         full_name
       )
     `)
-    .gte('start_time', new Date().toISOString())
-    .order('start_time', { ascending: true });
+    .order('start_time', { ascending: false });
   
   return { data, error };
 };

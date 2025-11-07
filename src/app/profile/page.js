@@ -93,7 +93,7 @@ export default function ProfilePage() {
   const isInstructor = profile.user_tier === "instructor";
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="container mx-auto max-w-6xl p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">

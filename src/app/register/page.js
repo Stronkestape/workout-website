@@ -94,14 +94,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+                Email-cím
               </label>
               <input
                 id="email"
@@ -109,7 +109,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Enter your email"
+                placeholder="Ird be az email-cimed"
                 disabled={loading}
                 required
                 autoComplete="email"
@@ -117,7 +117,7 @@ export default function RegisterPage() {
             </div>
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
+                Teljes név
               </label>
               <input
                 id="username"
@@ -125,18 +125,18 @@ export default function RegisterPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Choose a username"
+                placeholder="Ird be a teljes neved"
                 disabled={loading}
                 required
                 autoComplete="username"
               />
               <p className="text-xs text-gray-500">
-                3–20 characters: lowercase letters, numbers, underscores, and dots. No spaces.
+                3-20 karakter: speciális karakterek nélkül.
               </p>
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                Jelszó
               </label>
               <input
                 id="password"
@@ -144,7 +144,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Enter your password"
+                placeholder="Ird be a jelszavad"
                 disabled={loading}
                 required
                 autoComplete="new-password"

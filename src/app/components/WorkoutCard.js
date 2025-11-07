@@ -36,7 +36,10 @@ export default function WorkoutCard({
     spotsLeft <= SPOTS_ALMOST_FULL_THRESHOLD &&
     spotsLeft > SPOTS_FULL_THRESHOLD;
   const isFull = spotsLeft <= SPOTS_FULL_THRESHOLD;
-  const canCancel = userBooking && canCancelBooking(workout.start);
+  
+  // Use isBooked from event resource if available (from calendar), otherwise use userBooking from hook
+  const isBooked = workout.resource?.isBooked !== undefined ? workout.resource.isBooked : !!userBooking;
+  const canCancel = isBooked && canCancelBooking(workout.start);
 
   // Extract workout title and instructor from the event title
   const workoutTitle = workout.title?.split(" - ")[0] || "Workout Class";
@@ -99,9 +102,9 @@ export default function WorkoutCard({
           </div>
 
           {/* User Status */}
-          {user && (userBooking || isOnWaitlist) && (
+          {user && (isBooked || isOnWaitlist) && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              {userBooking && (
+              {isBooked && (
                 <div className="flex items-center text-blue-800">
                   <svg
                     className="w-5 h-5 mr-2"
@@ -162,7 +165,7 @@ export default function WorkoutCard({
                   Sign In
                 </Link>
               </div>
-            ) : userBooking ? (
+            ) : isBooked ? (
               /* User has booking */
               <div>
                 {canCancel ? (

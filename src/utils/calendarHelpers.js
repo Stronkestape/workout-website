@@ -26,7 +26,7 @@ export const formatDate = (date) => {
 export const formatDateTime = (dateString) => {
     const date = new Date(dateString);
     return {
-        date : date.toLocaleTimeString("hu-HU", {
+        date : date.toLocaleDateString("hu-HU", {
             weekday: "short",
             month: "short",
             day: "numeric"

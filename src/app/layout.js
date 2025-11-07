@@ -32,7 +32,7 @@ export default async function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} font-sans bg-gray-50`}
       >
         <Navbar user={user}/>
-        <main className="container mx-auto py-6">{children}</main>
+        <main>{children}</main>
       </body>
     </html>
   );

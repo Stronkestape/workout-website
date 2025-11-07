@@ -116,13 +116,18 @@ export default function UserBookingsList({ userId }) {
   const hasBookings = bookings.length > 0;
   const hasWaitlist = waitlist.length > 0;
 
+  // Separate upcoming and past bookings
+  const now = new Date();
+  const upcomingBookings = bookings.filter(booking => new Date(booking.class_sessions?.start_time) >= now);
+  const pastBookings = bookings.filter(booking => new Date(booking.class_sessions?.start_time) < now);
+
   if (!hasBookings && !hasWaitlist) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-4 text-6xl">
           📅
         </div>
-        <p className="text-gray-600 mb-4">No upcoming bookings</p>
+        <p className="text-gray-600 mb-4">No bookings yet</p>
         <Link
           href="/calendar"
           className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -135,14 +140,14 @@ export default function UserBookingsList({ userId }) {
 
   return (
     <div className="space-y-6">
-      {/* Confirmed Bookings */}
-      {hasBookings && (
+      {/* Upcoming Bookings */}
+      {upcomingBookings.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Upcoming Workouts ({bookings.length})
+            Upcoming Workouts ({upcomingBookings.length})
           </h3>
           <div className="space-y-3">
-            {bookings.map((booking) => {
+            {upcomingBookings.map((booking) => {
               const session = booking.class_sessions;
               const workout = session?.workout_classes;
               const instructor = session?.instructor;
@@ -189,6 +194,55 @@ export default function UserBookingsList({ userId }) {
                           Cannot cancel
                         </span>
                       )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Past Bookings */}
+      {pastBookings.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            Past Workouts ({pastBookings.length})
+          </h3>
+          <div className="space-y-3">
+            {pastBookings.map((booking) => {
+              const session = booking.class_sessions;
+              const workout = session?.workout_classes;
+              const instructor = session?.instructor;
+              const instructorName = instructor
+                ? instructor.full_name || instructor.username
+                : "TBA";
+              const { date, time } = formatDateTime(session?.start_time);
+
+              return (
+                <div
+                  key={booking.id}
+                  className="bg-gray-100 rounded-lg p-4 border border-gray-300 opacity-75"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-700">
+                        {workout?.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 mt-1">
+                        with {instructorName}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          📅 {date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          🕐 {time}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <span className="text-xs text-gray-500">Completed</span>
                     </div>
                   </div>
                 </div>

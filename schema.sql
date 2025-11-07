@@ -98,8 +98,8 @@ declare
   v_email text := new.email;
 begin
   -- Validate username is present and matches the DB-side rules
-  if v_username !~ '^[a-z0-9_.]{3,20}$' then
-    raise exception 'Invalid or missing username. Must be 3–20 chars, lowercase letters, numbers, underscores, or dots.';
+  if v_username !~ '^[a-z0-9_. ]{3,100}$' then
+    raise exception 'Invalid or missing username. Must be 3–100 chars, lowercase letters, numbers, underscores, dots, or spaces.';
   end if;
 
   -- Insert the profile. Unique constraint on username will enforce uniqueness.
@@ -340,10 +340,9 @@ CREATE TABLE public.user_profiles (
     user_tier character varying(20) DEFAULT 'regular'::character varying,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
-    username character varying(50) NOT NULL,
+    username character varying(100) NOT NULL,
     CONSTRAINT user_profiles_user_tier_check CHECK (((user_tier)::text = ANY ((ARRAY['regular'::character varying, 'instructor'::character varying, 'admin'::character varying])::text[]))),
-    CONSTRAINT user_profiles_username_check CHECK (((username)::text ~ '^[a-z0-9_.]{3,20}$'::text)),
-    CONSTRAINT username_format CHECK (((username)::text ~ '^[a-z0-9_]+$'::text))
+    CONSTRAINT user_profiles_username_check CHECK (((username)::text ~ '^[a-z0-9_. ]{3,100}$'::text))
 );
 
 
@@ -848,4 +847,3 @@ ALTER TABLE public.workout_classes ENABLE ROW LEVEL SECURITY;
 --
 
 \unrestrict 6Lczjh2n3fkMYY7NNdNU2LGrzPzwPZ6D9KLPegc2KUmfaipdSvpTPcVdv4gG7Ve
-

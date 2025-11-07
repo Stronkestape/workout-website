@@ -78,7 +78,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">
         Login to Workout Booking
       </h2>

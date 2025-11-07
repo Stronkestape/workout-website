@@ -50,7 +50,7 @@ export default function CalendarPage() {
   // Fetch events from Supabase
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [user]);
 
   const getCurrentUser = async () => {
     const { data: { user } } = await supabaseBrowser.auth.getUser();
@@ -65,6 +65,20 @@ export default function CalendarPage() {
 
       if (error) {
         throw error;
+      }
+
+      // Get user's bookings if logged in
+      let userBookedSessions = new Set();
+      if (user) {
+        const { data: bookingsData } = await supabaseBrowser
+          .from('bookings')
+          .select('session_id')
+          .eq('user_id', user.id)
+          .eq('booking_status', 'confirmed');
+        
+        if (bookingsData) {
+          userBookedSessions = new Set(bookingsData.map(b => b.session_id));
+        }
       }
 
       // Transform data for react-big-calendar
@@ -86,7 +100,8 @@ export default function CalendarPage() {
             instructorName: instructorName,
             spotsLeft: spotsLeft,
             maxCapacity: session.workout_classes.max_capacity,
-            currentBookings: session.current_bookings || 0
+            currentBookings: session.current_bookings || 0,
+            isBooked: userBookedSessions.has(session.id)
           }
         };
       });
@@ -157,7 +172,7 @@ export default function CalendarPage() {
 
   return (
     <>
-      <div className="p-6">
+      <div className="container mx-auto p-6">
         <h2 className="text-2xl font-bold mb-4">Workout Calendar</h2>
         
         <div className={styles.calendarWrapper} key={view}>

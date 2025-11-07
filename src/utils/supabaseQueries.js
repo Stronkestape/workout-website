@@ -135,7 +135,7 @@ export const leaveWaitlist = async (userId, sessionId) => {
  * Fetches user's bookings for their profile page with instructor info
  */
 export const fetchUserBookings = async (userId) => {
-  // Fetch confirmed bookings
+  // Fetch confirmed bookings (including past ones)
   const { data: bookingsData, error: bookingsError } = await supabaseBrowser
     .from("bookings")
     .select(`
@@ -158,10 +158,9 @@ export const fetchUserBookings = async (userId) => {
     `)
     .eq("user_id", userId)
     .eq("booking_status", "confirmed")
-    .gte("class_sessions.start_time", new Date().toISOString())
-    .order("class_sessions(start_time)", { ascending: true });
+    .order("class_sessions(start_time)", { ascending: false });
 
-  // Fetch waitlist entries
+  // Fetch waitlist entries (only upcoming)
   const { data: waitlistData, error: waitlistError } = await supabaseBrowser
     .from("waitlist")
     .select(`
