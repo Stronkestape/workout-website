@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FormInput } from '../../components/FormInput';
+import { FormMessage } from '../../components/FormMessage';
+import { validateTemplate } from '../../../utils/templateValidation';
 
 export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -9,6 +12,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
     duration: 60,
     max_capacity: 20,
   });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,40 +31,23 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: name === 'duration' || name === 'max_capacity' ? parseInt(value) : value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
-    // Validation
-    if (!formData.title.trim()) {
-      setError('Title is required');
-      setLoading(false);
-      return;
-    }
+    const validation = validateTemplate(formData);
+    setFieldErrors(validation.errors);
 
-    if (formData.duration < 15 || formData.duration > 180) {
-      setError('Duration must be between 15 and 180 minutes');
-      setLoading(false);
-      return;
-    }
+    if (!validation.isValid) return;
 
-    if (formData.max_capacity < 1 || formData.max_capacity > 100) {
-      setError('Capacity must be between 1 and 100');
-      setLoading(false);
-      return;
-    }
+    setLoading(true);
 
     try {
-      await onSubmit({
-        ...formData,
-        duration: parseInt(formData.duration),
-        max_capacity: parseInt(formData.max_capacity),
-      });
+      await onSubmit(formData);
     } catch (err) {
       setError(err.message || 'Failed to save template');
     } finally {
@@ -71,7 +58,6 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">
             {template ? 'Edit Template' : 'Create New Template'}
@@ -84,105 +70,69 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Title */}
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Workout Title *
-            </label>
-            <input
-              id="title"
-              name="title"
-              type="text"
-              value={formData.title}
+          <FormInput
+            id="title"
+            name="title"
+            label="Workout Title"
+            value={formData.title}
+            onChange={handleChange}
+            error={fieldErrors.title}
+            disabled={loading}
+            placeholder="e.g., Morning Yoga"
+            required
+          />
+
+          <FormInput
+            id="description"
+            name="description"
+            label="Description"
+            type="textarea"
+            value={formData.description}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Describe the workout type and what participants can expect..."
+            rows={4}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput
+              id="duration"
+              name="duration"
+              label="Duration (minutes)"
+              type="number"
+              value={formData.duration}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Morning Yoga"
+              error={fieldErrors.duration}
+              disabled={loading}
+              min="15"
+              max="180"
+              required
+            />
+
+            <FormInput
+              id="max_capacity"
+              name="max_capacity"
+              label="Max Capacity"
+              type="number"
+              value={formData.max_capacity}
+              onChange={handleChange}
+              error={fieldErrors.max_capacity}
+              disabled={loading}
+              min="1"
+              max="100"
               required
             />
           </div>
 
-          {/* Description */}
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe the workout type and what participants can expect..."
-            />
-          </div>
-
-          {/* Duration and Capacity */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="duration"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Duration (minutes) *
-              </label>
-              <input
-                id="duration"
-                name="duration"
-                type="number"
-                value={formData.duration}
-                onChange={handleChange}
-                min="15"
-                max="180"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="max_capacity"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Max Capacity *
-              </label>
-              <input
-                id="max_capacity"
-                name="max_capacity"
-                type="number"
-                value={formData.max_capacity}
-                onChange={handleChange}
-                min="1"
-                max="100"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Info Note */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> This is a template. You will create actual scheduled sessions from this template later, where you can assign instructors and set specific dates/times.
+              This is a template. Create scheduled sessions from this template later to assign instructors and set specific dates/times.
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-800 text-sm">{error}</p>
-            </div>
-          )}
+          {error && <FormMessage type="error" message={error} />}
 
-          {/* Actions */}
           <div className="flex gap-3 pt-4 border-t">
             <button
               type="button"

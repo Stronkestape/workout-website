@@ -8,9 +8,9 @@ import hu from "date-fns/locale/hu";
 import { useState, useEffect } from "react";
 import styles from './Calendar.module.css';
 import { supabaseBrowser } from '@/lib/browser';
-import WorkoutCard from '@/app/components/WorkoutCard';
-import CalendarToolbar from "@/app/components/CalendarToolbar";
-import CalendarEvent from "@/app/components/CalendarEvent";
+import WorkoutCard from '@/components/WorkoutCard';
+import CalendarToolbar from "@/components/CalendarToolbar";
+import CalendarEvent from "@/components/CalendarEvent";
 import { getDateLimits } from '@/utils/calendarHelpers';
 import { fetchClassSessions } from '@/utils/supabaseQueries';
 import { 
@@ -19,7 +19,7 @@ import {
   CALENDAR_SCROLL_TO_HOUR,
   CALENDAR_STEP_MINUTES,
   CALENDAR_TIMESLOTS
-} from '@/utils/constans';
+} from '@/utils/constants';
 
 const localizer = dateFnsLocalizer({
   format,

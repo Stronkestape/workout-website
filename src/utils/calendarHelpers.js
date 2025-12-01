@@ -5,7 +5,7 @@ import {
   CALENDAR_MONTHS_FORWARD,
   CALENDAR_WEEKS_BACK,
   CALENDAR_WEEKS_FORWARD
-} from "./constans"
+} from "./constants"
 
 export const formatTime = (date) => {
     return new Date(date).toLocaleTimeString("hu-HU", {

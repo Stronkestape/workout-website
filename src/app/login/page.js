@@ -3,129 +3,109 @@
 import { useState } from "react";
 import { supabaseBrowser } from "../../lib/browser";
 import { useRouter } from "next/navigation";
+import { FormField } from "../components/FormField";
+import { FormMessage } from "../components/FormMessage";
+import { useFormState } from "../../hooks/useFormState";
+import { MESSAGES, VALIDATION } from "../../utils/constants";
 
 export default function LoginPage() {
-  const [emailOrUsername, setEmailOrUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const form = useFormState({
+    emailOrUsername: "",
+    password: "",
+  });
+
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
+    form.clearMessages();
+
+    const input = form.data.emailOrUsername.trim();
+    if (!input) {
+      form.setError("Please enter your email or username");
+      return;
+    }
+
+    if (form.data.password.length < VALIDATION.PASSWORD_MIN_LENGTH) {
+      form.setError(MESSAGES.PASSWORD_TOO_SHORT);
+      return;
+    }
+
+    form.setLoading(true);
 
     try {
-      const input = emailOrUsername.trim();
-
-      if (!input) {
-        setError("Please enter your email or username");
-        return;
-      }
-
-      // Use RPC function to resolve username or email
       const { data, error: lookupError } = await supabaseBrowser.rpc(
         "get_user_by_username_or_email",
         { identifier: input }
       );
 
-      if (lookupError) {
-        console.error("Error looking up user:", lookupError);
-        setError("Something went wrong. Please try again.");
-        return;
-      }
+      if (lookupError) throw lookupError;
 
-      if (!data || data.length === 0) {
-        setError("Email or username not found");
+      if (!data?.length) {
+        form.setError(MESSAGES.USER_NOT_FOUND);
         return;
       }
 
       const email = data[0].email;
 
-      // Validate password
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters");
-        return;
-      }
+      const { error: authError } = await supabaseBrowser.auth.signInWithPassword({
+        email,
+        password: form.data.password,
+      });
 
-      // Sign in with email and password
-      const { error: authError } =
-        await supabaseBrowser.auth.signInWithPassword({
-          email,
-          password,
-        });
+      if (authError) throw authError;
 
-      if (authError) {
-        if (authError.message.includes("Invalid login credentials")) {
-          setError("Invalid email/username or password");
-        } else {
-          setError(authError.message);
-        }
-        return;
-      }
-
-      setSuccess("Login successful! Redirecting...");
+      form.setSuccess("Login successful! Redirecting...");
       setTimeout(() => router.push("/calendar"), 1000);
     } catch (error) {
-      console.error("Unexpected error:", error);
-      setError(error.message || "An unexpected error occurred");
+      const errorMessage = error.message?.includes("Invalid login credentials")
+        ? MESSAGES.INVALID_LOGIN
+        : error.message || MESSAGES.SOMETHING_WENT_WRONG;
+      form.setError(errorMessage);
     } finally {
-      setLoading(false);
+      form.setLoading(false);
     }
   };
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Login to Workout Booking
-      </h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Login to Workout Booking</h2>
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label htmlFor="emailOrUsername" className="block text-sm font-medium text-gray-700">
-                Email or Username
-              </label>
-              <input
-                id="emailOrUsername"
-                type="text"
-                value={emailOrUsername}
-                onChange={(e) => setEmailOrUsername(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Enter email or username"
-                disabled={loading}
-                required
-                autoComplete="username"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Enter your password"
-                disabled={loading}
-                required
-                autoComplete="current-password"
-              />
-            </div>
+            <FormField
+              id="emailOrUsername"
+              label="Email or Username"
+              value={form.data.emailOrUsername}
+              onChange={(emailOrUsername) =>
+                form.setData({ ...form.data, emailOrUsername })
+              }
+              disabled={form.loading}
+              required
+              autoComplete="username"
+            />
+
+            <FormField
+              id="password"
+              label="Password"
+              type="password"
+              value={form.data.password}
+              onChange={(password) => form.setData({ ...form.data, password })}
+              disabled={form.loading}
+              required
+              autoComplete="current-password"
+            />
+
+            {form.error && <FormMessage type="error" message={form.error} />}
+            {form.success && <FormMessage type="success" message={form.success} />}
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md"
+              disabled={form.loading}
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-gray-400 transition-colors font-medium"
             >
-              {loading ? "Please wait..." : "Login"}
+              {form.loading ? "Logging in..." : "Login"}
             </button>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-            {success && <p className="text-green-600 text-sm">{success}</p>}
           </form>
         </div>
       </div>

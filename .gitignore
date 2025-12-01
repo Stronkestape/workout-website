@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+.qodo/
 
 # next.js
 /.next/
@@ -62,11 +63,11 @@ desktop.ini
 .turbo/
 
 # Supabase CLI
-supabase/.temp
-supabase/.branches
-supabase/.cache
+supabase/.temp/
+supabase/.branches/
+supabase/.cache/
 supabase/.env
-supabase/.supabase
+supabase/.supabase/
 
 # database
-
+schema.sql

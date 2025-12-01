@@ -1,4 +1,4 @@
-import { SPOTS_ALMOST_FULL_THRESHOLD, SPOTS_FULL_THRESHOLD } from '../../utils/constans';
+import { SPOTS_ALMOST_FULL_THRESHOLD, SPOTS_FULL_THRESHOLD } from '../utils/constants';
 
 export default function CalendarEvent({ event }) {
   const spotsLeft = event.resource.spotsLeft;

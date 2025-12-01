@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { supabaseBrowser } from "../../lib/browser";
+import { supabaseBrowser } from "../lib/browser";
 import { useRouter } from "next/navigation";
 
 export default function Navbar({ user }) {

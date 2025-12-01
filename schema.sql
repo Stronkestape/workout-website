@@ -80,7 +80,8 @@ BEGIN
     up.username::TEXT
   FROM public.user_profiles up
   WHERE up.username = LOWER(identifier) 
-     OR up.email = LOWER(identifier);
+     OR LOWER(up.email) = LOWER(identifier)
+     OR (up.full_name IS NOT NULL AND LOWER(up.full_name) = LOWER(identifier));
 END;
 $$;
 

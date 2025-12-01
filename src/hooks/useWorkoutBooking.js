@@ -6,7 +6,7 @@ import {
   cancelBooking, 
   leaveWaitlist 
 } from '@/utils/supabaseQueries';
-import { SPOTS_FULL_THRESHOLD } from '@/utils/constans';
+import { SPOTS_FULL_THRESHOLD } from '@/utils/constants';
 
 export function useWorkoutBooking(workout, user, onBookingChange) {
   const [loading, setLoading] = useState(false);

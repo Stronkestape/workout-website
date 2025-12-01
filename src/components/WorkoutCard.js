@@ -9,7 +9,7 @@ import {
 import {
   SPOTS_ALMOST_FULL_THRESHOLD,
   SPOTS_FULL_THRESHOLD,
-} from "@/utils/constans";
+} from "@/utils/constants";
 import { useWorkoutBooking } from "@/hooks/useWorkoutBooking";
 
 export default function WorkoutCard({
