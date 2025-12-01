@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { createSession, updateSession, fetchInstructors } from '@/utils/adminQueries';
-import { FormInput } from '../../components/FormInput';
-import { FormMessage } from '../../components/FormMessage';
+import { FormInput } from '@/components/FormInput';
+import { FormMessage } from '@/components/FormMessage';
 import { validateSession, formatDateTimeLocal, calculateEndTime } from '@/utils/sessionValidation';
 import InstructorSelect from './InstructorSelect';
 

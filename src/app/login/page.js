@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { supabaseBrowser } from "../../lib/browser";
 import { useRouter } from "next/navigation";
-import { FormField } from "../components/FormField";
-import { FormMessage } from "../components/FormMessage";
+import { FormField } from "@/components/FormField";
+import { FormMessage } from "@/components/FormMessage";
 import { useFormState } from "../../hooks/useFormState";
 import { MESSAGES, VALIDATION } from "../../utils/constants";
 

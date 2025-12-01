@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FormInput } from '../../components/FormInput';
-import { FormMessage } from '../../components/FormMessage';
+import { FormInput } from '@/components/FormInput';
+import { FormMessage } from '@/components/FormMessage';
 import { validateTemplate } from '../../../utils/templateValidation';
 
 export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {

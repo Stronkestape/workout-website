@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabaseBrowser } from "../../lib/browser";
 import { useRouter } from "next/navigation";
-import ProfileForm from "../../components/ProfileForm";
-import PasswordChangeForm from "../../components/PasswordChangeForm";
-import UserBookingsList from "../../components/UserBookingsList";
+import ProfileForm from "@/components/ProfileForm";
+import PasswordChangeForm from "@/components/PasswordChangeForm";
+import UserBookingsList from "@/components/UserBookingsList";
 import Link from "next/link";
 
 export default function ProfilePage() {

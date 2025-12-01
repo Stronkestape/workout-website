@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { supabaseBrowser } from "../lib/browser";
 import { isValidEmail, validateUsername, validateFullName } from "../utils/validators";
-import { FormField } from "../FormField";
-import { FormMessage } from "../FormMessage";
+import { FormField } from "@/components/FormField";
+import { FormMessage } from "@/components/FormMessage";
 import { useFormState } from "../hooks/useFormState";
 import { MESSAGES } from "../utils/constants";
 
