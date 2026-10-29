@@ -8,12 +8,15 @@ import {
   cancelBooking,
   leaveWaitlist,
 } from "@/utils/supabaseQueries";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function UserBookingsList({ userId }) {
   const [bookings, setBookings] = useState([]);
   const [waitlist, setWaitlist] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const fetchBookingsData = useCallback(async () => {
     try {
@@ -46,54 +49,39 @@ export default function UserBookingsList({ userId }) {
   }, [userId]);
 
   useEffect(() => {
-    if (!userId) {
-      return;
-    }
-
+    if (!userId) return;
     fetchBookingsData();
   }, [userId, fetchBookingsData]);
 
-  const handleCancelBooking = async (bookingId, sessionId) => {
-    if (!confirm("Are you sure you want to cancel this booking?")) {
-      return;
-    }
+  const executeConfirmedAction = async () => {
+    if (!confirmAction) return;
 
     try {
-      const { error } = await cancelBooking(userId, sessionId);
+      setActionLoading(true);
+      setError("");
 
-      if (error) {
-        console.error("Error cancelling booking:", error);
-        alert("Failed to cancel booking");
-        return;
+      if (confirmAction.type === "cancelBooking") {
+        const { error: cancelErr } = await cancelBooking(
+          userId,
+          confirmAction.sessionId
+        );
+        if (cancelErr) throw cancelErr;
+      } else if (confirmAction.type === "leaveWaitlist") {
+        const { error: leaveErr } = await leaveWaitlist(
+          userId,
+          confirmAction.sessionId
+        );
+        if (leaveErr) throw leaveErr;
       }
 
-      // Refresh bookings
-      fetchBookingsData();
+      setConfirmAction(null);
+      await fetchBookingsData();
     } catch (err) {
-      console.error("Unexpected error:", err);
-      alert("An unexpected error occurred");
-    }
-  };
-
-  const handleLeaveWaitlist = async (waitlistId, sessionId) => {
-    if (!confirm("Are you sure you want to leave the waitlist?")) {
-      return;
-    }
-
-    try {
-      const { error } = await leaveWaitlist(userId, sessionId);
-
-      if (error) {
-        console.error("Error leaving waitlist:", error);
-        alert("Failed to leave waitlist");
-        return;
-      }
-
-      // Refresh waitlist
-      fetchBookingsData();
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      alert("An unexpected error occurred");
+      console.error("Action error:", err);
+      setError(err.message || "Failed to update booking");
+      setConfirmAction(null);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -105,32 +93,39 @@ export default function UserBookingsList({ userId }) {
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
-        <p className="text-red-800">{error}</p>
-      </div>
-    );
-  }
-
   const hasBookings = bookings.length > 0;
   const hasWaitlist = waitlist.length > 0;
 
-  // Separate upcoming and past bookings
   const now = new Date();
-  const upcomingBookings = bookings.filter(booking => new Date(booking.class_sessions?.start_time) >= now);
-  const pastBookings = bookings.filter(booking => new Date(booking.class_sessions?.start_time) < now);
+  const upcomingBookings = bookings.filter(
+    (booking) => new Date(booking.class_sessions?.start_time) >= now
+  );
+  const pastBookings = bookings.filter(
+    (booking) => new Date(booking.class_sessions?.start_time) < now
+  );
 
   if (!hasBookings && !hasWaitlist) {
     return (
       <div className="text-center py-12">
-        <div className="text-gray-400 mb-4 text-6xl">
-          📅
+        <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 mx-auto mb-4 flex items-center justify-center">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
         </div>
         <p className="text-gray-600 mb-4">No bookings yet</p>
         <Link
           href="/calendar"
-          className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
         >
           Browse Workouts
         </Link>
@@ -140,6 +135,12 @@ export default function UserBookingsList({ userId }) {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+
       {/* Upcoming Bookings */}
       {upcomingBookings.length > 0 && (
         <div>
@@ -171,19 +172,22 @@ export default function UserBookingsList({ userId }) {
                         with {instructorName}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          📅 {date}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          🕐 {time}
-                        </span>
+                        <span>{date}</span>
+                        <span>•</span>
+                        <span>{time}</span>
                       </div>
                     </div>
                     <div className="ml-4">
                       {canCancel ? (
                         <button
                           onClick={() =>
-                            handleCancelBooking(booking.id, session.id)
+                            setConfirmAction({
+                              type: "cancelBooking",
+                              sessionId: session.id,
+                              title: "Cancel Booking",
+                              message: `Are you sure you want to cancel your booking for "${workout?.title}" on ${date} at ${time}?`,
+                              confirmLabel: "Cancel Booking",
+                            })
                           }
                           className="text-red-600 hover:text-red-700 text-sm font-medium"
                         >
@@ -233,12 +237,9 @@ export default function UserBookingsList({ userId }) {
                         with {instructorName}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          📅 {date}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          🕐 {time}
-                        </span>
+                        <span>{date}</span>
+                        <span>•</span>
+                        <span>{time}</span>
                       </div>
                     </div>
                     <div className="ml-4">
@@ -288,13 +289,21 @@ export default function UserBookingsList({ userId }) {
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span>{date}</span>
+                        <span>•</span>
                         <span>{time}</span>
                       </div>
                     </div>
                     <div className="ml-4">
                       <button
                         onClick={() =>
-                          handleLeaveWaitlist(entry.id, session.id)
+                          setConfirmAction({
+                            type: "leaveWaitlist",
+                            sessionId: session.id,
+                            title: "Leave Waitlist",
+                            message: `Are you sure you want to leave the waitlist for "${workout?.title}"?`,
+                            confirmLabel: "Leave Waitlist",
+                            variant: "warning",
+                          })
                         }
                         className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                       >
@@ -308,6 +317,17 @@ export default function UserBookingsList({ userId }) {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        title={confirmAction?.title}
+        message={confirmAction?.message}
+        confirmLabel={confirmAction?.confirmLabel}
+        variant={confirmAction?.variant || "danger"}
+        loading={actionLoading}
+        onConfirm={executeConfirmedAction}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

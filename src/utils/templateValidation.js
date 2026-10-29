@@ -9,15 +9,25 @@ export const TEMPLATE_LIMITS = {
 export function validateTemplate(data) {
   const errors = {};
 
-  if (!data.title?.trim()) {
+  if (!data?.title?.trim()) {
     errors.title = "Title is required";
   }
 
-  if (data.duration < TEMPLATE_LIMITS.DURATION_MIN || data.duration > TEMPLATE_LIMITS.DURATION_MAX) {
+  const duration = Number(data?.duration);
+  if (
+    !Number.isFinite(duration) ||
+    duration < TEMPLATE_LIMITS.DURATION_MIN ||
+    duration > TEMPLATE_LIMITS.DURATION_MAX
+  ) {
     errors.duration = `Duration must be between ${TEMPLATE_LIMITS.DURATION_MIN} and ${TEMPLATE_LIMITS.DURATION_MAX} minutes`;
   }
 
-  if (data.max_capacity < TEMPLATE_LIMITS.CAPACITY_MIN || data.max_capacity > TEMPLATE_LIMITS.CAPACITY_MAX) {
+  const maxCapacity = Number(data?.max_capacity);
+  if (
+    !Number.isFinite(maxCapacity) ||
+    maxCapacity < TEMPLATE_LIMITS.CAPACITY_MIN ||
+    maxCapacity > TEMPLATE_LIMITS.CAPACITY_MAX
+  ) {
     errors.max_capacity = `Capacity must be between ${TEMPLATE_LIMITS.CAPACITY_MIN} and ${TEMPLATE_LIMITS.CAPACITY_MAX}`;
   }
 

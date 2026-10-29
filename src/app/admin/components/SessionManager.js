@@ -7,16 +7,19 @@ import {
   fetchWorkoutTemplates,
 } from '@/utils/adminQueries';
 import SessionForm from './SessionForm';
+import ConfirmModal from '@/components/ConfirmModal';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 
 export default function SessionManager() {
   const [sessions, setSessions] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'today'
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     loadData();
@@ -25,8 +28,7 @@ export default function SessionManager() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
-      // Load sessions and templates in parallel
+
       const [sessionsResult, templatesResult] = await Promise.all([
         fetchAllSessions(),
         fetchWorkoutTemplates(),
@@ -55,37 +57,31 @@ export default function SessionManager() {
     setShowForm(true);
   };
 
-  const handleDelete = async (session) => {
-    const instructorName = session.instructor 
-      ? (session.instructor.full_name || session.instructor.username)
-      : 'TBA';
-    
-    if (!confirm(
-      `Are you sure you want to delete this session?\n\n` +
-      `${session.workout_classes.title}\n` +
-      `Instructor: ${instructorName}\n` +
-      `Time: ${formatDate(session.start_time)} at ${formatTime(session.start_time)}\n\n` +
-      `This will cancel all bookings for this session.`
-    )) {
-      return;
-    }
+  const confirmDeleteSession = async () => {
+    if (!sessionToDelete) return;
 
     try {
-      const { error } = await deleteSession(session.id);
+      setDeleting(true);
+      setError('');
+      const { error } = await deleteSession(sessionToDelete.id);
 
       if (error) throw error;
 
-      setSessions(sessions.filter((s) => s.id !== session.id));
+      setSessions(sessions.filter((s) => s.id !== sessionToDelete.id));
+      setSessionToDelete(null);
     } catch (err) {
       console.error('Error deleting session:', err);
-      alert('Failed to delete session: ' + err.message);
+      setError('Failed to delete session: ' + err.message);
+      setSessionToDelete(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
   const handleFormSubmit = async () => {
     setShowForm(false);
     setEditingSession(null);
-    await loadData(); // Reload all data
+    await loadData();
   };
 
   const handleFormCancel = () => {
@@ -93,7 +89,6 @@ export default function SessionManager() {
     setEditingSession(null);
   };
 
-  // Filter sessions
   const getFilteredSessions = () => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -102,12 +97,12 @@ export default function SessionManager() {
 
     switch (filter) {
       case 'today':
-        return sessions.filter(s => {
+        return sessions.filter((s) => {
           const sessionDate = new Date(s.start_time);
           return sessionDate >= today && sessionDate < tomorrow;
         });
       case 'upcoming':
-        return sessions.filter(s => new Date(s.start_time) >= now);
+        return sessions.filter((s) => new Date(s.start_time) >= now);
       case 'all':
       default:
         return sessions;
@@ -128,7 +123,6 @@ export default function SessionManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Create Button */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Manage Sessions</h2>
@@ -138,10 +132,9 @@ export default function SessionManager() {
         </div>
         <button
           onClick={handleCreate}
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+          className="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center gap-2"
         >
-          <span className="text-xl">+</span>
-          <span>Schedule Session</span>
+          <span>+ Schedule Session</span>
         </button>
       </div>
 
@@ -179,28 +172,27 @@ export default function SessionManager() {
         </button>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+          <p className="text-red-800 text-sm">{error}</p>
         </div>
       )}
 
-      {/* No Templates Warning */}
       {templates.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-yellow-800">
-            <strong>No templates available.</strong> Create workout templates first before scheduling sessions.
+          <p className="text-yellow-800 text-sm">
+            <strong>No templates available.</strong> Create workout templates
+            first before scheduling sessions.
           </p>
         </div>
       )}
 
-      {/* Sessions List */}
       {filteredSessions.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="text-6xl mb-4">📅</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {filter === 'all' ? 'No Sessions Scheduled' : `No ${filter} Sessions`}
+            {filter === 'all'
+              ? 'No Sessions Scheduled'
+              : `No ${filter} Sessions`}
           </h3>
           <p className="text-gray-600 mb-6">
             {templates.length > 0
@@ -210,7 +202,7 @@ export default function SessionManager() {
           {templates.length > 0 && (
             <button
               onClick={handleCreate}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              className="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
             >
               Schedule Your First Session
             </button>
@@ -219,11 +211,13 @@ export default function SessionManager() {
       ) : (
         <div className="space-y-4">
           {filteredSessions.map((session) => {
-            const instructorName = session.instructor 
-              ? (session.instructor.full_name || session.instructor.username)
+            const instructorName = session.instructor
+              ? session.instructor.full_name || session.instructor.username
               : 'No instructor assigned';
-            
-            const spotsLeft = session.workout_classes.max_capacity - (session.current_bookings || 0);
+
+            const spotsLeft =
+              session.workout_classes.max_capacity -
+              (session.current_bookings || 0);
             const isFull = spotsLeft <= 0;
             const isAlmostFull = spotsLeft <= 3 && spotsLeft > 0;
 
@@ -233,79 +227,77 @@ export default function SessionManager() {
                 className="bg-white rounded-lg shadow hover:shadow-md transition-shadow border border-gray-200 p-6"
               >
                 <div className="flex justify-between items-start">
-                  {/* Left: Session Info */}
                   <div className="flex-1">
                     <div className="flex items-start gap-4">
-                      {/* Date Badge */}
-                      <div className="bg-blue-50 rounded-lg p-3 text-center min-w-[80px]">
+                      <div className="bg-blue-50 rounded-lg p-3 text-center min-w-[72px]">
                         <div className="text-2xl font-bold text-blue-600">
                           {new Date(session.start_time).getDate()}
                         </div>
-                        <div className="text-xs text-blue-600 font-medium">
-                          {new Date(session.start_time).toLocaleDateString('en-US', { 
-                            month: 'short' 
-                          })}
+                        <div className="text-xs text-blue-600 font-medium uppercase">
+                          {new Date(session.start_time).toLocaleDateString(
+                            'en-US',
+                            { month: 'short' }
+                          )}
                         </div>
                       </div>
 
-                      {/* Session Details */}
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 mb-1">
                           {session.workout_classes.title}
                         </h3>
                         <div className="space-y-1 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <span>👤</span>
-                            <span>{instructorName}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span>🕐</span>
-                            <span>
-                              {formatTime(session.start_time)} - {formatTime(session.end_time)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span>📅</span>
-                            <span>{formatDate(session.start_time)}</span>
+                          <div>Instructor: {instructorName}</div>
+                          <div>
+                            {formatDate(session.start_time)} •{' '}
+                            {formatTime(session.start_time)} –{' '}
+                            {formatTime(session.end_time)}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right: Status and Actions */}
-                  <div className="flex flex-col items-end gap-3 ml-4">
-                    {/* Capacity Badge */}
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      isFull
-                        ? 'bg-red-100 text-red-800'
-                        : isAlmostFull
-                        ? 'bg-orange-100 text-orange-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {isFull 
-                        ? 'Full' 
-                        : `${spotsLeft}/${session.workout_classes.max_capacity} spots`
-                      }
+                  <div className="flex flex-col items-end gap-2 ml-4">
+                    <div
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        isFull
+                          ? 'bg-red-100 text-red-800'
+                          : isAlmostFull
+                          ? 'bg-orange-100 text-orange-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {isFull
+                        ? 'Full'
+                        : `${spotsLeft}/${session.workout_classes.max_capacity} spots`}
                     </div>
 
-                    {/* Active Status */}
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      session.is_active
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {session.is_active ? 'Active' : 'Inactive'}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {session.is_recurring !== false && (
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
+                          Weekly
+                        </span>
+                      )}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          session.is_active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {session.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
 
-                    {/* Bookings Count */}
                     {session.current_bookings > 0 && (
                       <div className="text-sm text-gray-600">
-                        {session.current_bookings} {session.current_bookings === 1 ? 'booking' : 'bookings'}
+                        {session.current_bookings}{' '}
+                        {session.current_bookings === 1
+                          ? 'booking'
+                          : 'bookings'}
                       </div>
                     )}
 
-                    {/* Action Buttons */}
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={() => handleEdit(session)}
@@ -314,7 +306,7 @@ export default function SessionManager() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(session)}
+                        onClick={() => setSessionToDelete(session)}
                         className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
                       >
                         Delete
@@ -328,7 +320,6 @@ export default function SessionManager() {
         </div>
       )}
 
-      {/* Form Modal */}
       {showForm && (
         <SessionForm
           session={editingSession}
@@ -337,6 +328,24 @@ export default function SessionManager() {
           onCancel={handleFormCancel}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!sessionToDelete}
+        title="Delete Scheduled Session"
+        message={
+          sessionToDelete
+            ? `Are you sure you want to delete "${sessionToDelete.workout_classes.title}" on ${formatDate(
+                sessionToDelete.start_time
+              )} at ${formatTime(
+                sessionToDelete.start_time
+              )}?\n\nThis will cancel all bookings for this session.`
+            : ''
+        }
+        confirmLabel="Delete Session"
+        loading={deleting}
+        onConfirm={confirmDeleteSession}
+        onCancel={() => setSessionToDelete(null)}
+      />
     </div>
   );
 }

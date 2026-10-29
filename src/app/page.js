@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -13,15 +14,15 @@ export default function HomePage() {
       <WorkoutSection
         image="/images/walkenergy.jpg"
         title="WALKenergie"
-        description="A WALKenergie mechanikus gyaloglógépen végzett zenés, csoportos fitnesz edzés, mely rengeteg pozitív tulajdonságával segít, hogy sokkal fittebbé, egészségesebbé és energikusabbá válhass! Az ütős zenékhez szenzációs programok társulnak! A lendületes, energikus mozdulatok egy perc nyugtot sem hagynak az izmaidanak, az egész testedet felpörgetik!"
+        description="A WALKenergie mechanikus gyaloglógépen végzett zenés, csoportos fitnesz edzés, mely rengeteg pozitív tulajdonságával segít, hogy sokkal fittebbé, egészségesebbé és energikusabbá válhass! Az ütős zenékhez szenzációs programok társulnak! A lendületes, energikus mozdulatok egy perc nyugtot sem hagynak az izmaidnak, az egész testedet felpörgetik!"
         alignment="left"
       />
 
       <WorkoutSection
         image="/images/cycle.jpg"
         title="Spinning"
-        description="A Spinning edzés egy zenés, csoportos fitnesz program, amely a kerékpározás élményét hozza el a terembe. Az energikus zene és a motiváló edző segítségével a résztvevők egy virtuális kerékpáros kalandra indulnak, miközben erősítik a lábizmokat és javítják a kardio állóképességüket."
-        alignment="left"
+        description="A Spinning edzés egy zenés, csoportos fitnesz program, amely a kerékpározás élményét hozza el a terembe. Az energikus zene és a motiváló edző segítségével a résztvevők egy virtuális kerékpáros kalandra indulnak, miközben erősítik a lábizmokat és javítják a kardió állóképességüket."
+        alignment="right"
       />
 
       <WorkoutSection
@@ -34,39 +35,30 @@ export default function HomePage() {
       <WorkoutSection
         image="/images/3.jpg"
         title="Alakformáló"
-        description="Az Alakformáló órán az aerobic alaplépésekből állnak. Igyeszünk a leghobb zenékkel előállni, a hangulat a vendégeknek köszönhetően mindig fergeteges.
-                     Különböző fitnesz eszközöket hívunk segítségül a cél elérése érdekében, mint pl.: miniband vagy kézi súlyzó, vagy éppen saját testsúllyal dolgozunk.
-                     Ha szeretnél formálódni, állóképességet növelni, levezetni a stresszt vagy csak jól érezni magad, mi szeretettel várunk!"
-        alignment="left"
+        description="Az Alakformáló órák az aerobik alaplépéseire épülnek. Igyekszünk a legjobb zenékkel előállni, a hangulat a vendégeknek köszönhetően mindig fergeteges. Különböző fitnesz eszközöket hívunk segítségül a cél elérése érdekében, mint pl.: miniband vagy kézi súlyzó, vagy éppen saját testsúllyal dolgozunk. Ha szeretnél formálódni, állóképességet növelni, levezetni a stresszt vagy csak jól érezni magad, mi szeretettel várunk!"
+        alignment="right"
       />
 
       <WorkoutSection
         image="/images/4.jpg"
-        title="Tabata "
-        description="A Tabata nagy intenzitású intervallumos edzés (HIIT) -  4 perces körökre épül, azon belül 20 másodperces extrém terheléses és 10 másodperces pihenőidőszakok váltakoznak 8 sorozatra osztva, a 4. perc végén 1 perc pihenés, majd újabb kör kezdődik.
-                     Milyen hatása van a tabata edzésnek?
-                     A tabata elsődleges előnye a test aerob és anaerob kapacitásának növelése. Az edzés során az anaerob folyamatok dominálnak, amelyek hozzájárulnak az úgynevezett oxigénadóssághoz, ami azt jelenti, hogy több oxigént fogyasztunk, mint általában a pihenés alatt, és ez segít felgyorsítani az anyagcserét és további erőfeszítés nélkül kalóriát égetni. Az eredmény a testzsír csökkenése és karcsúbb alak. Az edzés után akár 48 órával is felgyorsítja a kalóriaégetés ütemét."
+        title="Tabata"
+        description="A Tabata nagy intenzitású intervallumos edzés (HIIT) – 4 perces körökre épül, azon belül 20 másodperces extrém terheléses és 10 másodperces pihenőidőszakok váltakoznak 8 sorozatra osztva, a 4. perc végén 1 perc pihenés, majd újabb kör kezdődik. A tabata elsődleges előnye a test aerob és anaerob kapacitásának növelése, amely felgyorsítja az anyagcserét, csökkenti a testzsírt, és az edzés után akár 48 órával is fokozza a kalóriaégetés ütemét."
         alignment="left"
       />
 
       <WorkoutSection
         image="/images/5.jpg"
         title="GYMSTICK"
-        description="A GYMSTICK™ egy üvegszálas bot, két gumikötéllel, ami egy nagyon hatékony sporteszköz.
-                     Segít az alakformálásban, a fogyásban, szálkásítja az izmokat, kíméli az izületeket  - helyettesítheti a súlyzót, sérülés veszély nélkül."
-        alignment="left"
+        description="A GYMSTICK™ egy üvegszálas bot két gumikötéllel, ami egy rendkívül hatékony sporteszköz. Segít az alakformálásban és a fogyásban, szálkásítja az izmokat, miközben kíméli az ízületeket – helyettesítheti a súlyzót, sérülésveszély nélkül."
+        alignment="right"
       />
 
       <WorkoutSection
         image="/images/6.jpg"
         title="Funkcionális edzés"
-        description="A funkcionális edzés célja hogy erősebbé, és hatékonyabbá tegye a mindennapi életben is. Segít fejleszteni azokat a mozgásokat, amiket a mindennapokban is használunk, mint példáiul a hajlítás, tolás, emelés, nyújtás. 
-                     A funkcionális edzés az izmokra fókuszál, több izomcsoportot mozgat meg egy edzés alatt, köredzés jelleggel keveri az eszközös, a torna és a saját testsúlyos gyakorlatokat. A teljes testet erősíti, javítja a stabilitást, a koordinációt és fejleszti az állóképességet, a gyorsaságot és a robbanékonyságat. 
-                     Bárkinek ajánljuk, hiszen erőnléttől és fittségi szinttől függően állítja be az edző a különböző feladatokat."
+        description="A funkcionális edzés célja, hogy erősebbé és hatékonyabbá tegyen a mindennapi életben is. Segít fejleszteni azokat a mozgásokat, amiket a mindennapokban használunk, mint például a hajlítás, tolás, emelés és nyújtás. Köredzés jelleggel keveri az eszközös, a torna és a saját testsúlyos gyakorlatokat, így a teljes testet erősíti, javítja a stabilitást, a koordinációt, az állóképességet és a robbanékonyságot."
         alignment="left"
       />
-
-      {/* Add more workout sections here with alternating alignment */}
     </div>
   );
 }
@@ -99,12 +91,12 @@ function HeroSection() {
           Fedezd fel változatos csoportos óráinkat és találd meg a tökéletes
           edzést magadnak
         </p>
-        <a
+        <Link
           href="/calendar"
           className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all transform hover:scale-105 animate-fade-in-delay-3"
         >
           Órarend megtekintése
-        </a>
+        </Link>
       </div>
 
       <style jsx>{`
@@ -154,7 +146,7 @@ function WorkoutSection({ image, title, description, alignment = "left" }) {
         }
       },
       {
-        threshold: 0.3, // Trigger when 30% of section is visible
+        threshold: 0.3,
         rootMargin: "-100px 0px",
       }
     );
@@ -232,7 +224,7 @@ function WorkoutSection({ image, title, description, alignment = "left" }) {
             </p>
 
             {/* CTA Button */}
-            <a
+            <Link
               href="/calendar"
               className={`inline-block mt-8 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full font-semibold transition-all transform hover:scale-105 ${
                 isVisible
@@ -242,7 +234,7 @@ function WorkoutSection({ image, title, description, alignment = "left" }) {
               style={{ transitionDelay: "700ms" }}
             >
               Időpontok foglalása →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

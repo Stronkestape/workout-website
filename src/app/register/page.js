@@ -1,112 +1,39 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { supabaseBrowser } from "../../lib/browser";
-import { isValidEmail, validateUsername, validatePassword } from "../../utils/validators";
-import { FormField } from "@/components/FormField";
-import { FormMessage } from "@/components/FormMessage";
-import { useFormState } from "../../hooks/useFormState";
-import { MESSAGES } from "../../utils/constants";
+import { useActionState } from 'react';
+import Link from 'next/link';
+import { registerAction } from './actions';
+import { FormField } from '@/components/FormField';
+import { FormMessage } from '@/components/FormMessage';
 
 export default function RegisterPage() {
-  const form = useFormState({
-    email: "",
-    username: "",
-    password: "",
-  });
-
-  const [fieldErrors, setFieldErrors] = useState({});
-
-  const validateForm = async () => {
-    const errors = {};
-
-    if (!isValidEmail(form.data.email)) {
-      errors.email = MESSAGES.INVALID_EMAIL;
-    }
-
-    const usernameValidation = validateUsername(form.data.username);
-    if (!usernameValidation.isValid) {
-      errors.username = usernameValidation.error;
-    }
-
-    const passwordValidation = validatePassword(form.data.password);
-    if (!passwordValidation.isValid) {
-      errors.password = passwordValidation.error;
-    }
-
-    if (usernameValidation.isValid) {
-      const { data: existing } = await supabaseBrowser
-        .from("user_profiles")
-        .select("id")
-        .eq("username", usernameValidation.cleanUsername)
-        .maybeSingle();
-
-      if (existing) {
-        errors.username = MESSAGES.USERNAME_TAKEN;
-      }
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    form.clearMessages();
-
-    if (!(await validateForm())) return;
-
-    form.setLoading(true);
-
-    try {
-      const cleanUsername = validateUsername(form.data.username).cleanUsername;
-
-      const { error: signUpError } = await supabaseBrowser.auth.signUp({
-        email: form.data.email,
-        password: form.data.password,
-        options: {
-          data: { username: cleanUsername },
-        },
-      });
-
-      if (signUpError) throw signUpError;
-
-      form.setSuccess("Registration successful! Please check your email to confirm your account.");
-    } catch (err) {
-      const errorMessage = err.message?.includes("Username is already taken")
-        ? MESSAGES.USERNAME_TAKEN
-        : err.message || "Failed to sign up";
-      form.setError(errorMessage);
-    } finally {
-      form.setLoading(false);
-    }
-  };
+  const [state, formAction, isPending] = useActionState(registerAction, null);
 
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form action={formAction} className="space-y-4">
             <FormField
               id="email"
+              name="email"
               label="Email"
               type="email"
-              value={form.data.email}
-              onChange={(email) => form.setData({ ...form.data, email })}
-              error={fieldErrors.email}
-              disabled={form.loading}
+              defaultValue={state?.values?.email || ''}
+              error={state?.fieldErrors?.email}
+              disabled={isPending}
               required
               autoComplete="email"
             />
 
             <FormField
               id="username"
+              name="username"
               label="Username"
-              value={form.data.username}
-              onChange={(username) => form.setData({ ...form.data, username })}
-              error={fieldErrors.username}
-              disabled={form.loading}
+              defaultValue={state?.values?.username || ''}
+              error={state?.fieldErrors?.username}
+              disabled={isPending}
               hint="3–20 characters: lowercase letters, numbers, underscores, and dots"
               required
               autoComplete="username"
@@ -114,26 +41,59 @@ export default function RegisterPage() {
 
             <FormField
               id="password"
+              name="password"
               label="Password"
               type="password"
-              value={form.data.password}
-              onChange={(password) => form.setData({ ...form.data, password })}
-              error={fieldErrors.password}
-              disabled={form.loading}
+              error={state?.fieldErrors?.password}
+              disabled={isPending}
               required
               autoComplete="new-password"
             />
 
-            {form.error && <FormMessage type="error" message={form.error} />}
-            {form.success && <FormMessage type="success" message={form.success} />}
+            {state?.emailTaken && (
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-900">
+                <p className="font-medium mb-1">
+                  This email address is already associated with an account.
+                </p>
+                <div className="flex gap-3 mt-2">
+                  <Link
+                    href={`/forgot-password${
+                      state.values?.email
+                        ? `?email=${encodeURIComponent(state.values.email)}`
+                        : ''
+                    }`}
+                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                  >
+                    Send password reset email
+                  </Link>
+                  <span className="text-amber-400">•</span>
+                  <Link
+                    href="/login"
+                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                  >
+                    Go to Login
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {state?.error && <FormMessage type="error" message={state.error} />}
+            {state?.success && <FormMessage type="success" message={state.success} />}
 
             <button
               type="submit"
-              disabled={form.loading}
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-gray-400 transition-colors font-medium"
+              disabled={isPending}
+              className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
             >
-              {form.loading ? "Creating account..." : "Create Account"}
+              {isPending ? 'Creating account...' : 'Create Account'}
             </button>
+
+            <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
+              Already have an account?{' '}
+              <Link href="/login" className="text-blue-600 hover:underline font-medium">
+                Log in
+              </Link>
+            </div>
           </form>
         </div>
       </div>

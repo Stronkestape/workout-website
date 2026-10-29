@@ -36,9 +36,8 @@ export default function WorkoutCard({
     spotsLeft <= SPOTS_ALMOST_FULL_THRESHOLD &&
     spotsLeft > SPOTS_FULL_THRESHOLD;
   const isFull = spotsLeft <= SPOTS_FULL_THRESHOLD;
-  
-  // Use isBooked from event resource if available (from calendar), otherwise use userBooking from hook
-  const isBooked = workout.resource?.isBooked !== undefined ? workout.resource.isBooked : !!userBooking;
+
+  const isBooked = !!userBooking;
   const canCancel = isBooked && canCancelBooking(workout.start);
 
   // Extract workout title and instructor from the event title
@@ -46,21 +45,26 @@ export default function WorkoutCard({
   const instructorName = workout.resource?.instructorName || "TBA";
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-30 p-4">
-      <div className="bg-white bg-opacity-95 rounded-xl border-1 shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl border border-gray-200 shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex justify-between items-start p-6 border-b">
+        <div className="flex justify-between items-start p-6 border-b border-gray-200">
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-1">
               {workoutTitle}
             </h3>
-            <p className="text-gray-600">
-              with {instructorName}
-            </p>
+            <p className="text-gray-600 text-sm">with {instructorName}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1"
+            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 leading-none"
+            aria-label="Close modal"
           >
             ×
           </button>
@@ -69,10 +73,14 @@ export default function WorkoutCard({
         {/* Content */}
         <div className="p-6 space-y-4">
           {/* Date and Time */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">Date & Time</div>
-            <div className="font-semibold">{formatDate(workout.start)}</div>
-            <div className="text-gray-700">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+            <div className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">
+              Date & Time
+            </div>
+            <div className="font-semibold text-gray-900">
+              {formatDate(workout.start)}
+            </div>
+            <div className="text-gray-700 text-sm mt-0.5">
               {formatTime(workout.start)} - {formatTime(workout.end)}
             </div>
           </div>
@@ -96,7 +104,7 @@ export default function WorkoutCard({
               </div>
               <div className="text-xs text-gray-500">
                 {workout.resource?.maxCapacity - spotsLeft}/
-                {workout.resource?.maxCapacity}
+                {workout.resource?.maxCapacity} booked
               </div>
             </div>
           </div>
@@ -107,7 +115,7 @@ export default function WorkoutCard({
               {isBooked && (
                 <div className="flex items-center text-blue-800">
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="w-5 h-5 mr-2 shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -117,7 +125,7 @@ export default function WorkoutCard({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="font-medium"> 
+                  <span className="font-medium text-sm">
                     You are booked for this class
                   </span>
                 </div>
@@ -125,7 +133,7 @@ export default function WorkoutCard({
               {isOnWaitlist && (
                 <div className="flex items-center text-blue-800">
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="w-5 h-5 mr-2 shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -135,7 +143,7 @@ export default function WorkoutCard({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="font-medium">
+                  <span className="font-medium text-sm">
                     You are on the waitlist (Position: {waitlistPosition})
                   </span>
                 </div>
@@ -153,31 +161,29 @@ export default function WorkoutCard({
           {/* Action Buttons */}
           <div className="space-y-2 pt-4">
             {!user ? (
-              /* Not logged in */
               <div className="text-center">
-                <p className="text-gray-600 mb-3">
+                <p className="text-gray-600 text-sm mb-3">
                   Sign in to book this workout
                 </p>
                 <Link
                   href="/login"
-                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium inline-block text-center"
+                  className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium inline-block text-center"
                 >
                   Sign In
                 </Link>
               </div>
             ) : isBooked ? (
-              /* User has booking */
               <div>
                 {canCancel ? (
                   <button
                     onClick={handleCancelBooking}
                     disabled={loading}
-                    className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                    className="w-full bg-red-600 text-white py-2.5 px-4 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
                   >
                     {loading ? "Cancelling..." : "Cancel Booking"}
                   </button>
                 ) : (
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-sm text-gray-600">
                       You can only cancel bookings at least 2 hours before the
                       workout
@@ -186,23 +192,21 @@ export default function WorkoutCard({
                 )}
               </div>
             ) : isOnWaitlist ? (
-              /* User on waitlist */
               <button
                 onClick={handleLeaveWaitlist}
                 disabled={loading}
-                className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                className="w-full bg-orange-500 text-white py-2.5 px-4 rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {loading ? "Leaving..." : "Leave Waitlist"}
               </button>
             ) : (
-              /* User can book or join waitlist */
               <button
                 onClick={handleBookWorkout}
                 disabled={loading}
-                className={`w-full py-2 px-4 rounded-lg font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${
+                className={`w-full py-2.5 px-4 rounded-lg font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${
                   isFull
                     ? "bg-orange-500 text-white hover:bg-orange-600"
-                    : "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-green-600 text-white hover:bg-green-700"
                 }`}
               >
                 {loading

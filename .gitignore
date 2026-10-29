@@ -31,7 +31,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (never commit secrets)
 .env*
 .env.local
 
@@ -62,12 +62,9 @@ desktop.ini
 # Monorepo/Turbo
 .turbo/
 
-# Supabase CLI
+# Supabase CLI local state & secrets (keep supabase/migrations/ tracked!)
 supabase/.temp/
 supabase/.branches/
 supabase/.cache/
 supabase/.env
 supabase/.supabase/
-
-# database
-schema.sql

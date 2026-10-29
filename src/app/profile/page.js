@@ -19,9 +19,10 @@ export default function ProfilePage() {
     try {
       setLoading(true);
 
-      // Get authenticated user
-      const { data: { user: authUser }, error: authError } = 
-        await supabaseBrowser.auth.getUser();
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabaseBrowser.auth.getUser();
 
       if (authError || !authUser) {
         router.push("/login");
@@ -30,13 +31,11 @@ export default function ProfilePage() {
 
       setUser(authUser);
 
-      // Get user profile
-      const { data: profileData, error: profileError } = 
-        await supabaseBrowser
-          .from("user_profiles")
-          .select("*")
-          .eq("id", authUser.id)
-          .single();
+      const { data: profileData, error: profileError } = await supabaseBrowser
+        .from("user_profiles")
+        .select("*")
+        .eq("id", authUser.id)
+        .single();
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
@@ -104,13 +103,13 @@ export default function ProfilePage() {
             </p>
           </div>
           {isAdmin && (
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
-              ⚡ Admin
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow-sm text-sm">
+              Admin
             </div>
           )}
           {isInstructor && !isAdmin && (
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
-              🎯 Instructor
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2 rounded-lg font-semibold shadow-sm text-sm">
+              Instructor
             </div>
           )}
         </div>
@@ -120,18 +119,13 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Account Settings */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Profile Information */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">
               Account Information
             </h2>
-            <ProfileForm 
-              profile={profile} 
-              onUpdate={handleProfileUpdate}
-            />
+            <ProfileForm profile={profile} onUpdate={handleProfileUpdate} />
           </div>
 
-          {/* Password Change */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">
               Change Password
@@ -139,32 +133,32 @@ export default function ProfilePage() {
             <PasswordChangeForm />
           </div>
 
-          {/* Admin Features Section */}
           {isAdmin && (
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow-md p-6 border border-purple-200">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-md p-6 border border-purple-200">
+              <h2 className="text-xl font-semibold mb-2 text-gray-900">
                 Admin Features
               </h2>
-              <p className="text-gray-700 mb-4">
-                As an admin, you can create and manage workout classes, sessions, and manually book users.
+              <p className="text-gray-700 mb-4 text-sm">
+                As an admin, you can create and manage workout classes,
+                sessions, and manually book users.
               </p>
               <Link
                 href="/admin"
-                className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                className="inline-block bg-purple-600 text-white px-6 py-2.5 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm"
               >
                 Go to Admin Dashboard →
               </Link>
             </div>
           )}
 
-          {/* Instructor Features Section */}
           {isInstructor && !isAdmin && (
             <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md p-6 border border-blue-200">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">
+              <h2 className="text-xl font-semibold mb-2 text-gray-900">
                 Instructor Profile
               </h2>
-              <p className="text-gray-700 mb-4">
-                You are registered as an instructor. Admins can assign you to lead workout sessions.
+              <p className="text-gray-700 text-sm">
+                You are registered as an instructor. Admins can assign you to
+                lead workout sessions.
               </p>
             </div>
           )}
@@ -172,16 +166,17 @@ export default function ProfilePage() {
 
         {/* Right Column - User Info Card */}
         <div className="space-y-6">
-          {/* User Summary Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
-              <div className={`w-20 h-20 ${
-                isAdmin 
-                  ? 'bg-gradient-to-br from-purple-500 to-pink-500' 
-                  : isInstructor
-                  ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                  : 'bg-gradient-to-br from-blue-500 to-purple-500'
-              } rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold`}>
+              <div
+                className={`w-20 h-20 ${
+                  isAdmin
+                    ? "bg-gradient-to-br from-purple-500 to-indigo-500"
+                    : isInstructor
+                    ? "bg-gradient-to-br from-blue-500 to-cyan-500"
+                    : "bg-gradient-to-br from-blue-500 to-purple-500"
+                } rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold`}
+              >
                 {profile.username?.charAt(0).toUpperCase() || "U"}
               </div>
               <h3 className="text-xl font-semibold text-gray-900">
@@ -189,7 +184,9 @@ export default function ProfilePage() {
               </h3>
               <p className="text-gray-600 text-sm mt-1">{profile.email}</p>
               {profile.full_name && (
-                <p className="text-gray-500 text-sm mt-1">{profile.full_name}</p>
+                <p className="text-gray-500 text-sm mt-1">
+                  {profile.full_name}
+                </p>
               )}
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-sm">
@@ -203,14 +200,20 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-600">Account type</span>
-                  <span className={`font-medium ${
-                    isAdmin 
-                      ? 'text-purple-600' 
+                  <span
+                    className={`font-medium ${
+                      isAdmin
+                        ? "text-purple-600"
+                        : isInstructor
+                        ? "text-blue-600"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {isAdmin
+                      ? "Admin"
                       : isInstructor
-                      ? 'text-blue-600'
-                      : 'text-gray-900'
-                  }`}>
-                    {isAdmin ? 'Admin' : isInstructor ? 'Instructor' : 'Regular'}
+                      ? "Instructor"
+                      : "Regular"}
                   </span>
                 </div>
               </div>
@@ -219,7 +222,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* My Bookings Section - Full Width */}
+      {/* My Bookings Section */}
       <div className="mt-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900">

@@ -9,16 +9,18 @@ export async function createSupabaseServerClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        get(name) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name, value, options) {
-          // In server components, we can't modify cookies
-          // This will be handled by the client or middleware
-        },
-        remove(name, options) {
-          // In server components, we can't modify cookies
-          // This will be handled by the client or middleware
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if proxy is refreshing user sessions.
+          }
         },
       },
     }

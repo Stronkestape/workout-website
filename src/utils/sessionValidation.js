@@ -1,28 +1,38 @@
 export function validateSession(formData, isEditing = false) {
   const errors = {};
 
-  if (!formData.class_id) {
+  if (!formData?.class_id) {
     errors.class_id = "Please select a workout template";
   }
 
-  if (!formData.start_time) {
+  if (!formData?.start_time) {
     errors.start_time = "Start time is required";
   }
 
-  if (!formData.end_time) {
+  if (!formData?.end_time) {
     errors.end_time = "End time is required";
   }
 
-  if (formData.start_time && formData.end_time) {
+  if (formData?.start_time && formData?.end_time) {
     const startDate = new Date(formData.start_time);
     const endDate = new Date(formData.end_time);
 
-    if (endDate <= startDate) {
-      errors.end_time = "End time must be after start time";
+    if (Number.isNaN(startDate.getTime())) {
+      errors.start_time = "Invalid start time";
     }
 
-    if (!isEditing && startDate < new Date()) {
-      errors.start_time = "Cannot schedule sessions in the past";
+    if (Number.isNaN(endDate.getTime())) {
+      errors.end_time = "Invalid end time";
+    }
+
+    if (!errors.start_time && !errors.end_time) {
+      if (endDate <= startDate) {
+        errors.end_time = "End time must be after start time";
+      }
+
+      if (!isEditing && startDate < new Date()) {
+        errors.start_time = "Cannot schedule sessions in the past";
+      }
     }
   }
 

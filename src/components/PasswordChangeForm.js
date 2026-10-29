@@ -1,75 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { supabaseBrowser } from "../lib/browser";
-import { validatePassword, validatePasswordMatch } from "../utils/validators";
-import { FormField } from "@/components/FormField";
-import { FormMessage } from "@/components/FormMessage";
-import { useFormState } from "../hooks/useFormState";
-import { MESSAGES } from "../utils/constants";
+import { useActionState } from 'react';
+import { updatePasswordAction } from '@/app/profile/actions';
+import { FormField } from '@/components/FormField';
+import { FormMessage } from '@/components/FormMessage';
 
 export default function PasswordChangeForm() {
-  const form = useFormState({
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const [fieldErrors, setFieldErrors] = useState({});
-
-  const validateForm = () => {
-    const errors = {};
-
-    const passwordValidation = validatePassword(form.data.newPassword);
-    if (!passwordValidation.isValid) {
-      errors.newPassword = passwordValidation.error;
-    }
-
-    const matchValidation = validatePasswordMatch(
-      form.data.newPassword,
-      form.data.confirmPassword
-    );
-    if (!matchValidation.isValid) {
-      errors.confirmPassword = matchValidation.error;
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    form.clearMessages();
-
-    if (!validateForm()) return;
-
-    form.setLoading(true);
-
-    try {
-      const { error: updateError } = await supabaseBrowser.auth.updateUser({
-        password: form.data.newPassword,
-      });
-
-      if (updateError) throw updateError;
-
-      form.setSuccess(MESSAGES.PASSWORD_UPDATED);
-      form.reset();
-    } catch (err) {
-      form.setError(err.message || "Failed to update password");
-    } finally {
-      form.setLoading(false);
-    }
-  };
+  const [state, formAction, isPending] = useActionState(updatePasswordAction, null);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form action={formAction} className="space-y-4">
       <FormField
         id="newPassword"
+        name="newPassword"
         label="New Password"
         type="password"
-        value={form.data.newPassword}
-        onChange={(newPassword) => form.setData({ ...form.data, newPassword })}
-        error={fieldErrors.newPassword}
-        disabled={form.loading}
+        error={state?.fieldErrors?.newPassword}
+        disabled={isPending}
         hint="Minimum 6 characters (consider using a stronger password)"
         required
         autoComplete="new-password"
@@ -77,25 +24,24 @@ export default function PasswordChangeForm() {
 
       <FormField
         id="confirmPassword"
+        name="confirmPassword"
         label="Confirm New Password"
         type="password"
-        value={form.data.confirmPassword}
-        onChange={(confirmPassword) => form.setData({ ...form.data, confirmPassword })}
-        error={fieldErrors.confirmPassword}
-        disabled={form.loading}
+        error={state?.fieldErrors?.confirmPassword}
+        disabled={isPending}
         required
         autoComplete="new-password"
       />
 
-      {form.error && <FormMessage type="error" message={form.error} />}
-      {form.success && <FormMessage type="success" message={form.success} />}
+      {state?.error && <FormMessage type="error" message={state.error} />}
+      {state?.success && <FormMessage type="success" message={state.success} />}
 
       <button
         type="submit"
-        disabled={form.loading}
+        disabled={isPending}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
       >
-        {form.loading ? "Updating..." : "Update Password"}
+        {isPending ? 'Updating...' : 'Update Password'}
       </button>
     </form>
   );

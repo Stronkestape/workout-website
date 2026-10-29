@@ -8,12 +8,15 @@ import {
   deleteWorkoutTemplate,
 } from '@/utils/adminQueries';
 import WorkoutTemplateForm from './WorkoutTemplateForm';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function WorkoutTemplateManager() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [templateToDelete, setTemplateToDelete] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -46,27 +49,30 @@ export default function WorkoutTemplateManager() {
     setShowForm(true);
   };
 
-  const handleDelete = async (template) => {
-    if (!confirm(`Are you sure you want to delete "${template.title}"?\n\nThis will also delete all sessions created from this template.`)) {
-      return;
-    }
+  const confirmDeleteTemplate = async () => {
+    if (!templateToDelete) return;
 
     try {
-      const { error } = await deleteWorkoutTemplate(template.id);
+      setDeleting(true);
+      setError('');
+      const { error } = await deleteWorkoutTemplate(templateToDelete.id);
 
       if (error) throw error;
 
-      setTemplates(templates.filter((t) => t.id !== template.id));
+      setTemplates(templates.filter((t) => t.id !== templateToDelete.id));
+      setTemplateToDelete(null);
     } catch (err) {
       console.error('Error deleting template:', err);
-      alert('Failed to delete template: ' + err.message);
+      setError('Failed to delete template: ' + err.message);
+      setTemplateToDelete(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
   const handleFormSubmit = async (formData) => {
     try {
       if (editingTemplate) {
-        // Update existing template
         const { data, error } = await updateWorkoutTemplate(
           editingTemplate.id,
           formData
@@ -78,7 +84,6 @@ export default function WorkoutTemplateManager() {
           templates.map((t) => (t.id === editingTemplate.id ? data[0] : t))
         );
       } else {
-        // Create new template
         const { data, error } = await createWorkoutTemplate(formData);
 
         if (error) throw error;
@@ -90,7 +95,7 @@ export default function WorkoutTemplateManager() {
       setEditingTemplate(null);
     } catch (err) {
       console.error('Error saving template:', err);
-      throw err; // Let form handle the error display
+      throw err;
     }
   };
 
@@ -111,34 +116,32 @@ export default function WorkoutTemplateManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Create Button */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Workout Templates</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Workout Templates
+          </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Create and manage workout class templates. These are blueprints for scheduling sessions.
+            Create and manage workout class templates. These are blueprints for
+            scheduling sessions.
           </p>
         </div>
         <button
           onClick={handleCreate}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2"
         >
-          <span className="text-xl">+</span>
-          <span>Create Template</span>
+          <span>+ Create Template</span>
         </button>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+          <p className="text-red-800 text-sm">{error}</p>
         </div>
       )}
 
-      {/* Templates List */}
       {templates.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="text-6xl mb-4">📋</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
             No Templates Yet
           </h3>
@@ -147,7 +150,7 @@ export default function WorkoutTemplateManager() {
           </p>
           <button
             onClick={handleCreate}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
           >
             Create Your First Template
           </button>
@@ -160,19 +163,16 @@ export default function WorkoutTemplateManager() {
               className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200"
             >
               <div className="p-6">
-                {/* Title */}
                 <div className="mb-3">
                   <h3 className="text-lg font-bold text-gray-900">
                     {template.title}
                   </h3>
                 </div>
 
-                {/* Description */}
                 <p className="text-sm text-gray-600 mb-4 line-clamp-3 min-h-[60px]">
                   {template.description || 'No description'}
                 </p>
 
-                {/* Details */}
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Duration:</span>
@@ -188,7 +188,6 @@ export default function WorkoutTemplateManager() {
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-2 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => handleEdit(template)}
@@ -197,7 +196,7 @@ export default function WorkoutTemplateManager() {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(template)}
+                    onClick={() => setTemplateToDelete(template)}
                     className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
                   >
                     Delete
@@ -209,7 +208,6 @@ export default function WorkoutTemplateManager() {
         </div>
       )}
 
-      {/* Form Modal */}
       {showForm && (
         <WorkoutTemplateForm
           template={editingTemplate}
@@ -217,6 +215,20 @@ export default function WorkoutTemplateManager() {
           onCancel={handleFormCancel}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!templateToDelete}
+        title="Delete Workout Template"
+        message={
+          templateToDelete
+            ? `Are you sure you want to delete "${templateToDelete.title}"?\n\nThis will also delete all sessions created from this template.`
+            : ''
+        }
+        confirmLabel="Delete Template"
+        loading={deleting}
+        onConfirm={confirmDeleteTemplate}
+        onCancel={() => setTemplateToDelete(null)}
+      />
     </div>
   );
 }

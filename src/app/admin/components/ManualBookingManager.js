@@ -37,8 +37,7 @@ export default function ManualBookingManager() {
 
       if (error) throw error;
 
-      // Only show active sessions
-      const activeSessions = (data || []).filter(s => s.is_active);
+      const activeSessions = (data || []).filter((s) => s.is_active);
       setSessions(activeSessions);
     } catch (err) {
       console.error('Error loading sessions:', err);
@@ -51,9 +50,9 @@ export default function ManualBookingManager() {
   const loadSessionBookings = async (sessionId) => {
     try {
       const { data, error } = await getSessionBookings(sessionId);
-      
+
       if (error) throw error;
-      
+
       setExistingBookings(data || []);
     } catch (err) {
       console.error('Error loading bookings:', err);
@@ -66,8 +65,9 @@ export default function ManualBookingManager() {
       return;
     }
 
-    // Check if session is full
-    const spotsLeft = selectedSession.workout_classes.max_capacity - (selectedSession.current_bookings || 0);
+    const spotsLeft =
+      selectedSession.workout_classes.max_capacity -
+      (selectedSession.current_bookings || 0);
     if (spotsLeft <= 0) {
       setError('This session is already full. Cannot add more bookings.');
       return;
@@ -78,26 +78,26 @@ export default function ManualBookingManager() {
       setError('');
       setSuccess('');
 
-      const { error } = await adminBookUser(selectedUser.id, selectedSession.id);
+      const { error } = await adminBookUser(
+        selectedUser.id,
+        selectedSession.id
+      );
 
       if (error) throw error;
 
-      setSuccess(`Successfully booked ${selectedUser.username} into the session!`);
-      
-      // Reload bookings and sessions
+      setSuccess(
+        `Successfully booked ${selectedUser.username} into the session!`
+      );
+
       await loadSessionBookings(selectedSession.id);
       await loadSessions();
-      
-      // Update selected session with new booking count
+
       const updatedSession = {
         ...selectedSession,
-        current_bookings: (selectedSession.current_bookings || 0) + 1
+        current_bookings: (selectedSession.current_bookings || 0) + 1,
       };
       setSelectedSession(updatedSession);
-
-      // Reset user selection
       setSelectedUser(null);
-      
     } catch (err) {
       console.error('Error booking user:', err);
       setError(err.message || 'Failed to book user');
@@ -114,8 +114,9 @@ export default function ManualBookingManager() {
     setSuccess('');
   };
 
-  // Get list of already booked user IDs for exclusion
-  const bookedUserIds = existingBookings.map(booking => booking.user_profiles.id);
+  const bookedUserIds = existingBookings
+    .map((booking) => booking.user_profiles?.id)
+    .filter(Boolean);
 
   if (loading && sessions.length === 0) {
     return (
@@ -127,22 +128,21 @@ export default function ManualBookingManager() {
     );
   }
 
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Manual Booking</h2>
         <p className="text-sm text-gray-600 mt-1">
-          Book users into workout sessions manually (for those who need assistance)
+          Book users into workout sessions manually (for those who need
+          assistance)
         </p>
       </div>
 
-      {/* No Sessions Warning */}
       {sessions.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-yellow-800">
-            <strong>No active sessions available.</strong> Schedule some sessions first before manually booking users.
+          <p className="text-yellow-800 text-sm">
+            <strong>No active sessions available.</strong> Schedule some
+            sessions first before manually booking users.
           </p>
         </div>
       )}
@@ -155,14 +155,17 @@ export default function ManualBookingManager() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Step 1: Select Session
               </h3>
-              
+
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {sessions.map((session) => {
-                  const instructorName = session.instructor 
-                    ? (session.instructor.full_name || session.instructor.username)
+                  const instructorName = session.instructor
+                    ? session.instructor.full_name ||
+                      session.instructor.username
                     : 'No instructor';
-                  
-                  const spotsLeft = session.workout_classes.max_capacity - (session.current_bookings || 0);
+
+                  const spotsLeft =
+                    session.workout_classes.max_capacity -
+                    (session.current_bookings || 0);
                   const isFull = spotsLeft <= 0;
                   const isSelected = selectedSession?.id === session.id;
 
@@ -187,18 +190,20 @@ export default function ManualBookingManager() {
                           <p className="text-sm text-gray-600 mt-1">
                             {instructorName}
                           </p>
-                          <div className="text-xs text-gray-500 mt-2 space-y-1">
-                            <div>📅 {formatDate(session.start_time)}</div>
-                            <div>🕐 {formatTime(session.start_time)}</div>
+                          <div className="text-xs text-gray-500 mt-2">
+                            {formatDate(session.start_time)} •{' '}
+                            {formatTime(session.start_time)}
                           </div>
                         </div>
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          isFull
-                            ? 'bg-red-100 text-red-800'
-                            : spotsLeft <= 3
-                            ? 'bg-orange-100 text-orange-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}>
+                        <div
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            isFull
+                              ? 'bg-red-100 text-red-800'
+                              : spotsLeft <= 3
+                              ? 'bg-orange-100 text-orange-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}
+                        >
                           {isFull ? 'Full' : `${spotsLeft} spots`}
                         </div>
                       </div>
@@ -208,7 +213,6 @@ export default function ManualBookingManager() {
               </div>
             </div>
 
-            {/* Current Bookings */}
             {selectedSession && existingBookings.length > 0 && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h4 className="font-semibold text-gray-900 mb-3">
@@ -222,9 +226,9 @@ export default function ManualBookingManager() {
                     >
                       <div className="text-sm">
                         <div className="font-medium text-gray-900">
-                          {booking.user_profiles.username}
+                          {booking.user_profiles?.username || 'Unknown'}
                         </div>
-                        {booking.user_profiles.full_name && (
+                        {booking.user_profiles?.full_name && (
                           <div className="text-gray-600 text-xs">
                             {booking.user_profiles.full_name}
                           </div>
@@ -261,41 +265,42 @@ export default function ManualBookingManager() {
               )}
             </div>
 
-            {/* Selected Session Summary */}
             {selectedSession && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                <h4 className="font-semibold text-green-900 mb-3">Selected Session</h4>
+                <h4 className="font-semibold text-green-900 mb-3">
+                  Selected Session
+                </h4>
                 <div className="space-y-2">
                   <div className="text-sm text-green-900 font-medium">
                     {selectedSession.workout_classes.title}
                   </div>
                   <div className="text-sm text-green-700">
-                    {formatDate(selectedSession.start_time)} at {formatTime(selectedSession.start_time)}
+                    {formatDate(selectedSession.start_time)} at{' '}
+                    {formatTime(selectedSession.start_time)}
                   </div>
                   <div className="text-sm text-green-700">
-                    Instructor: {selectedSession.instructor 
-                      ? (selectedSession.instructor.full_name || selectedSession.instructor.username)
+                    Instructor:{' '}
+                    {selectedSession.instructor
+                      ? selectedSession.instructor.full_name ||
+                        selectedSession.instructor.username
                       : 'Not assigned'}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Error Message */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-red-800 text-sm">{error}</p>
               </div>
             )}
 
-            {/* Success Message */}
             {success && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-green-800 text-sm">{success}</p>
               </div>
             )}
 
-            {/* Action Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={handleReset}

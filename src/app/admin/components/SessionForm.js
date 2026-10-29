@@ -14,6 +14,7 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
     end_time: '',
     instructor_id: '',
     is_active: true,
+    is_recurring: true,
   });
   const [instructors, setInstructors] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -37,9 +38,10 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
         end_time: formatDateTimeLocal(endDate),
         instructor_id: session.instructor_id || '',
         is_active: session.is_active !== false,
+        is_recurring: session.is_recurring !== false,
       });
 
-      const template = templates.find(t => t.id === session.class_id);
+      const template = templates.find((t) => t.id === session.class_id);
       setSelectedTemplate(template);
     }
   }, [session, templates]);
@@ -49,7 +51,7 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
       const { data, error } = await fetchInstructors();
       if (error) throw error;
       setInstructors(data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load instructors');
     } finally {
       setLoadingInstructors(false);
@@ -58,7 +60,7 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
 
   const handleTemplateChange = (e) => {
     const templateId = parseInt(e.target.value);
-    const template = templates.find(t => t.id === templateId);
+    const template = templates.find((t) => t.id === templateId);
 
     setFormData({
       ...formData,
@@ -68,7 +70,7 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
     setSelectedTemplate(template);
 
     if (formData.start_time && template) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         end_time: calculateEndTime(formData.start_time, template.duration),
       }));
@@ -83,7 +85,7 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
     });
 
     if (startTime && selectedTemplate) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         end_time: calculateEndTime(startTime, selectedTemplate.duration),
       }));
@@ -116,6 +118,7 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
         end_time: new Date(formData.end_time).toISOString(),
         instructor_id: formData.instructor_id || null,
         is_active: formData.is_active,
+        is_recurring: formData.is_recurring,
       };
 
       if (session) {
@@ -135,15 +138,15 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
             {session ? 'Edit Session' : 'Schedule New Session'}
           </h2>
           <button
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+            className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none"
           >
             ×
           </button>
@@ -151,8 +154,12 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label htmlFor="class_id" className="block text-sm font-medium text-gray-700 mb-2">
-              Workout Template {!session && <span className="text-red-500">*</span>}
+            <label
+              htmlFor="class_id"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Workout Template{' '}
+              {!session && <span className="text-red-500">*</span>}
             </label>
             <select
               id="class_id"
@@ -161,8 +168,8 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
               onChange={handleTemplateChange}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                 fieldErrors.class_id
-                  ? "border-red-300 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-green-500"
+                  ? 'border-red-300 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-green-500'
               }`}
               required
               disabled={!!session}
@@ -170,22 +177,36 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
               <option value="">Select a workout template</option>
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>
-                  {template.title} ({template.duration} min, max {template.max_capacity} people)
+                  {template.title} ({template.duration} min, max{' '}
+                  {template.max_capacity} people)
                 </option>
               ))}
             </select>
-            {fieldErrors.class_id && <p className="text-xs text-red-600 mt-1">{fieldErrors.class_id}</p>}
-            {session && <p className="text-xs text-gray-500 mt-1">Template cannot be changed after creation</p>}
+            {fieldErrors.class_id && (
+              <p className="text-xs text-red-600 mt-1">
+                {fieldErrors.class_id}
+              </p>
+            )}
+            {session && (
+              <p className="text-xs text-gray-500 mt-1">
+                Template cannot be changed after creation
+              </p>
+            )}
           </div>
 
           {selectedTemplate && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-900 mb-2">{selectedTemplate.title}</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">
+                {selectedTemplate.title}
+              </h4>
               {selectedTemplate.description && (
-                <p className="text-sm text-blue-800 mb-2">{selectedTemplate.description}</p>
+                <p className="text-sm text-blue-800 mb-2">
+                  {selectedTemplate.description}
+                </p>
               )}
               <div className="text-sm text-blue-700">
-                Duration: {selectedTemplate.duration} minutes • Capacity: {selectedTemplate.max_capacity} people
+                Duration: {selectedTemplate.duration} minutes • Capacity:{' '}
+                {selectedTemplate.max_capacity} people
               </div>
             </div>
           )}
@@ -213,35 +234,70 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Instructor (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Instructor (Optional)
+            </label>
             {loadingInstructors ? (
-              <div className="text-sm text-gray-600">Loading instructors...</div>
+              <div className="text-sm text-gray-600">
+                Loading instructors...
+              </div>
             ) : (
               <InstructorSelect
                 instructors={instructors}
                 value={formData.instructor_id}
-                onChange={(value) => setFormData({ ...formData, instructor_id: value })}
+                onChange={(value) =>
+                  setFormData({ ...formData, instructor_id: value })
+                }
               />
             )}
           </div>
 
-          <div className="flex items-center">
-            <input
-              id="is_active"
-              name="is_active"
-              type="checkbox"
-              checked={formData.is_active}
-              onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-            />
-            <label htmlFor="is_active" className="ml-2 text-sm font-medium text-gray-700">
-              Active (visible to users for booking)
-            </label>
+          <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className="flex items-start">
+              <input
+                id="is_recurring"
+                name="is_recurring"
+                type="checkbox"
+                checked={formData.is_recurring}
+                onChange={handleChange}
+                className="w-4 h-4 mt-0.5 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              />
+              <div className="ml-2">
+                <label
+                  htmlFor="is_recurring"
+                  className="text-sm font-medium text-gray-900"
+                >
+                  Repeat weekly (4-week rolling schedule)
+                </label>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {session
+                    ? 'Automatically continues scheduling this session for future weeks.'
+                    : 'Automatically creates weekly replicas for the next 4 weeks and rolls forward every week.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center pt-2 border-t border-gray-200">
+              <input
+                id="is_active"
+                name="is_active"
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={handleChange}
+                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              />
+              <label
+                htmlFor="is_active"
+                className="ml-2 text-sm font-medium text-gray-700"
+              >
+                Active (visible to users for booking)
+              </label>
+            </div>
           </div>
 
           {error && <FormMessage type="error" message={error} />}
 
-          <div className="flex gap-3 pt-4 border-t">
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onCancel}
@@ -255,7 +311,11 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
               disabled={loading}
               className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              {loading ? 'Saving...' : session ? 'Update Session' : 'Schedule Session'}
+              {loading
+                ? 'Saving...'
+                : session
+                ? 'Update Session'
+                : 'Schedule Session'}
             </button>
           </div>
         </form>

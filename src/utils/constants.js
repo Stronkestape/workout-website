@@ -10,6 +10,7 @@ export const MESSAGES = {
   USERNAME_TOO_LONG: `Username must be at most ${VALIDATION.USERNAME_MAX_LENGTH} characters`,
   USERNAME_TOO_SHORT: `Username must be at least ${VALIDATION.USERNAME_MIN_LENGTH} characters`,
   USERNAME_TAKEN: "Username is already taken",
+  EMAIL_TAKEN: "This email address is already registered",
   INVALID_EMAIL: "Please enter a valid email address",
   PROFILE_UPDATED: "Profile updated successfully!",
   PROFILE_UPDATED_EMAIL_VERIFY: "Profile updated! Please check your new email to confirm the change.",

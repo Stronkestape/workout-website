@@ -1,9 +1,11 @@
 export function FormField({
   id,
+  name,
   label,
   hint,
   error,
   value,
+  defaultValue,
   onChange,
   disabled,
   type = "text",
@@ -18,9 +20,11 @@ export function FormField({
       </label>
       <input
         id={id}
+        name={name || id}
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={defaultValue}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         disabled={disabled}
         autoComplete={autoComplete}
         required={required}

@@ -5,7 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { format, parse, startOfWeek, getDay, isBefore, isAfter } from "date-fns";
 import hu from "date-fns/locale/hu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from './Calendar.module.css';
 import { supabaseBrowser } from '@/lib/browser';
 import WorkoutCard from '@/components/WorkoutCard';
@@ -42,24 +42,16 @@ export default function CalendarPage() {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutCard, setShowWorkoutCard] = useState(false);
 
-  // Get current user
-  useEffect(() => {
-    getCurrentUser();
-  }, []);
-
-  // Fetch events from Supabase
-  useEffect(() => {
-    fetchEvents();
-  }, [user]);
-
   const getCurrentUser = async () => {
     const { data: { user } } = await supabaseBrowser.auth.getUser();
     setUser(user);
   };
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       
       const { data, error } = await fetchClassSessions();
 
@@ -107,18 +99,33 @@ export default function CalendarPage() {
       });
 
       setEvents(calendarEvents);
+      setSelectedWorkout(prev =>
+        prev ? calendarEvents.find(event => event.id === prev.id) || prev : null
+      );
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
-  };
+  }, [user]);
+
+  // Get current user
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
+
+  // Fetch events from Supabase
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   // Get current date without time for comparison
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const handleNavigate = (newDate, view, action) => {
+  const handleNavigate = (newDate, view) => {
     const limits = getDateLimits(view, today);
     const dateToCheck = new Date(newDate);
     dateToCheck.setHours(0, 0, 0, 0);
@@ -155,8 +162,8 @@ export default function CalendarPage() {
     setSelectedWorkout(null);
   };
 
-  const handleBookingChange = () => {
-    fetchEvents(); // Refresh calendar data after booking changes
+  const handleBookingChange = async () => {
+    await fetchEvents({ silent: true }); // Refresh calendar and selectedWorkout without full-page loading flash
   };
 
   if (loading) {

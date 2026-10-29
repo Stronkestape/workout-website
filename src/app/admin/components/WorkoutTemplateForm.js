@@ -31,7 +31,10 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'duration' || name === 'max_capacity' ? parseInt(value) : value,
+      [name]:
+        name === 'duration' || name === 'max_capacity'
+          ? parseInt(value)
+          : value,
     });
   };
 
@@ -56,15 +59,15 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
             {template ? 'Edit Template' : 'Create New Template'}
           </h2>
           <button
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+            className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none"
           >
             ×
           </button>
@@ -127,13 +130,14 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              This is a template. Create scheduled sessions from this template later to assign instructors and set specific dates/times.
+              This is a template. Create scheduled sessions from this template
+              later to assign instructors and set specific dates/times.
             </p>
           </div>
 
           {error && <FormMessage type="error" message={error} />}
 
-          <div className="flex gap-3 pt-4 border-t">
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onCancel}
@@ -147,7 +151,11 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
               disabled={loading}
               className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              {loading ? 'Saving...' : template ? 'Update Template' : 'Create Template'}
+              {loading
+                ? 'Saving...'
+                : template
+                ? 'Update Template'
+                : 'Create Template'}
             </button>
           </div>
         </form>
