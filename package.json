@@ -13,6 +13,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.109.0",
+    "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.1.0",
     "next": "^16.4.3",
     "react": "19.1.0",
