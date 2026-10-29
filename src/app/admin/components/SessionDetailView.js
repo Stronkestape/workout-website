@@ -23,9 +23,11 @@ export default function SessionDetailView({ currentUser }) {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    loadSessions();
+    if (currentUser?.id) {
+      loadSessions();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id]);
+  }, [currentUser?.id, isInstructor]);
 
   useEffect(() => {
     if (selectedSession) {
@@ -36,7 +38,9 @@ export default function SessionDetailView({ currentUser }) {
   const loadSessions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await fetchAllSessions();
+      const { data, error } = await fetchAllSessions(
+        isInstructor ? currentUser?.id : null
+      );
 
       if (error) throw error;
 

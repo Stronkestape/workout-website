@@ -21,8 +21,8 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated, service_role;
+REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.is_admin() TO anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION private.is_instructor()
 RETURNS boolean
@@ -39,8 +39,8 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION private.is_instructor() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION private.is_instructor() TO authenticated, service_role;
+REVOKE ALL ON FUNCTION private.is_instructor() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.is_instructor() TO anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION private.is_session_instructor(p_session_id integer)
 RETURNS boolean
@@ -58,8 +58,8 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION private.is_session_instructor(integer) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION private.is_session_instructor(integer) TO authenticated, service_role;
+REVOKE ALL ON FUNCTION private.is_session_instructor(integer) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.is_session_instructor(integer) TO anon, authenticated, service_role;
 
 -- 2. Fix `get_available_instructors()` so Admins & Instructors can always load the Coach dropdown
 CREATE OR REPLACE FUNCTION public.get_available_instructors()
@@ -294,6 +294,7 @@ DECLARE
   v_slot_hours         interval[];
   v_start_ts           timestamptz;
   v_end_ts             timestamptz;
+  v_t_idx              integer;
   v_chosen_class_id    integer;
   v_chosen_duration    integer;
   v_chosen_instructor  uuid;
@@ -401,20 +402,15 @@ BEGIN
   END IF;
 
   -- 5) Load all instructors from `public.user_profiles`
-  SELECT array_agg(id ORDER BY created_at ASC)
+  SELECT array_agg(id ORDER BY created_at ASC, id ASC)
   INTO v_instructor_ids
   FROM public.user_profiles
   WHERE user_tier = 'instructor';
 
   v_instructor_count := COALESCE(array_length(v_instructor_ids, 1), 0);
 
-  -- Also assign instructors to any existing sessions that currently have `instructor_id IS NULL`
-  UPDATE public.class_sessions cs
-  SET instructor_id = v_instructor_ids[(cs.id % v_instructor_count) + 1]
-  WHERE cs.instructor_id IS NULL
-    AND v_instructor_count > 0;
-
-  -- 6) Schedule multiple daily sessions across the current week using ONLY existing templates
+  -- 6) Schedule multiple daily sessions across the current week using ONLY existing templates,
+  --    where each template is dedicated to a specific specialist coach!
   v_week_monday := date_trunc('week', now());
 
   FOR v_day_offset IN 0..6 LOOP
@@ -429,9 +425,11 @@ BEGIN
     FOR v_slot_idx IN 1..array_length(v_slot_hours, 1) LOOP
       v_counter := v_counter + 1;
 
-      v_chosen_class_id   := v_template_ids[((v_counter - 1) % v_template_count) + 1];
-      v_chosen_duration   := v_template_durations[((v_counter - 1) % v_template_count) + 1];
-      v_chosen_instructor := v_instructor_ids[((v_counter - 1) % v_instructor_count) + 1];
+      -- Pick template in rotation, and map that template deterministically to its specialist coach
+      v_t_idx             := ((v_counter - 1) % v_template_count) + 1;
+      v_chosen_class_id   := v_template_ids[v_t_idx];
+      v_chosen_duration   := v_template_durations[v_t_idx];
+      v_chosen_instructor := v_instructor_ids[((v_t_idx - 1) % v_instructor_count) + 1];
 
       v_start_ts := v_week_monday + (v_day_offset * interval '1 day') + v_slot_hours[v_slot_idx];
       v_end_ts   := v_start_ts + (v_chosen_duration * interval '1 minute');
@@ -459,6 +457,19 @@ BEGIN
       END IF;
     END LOOP;
   END LOOP;
+
+  -- 7) Reassign ALL sessions (including pre-existing ones) so each workout template
+  --    is consistently taught by its dedicated specialist coach (1-2 templates per coach)
+  IF v_instructor_count > 0 THEN
+    FOR v_t_idx IN 1..v_template_count LOOP
+      v_chosen_class_id   := v_template_ids[v_t_idx];
+      v_chosen_instructor := v_instructor_ids[((v_t_idx - 1) % v_instructor_count) + 1];
+
+      UPDATE public.class_sessions
+      SET instructor_id = v_chosen_instructor
+      WHERE class_id = v_chosen_class_id;
+    END LOOP;
+  END IF;
 
   -- 7) Add sample bookings on upcoming sessions
   SELECT array_agg(id ORDER BY created_at ASC)

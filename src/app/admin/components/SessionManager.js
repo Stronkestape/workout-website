@@ -23,16 +23,18 @@ export default function SessionManager({ currentUser }) {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    loadData();
+    if (currentUser?.id) {
+      loadData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id]);
+  }, [currentUser?.id, isInstructor]);
 
   const loadData = async () => {
     try {
       setLoading(true);
 
       const [sessionsResult, templatesResult] = await Promise.all([
-        fetchAllSessions(),
+        fetchAllSessions(isInstructor ? currentUser?.id : null),
         fetchWorkoutTemplates(),
       ]);
 

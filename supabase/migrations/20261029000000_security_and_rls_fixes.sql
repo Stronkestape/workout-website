@@ -41,8 +41,8 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated;
+REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.is_admin() TO anon, authenticated, service_role;
 
 -- 5. Add missing RLS policies on `user_profiles` and `waitlist`
 

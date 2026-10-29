@@ -87,11 +87,10 @@ export const deleteWorkoutTemplate = async (id) => {
 };
 
 /**
- * Fetch all class sessions (for admin management)
- * Admin only
+ * Fetch class sessions (all for admin, or filtered by instructorId for instructors)
  */
-export const fetchAllSessions = async () => {
-  const { data, error } = await supabaseBrowser
+export const fetchAllSessions = async (instructorId = null) => {
+  let query = supabaseBrowser
     .from('class_sessions')
     .select(`
       *,
@@ -107,6 +106,12 @@ export const fetchAllSessions = async () => {
       )
     `)
     .order('start_time', { ascending: true });
+
+  if (instructorId) {
+    query = query.eq('instructor_id', instructorId);
+  }
+
+  const { data, error } = await query;
 
   return { data, error };
 };
