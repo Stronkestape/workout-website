@@ -63,7 +63,7 @@ flowchart TD
    - Protects `/profile` and `/admin` routes on the server, checks `user_tier = 'admin'` before allowing access to `/admin/*`, and redirects logged-in users away from `/login` and `/register`.
 2. **Server Actions (`useActionState`)**:
    - Auth (`/login`, `/register`, `/forgot-password`, `/reset-password`) and profile forms (`/profile`) use Next.js Server Actions (`'use server'`) with `@supabase/ssr` cookie handling (`getAll` / `setAll`) and `revalidatePath`.
-3. **Database Triggers & Row Level Security (`schema.sql` + `supabase/migrations/`)**:
+3. **Database Triggers & Row Level Security (`supabase/migrations/`)**:
    - Core booking rules are enforced in PostgreSQL so they cannot be bypassed from the client:
      - `private.validate_booking_insert()`: Locks the target `class_sessions` row with `SELECT ... FOR UPDATE OF cs` before inserting a booking to prevent concurrent overbooking when the last spot is taken.
      - `private.validate_booking_delete()`: Enforces the 2-hour cancellation cutoff in the database for regular users while allowing admins and scheduled cleanup jobs.
@@ -186,8 +186,8 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-### 4. Apply Database Schema & Migrations
-Run [`schema.sql`](./schema.sql) followed by the migrations in [`supabase/migrations/`](./supabase/migrations) inside the Supabase SQL Editor (or via the Supabase CLI) to create all tables, indexes, RLS policies, `pg_cron` recurring session jobs, concurrency/cancellation triggers, and demo accounts.
+### 4. Apply Database Migrations
+Run the SQL migrations in [`supabase/migrations/`](./supabase/migrations) in chronological order inside the Supabase SQL Editor (or via `supabase db push` with the Supabase CLI) to set up all tables, indexes, RLS policies, `pg_cron` recurring session jobs, concurrency/cancellation triggers, and demo accounts.
 
 ### 5. Run Linter & Unit Tests
 ```bash
