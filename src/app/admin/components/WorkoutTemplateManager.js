@@ -116,9 +116,9 @@ export default function WorkoutTemplateManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
             Workout Templates
           </h2>
           <p className="text-sm text-gray-600 mt-1">
@@ -128,7 +128,7 @@ export default function WorkoutTemplateManager() {
         </div>
         <button
           onClick={handleCreate}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2"
+          className="w-full sm:w-auto justify-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2 shrink-0"
         >
           <span>+ Create Template</span>
         </button>

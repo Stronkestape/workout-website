@@ -1,46 +1,75 @@
 export default function CalendarToolbar({ label, onNavigate, onView, view }) {
   return (
-    <div className="flex justify-between items-center mb-4 p-2 z-50">
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => onNavigate("PREV")}
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          ←
-        </button>
-        <button
-          onClick={() => onNavigate("TODAY")}
-          className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
-        >
-          Today
-        </button>
-        <button
-          onClick={() => onNavigate("NEXT")}
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          →
-        </button>
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 p-1 sm:p-2 z-20">
+      <div className="flex items-center justify-between sm:justify-start gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => onNavigate("PREV")}
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            aria-label="Previous period"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => onNavigate("TODAY")}
+            className="px-3.5 py-1.5 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+          >
+            Today
+          </button>
+          <button
+            onClick={() => onNavigate("NEXT")}
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            aria-label="Next period"
+          >
+            →
+          </button>
+        </div>
+
+        <div className="flex sm:hidden gap-1 bg-gray-100 p-1 rounded-lg">
+          <button
+            onClick={() => onView("week")}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              view === "week"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Week
+          </button>
+          <button
+            onClick={() => onView("month")}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              view === "month"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Month
+          </button>
+        </div>
       </div>
 
-      <h3 className="text-lg font-semibold">{label}</h3>
+      <h3 className="text-base sm:text-lg font-bold text-gray-900 text-center">
+        {label}
+      </h3>
 
-      <div className="flex gap-1">
+      <div className="hidden sm:flex gap-1 bg-gray-100 p-1 rounded-lg">
         <button
           onClick={() => onView("week")}
-          className={`px-3 py-1 rounded ${
+          className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors ${
             view === "week"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
+              ? "bg-blue-600 text-white shadow-sm"
+              : "text-gray-700 hover:bg-gray-200"
           }`}
         >
           Week
         </button>
         <button
           onClick={() => onView("month")}
-          className={`px-3 py-1 rounded ${
+          className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors ${
             view === "month"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
+              ? "bg-blue-600 text-white shadow-sm"
+              : "text-gray-700 hover:bg-gray-200"
           }`}
         >
           Month

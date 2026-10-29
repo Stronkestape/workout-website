@@ -333,57 +333,57 @@ export default function SessionDetailView({ currentUser }) {
                   </div>
                 )}
 
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-lg font-semibold text-gray-900">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
+                  <div className="flex justify-between items-center mb-4 gap-2">
+                    <h4 className="text-base sm:text-lg font-semibold text-gray-900">
                       Confirmed Bookings ({bookings.length})
                     </h4>
                     {bookings.length === 0 && (
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs sm:text-sm text-gray-500">
                         No bookings yet
                       </span>
                     )}
                   </div>
 
                   {bookings.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {bookings.map((booking) => (
                         <div
                           key={booking.id}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shrink-0">
                               {booking.user_profiles?.username
                                 ?.charAt(0)
                                 .toUpperCase() || 'U'}
                             </div>
-                            <div>
-                              <div className="font-medium text-gray-900">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-gray-900 truncate">
                                 {booking.user_profiles?.username || 'Unknown'}
                               </div>
                               {booking.user_profiles?.full_name && (
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-gray-600 truncate">
                                   {booking.user_profiles.full_name}
                                 </div>
                               )}
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-gray-500 truncate">
                                 {booking.user_profiles?.email}
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="text-xs text-gray-500 text-right">
-                              <div>Booked</div>
-                              <div>
+                          <div className="flex items-center justify-between sm:justify-end gap-3 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-gray-200/70 shrink-0">
+                            <div className="text-xs text-gray-500 sm:text-right">
+                              <span className="sm:block">Booked </span>
+                              <span className="font-medium sm:font-normal text-gray-700 sm:text-gray-500">
                                 {new Date(
                                   booking.booked_at
                                 ).toLocaleDateString()}
-                              </div>
+                              </span>
                             </div>
                             <button
                               onClick={() => setBookingToRemove(booking)}
-                              className="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
+                              className="bg-red-50 text-red-600 px-3.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-medium text-xs sm:text-sm shrink-0"
                             >
                               Remove
                             </button>
@@ -399,32 +399,32 @@ export default function SessionDetailView({ currentUser }) {
                 </div>
 
                 {waitlist.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                  <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
+                    <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                       Waitlist ({waitlist.length})
                     </h4>
                     <div className="space-y-2">
                       {waitlist.map((entry) => (
                         <div
                           key={entry.id}
-                          className="flex items-center justify-between p-3 bg-orange-50 rounded-lg"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-orange-50 rounded-lg"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
                               {entry.position}
                             </div>
-                            <div>
-                              <div className="font-medium text-gray-900">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-gray-900 truncate">
                                 {entry.user_profiles?.username || 'Unknown'}
                               </div>
                               {entry.user_profiles?.full_name && (
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-gray-600 truncate">
                                   {entry.user_profiles.full_name}
                                 </div>
                               )}
                             </div>
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 shrink-0 pl-11 sm:pl-0">
                             Joined{' '}
                             {new Date(entry.joined_at).toLocaleDateString()}
                           </div>
@@ -434,36 +434,36 @@ export default function SessionDetailView({ currentUser }) {
                   </div>
                 )}
 
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                     Session Statistics
                   </h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                    <div className="text-center p-2.5 sm:p-4 bg-blue-50 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-blue-600">
                         {bookings.length}
                       </div>
-                      <div className="text-sm text-blue-700 mt-1">
+                      <div className="text-xs sm:text-sm text-blue-700 mt-1">
                         Confirmed
                       </div>
                     </div>
-                    <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">
+                    <div className="text-center p-2.5 sm:p-4 bg-orange-50 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-orange-600">
                         {waitlist.length}
                       </div>
-                      <div className="text-sm text-orange-700 mt-1">
+                      <div className="text-xs sm:text-sm text-orange-700 mt-1">
                         Waitlist
                       </div>
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-2.5 sm:p-4 bg-green-50 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-green-600">
                         {Math.max(
                           0,
                           selectedSession.workout_classes.max_capacity -
                             (selectedSession.current_bookings || 0)
                         )}
                       </div>
-                      <div className="text-sm text-green-700 mt-1">
+                      <div className="text-xs sm:text-sm text-green-700 mt-1">
                         Available
                       </div>
                     </div>

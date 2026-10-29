@@ -163,21 +163,21 @@ export default function UserBookingsList({ userId }) {
                   key={booking.id}
                   className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors"
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 break-words">
                         {workout?.title}
                       </h4>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 mt-1 truncate">
                         with {instructorName}
                       </p>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-500">
                         <span>{date}</span>
                         <span>•</span>
                         <span>{time}</span>
                       </div>
                     </div>
-                    <div className="ml-4">
+                    <div className="sm:ml-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/70 flex justify-end shrink-0">
                       {canCancel ? (
                         <button
                           onClick={() =>
@@ -189,7 +189,7 @@ export default function UserBookingsList({ userId }) {
                               confirmLabel: "Cancel Booking",
                             })
                           }
-                          className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          className="text-red-600 hover:text-red-700 text-sm font-medium bg-red-50 sm:bg-transparent px-3 py-1.5 sm:p-0 rounded-md"
                         >
                           Cancel
                         </button>

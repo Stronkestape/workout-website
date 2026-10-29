@@ -146,9 +146,9 @@ export default function SessionManager({ currentUser }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
             {isInstructor ? 'My Scheduled Sessions' : 'Manage Sessions'}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
@@ -159,17 +159,17 @@ export default function SessionManager({ currentUser }) {
         </div>
         <button
           onClick={handleCreate}
-          className="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center gap-2"
+          className="w-full sm:w-auto justify-center bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center gap-2 shrink-0"
         >
           <span>+ Schedule Session</span>
         </button>
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 inline-flex">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 flex sm:inline-flex w-full sm:w-auto overflow-x-auto">
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-md font-medium text-sm transition-colors ${
+          className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-md font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
             filter === 'all'
               ? 'bg-blue-600 text-white'
               : 'text-gray-600 hover:text-gray-900'
@@ -179,7 +179,7 @@ export default function SessionManager({ currentUser }) {
         </button>
         <button
           onClick={() => setFilter('today')}
-          className={`px-4 py-2 rounded-md font-medium text-sm transition-colors ${
+          className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-md font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
             filter === 'today'
               ? 'bg-blue-600 text-white'
               : 'text-gray-600 hover:text-gray-900'
@@ -189,7 +189,7 @@ export default function SessionManager({ currentUser }) {
         </button>
         <button
           onClick={() => setFilter('upcoming')}
-          className={`px-4 py-2 rounded-md font-medium text-sm transition-colors ${
+          className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-md font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
             filter === 'upcoming'
               ? 'bg-blue-600 text-white'
               : 'text-gray-600 hover:text-gray-900'
@@ -251,13 +251,13 @@ export default function SessionManager({ currentUser }) {
             return (
               <div
                 key={session.id}
-                className="bg-white rounded-lg shadow hover:shadow-md transition-shadow border border-gray-200 p-6"
+                className="bg-white rounded-lg shadow hover:shadow-md transition-shadow border border-gray-200 p-4 sm:p-6 overflow-hidden"
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-blue-50 rounded-lg p-3 text-center min-w-[72px]">
-                        <div className="text-2xl font-bold text-blue-600">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-center min-w-[60px] sm:min-w-[72px] shrink-0">
+                        <div className="text-xl sm:text-2xl font-bold text-blue-600 leading-tight">
                           {new Date(session.start_time).getDate()}
                         </div>
                         <div className="text-xs text-blue-600 font-medium uppercase">
@@ -268,12 +268,12 @@ export default function SessionManager({ currentUser }) {
                         </div>
                       </div>
 
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 break-words">
                           {session.workout_classes.title}
                         </h3>
-                        <div className="space-y-1 text-sm text-gray-600">
-                          <div>Instructor: {instructorName}</div>
+                        <div className="space-y-1 text-xs sm:text-sm text-gray-600">
+                          <div className="truncate">Instructor: {instructorName}</div>
                           <div>
                             {formatDate(session.start_time)} •{' '}
                             {formatTime(session.start_time)} –{' '}
@@ -284,22 +284,22 @@ export default function SessionManager({ currentUser }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2 ml-4">
-                    <div
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        isFull
-                          ? 'bg-red-100 text-red-800'
-                          : isAlmostFull
-                          ? 'bg-orange-100 text-orange-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}
-                    >
-                      {isFull
-                        ? 'Full'
-                        : `${spotsLeft}/${session.workout_classes.max_capacity} spots`}
-                    </div>
+                  <div className="flex flex-col sm:items-end gap-2.5 pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100 sm:ml-4 shrink-0">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+                      <div
+                        className={`px-2.5 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                          isFull
+                            ? 'bg-red-100 text-red-800'
+                            : isAlmostFull
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}
+                      >
+                        {isFull
+                          ? 'Full'
+                          : `${spotsLeft}/${session.workout_classes.max_capacity} spots`}
+                      </div>
 
-                    <div className="flex items-center gap-1.5">
                       {session.is_recurring !== false && (
                         <span className="px-2 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
                           Weekly
@@ -314,27 +314,27 @@ export default function SessionManager({ currentUser }) {
                       >
                         {session.is_active ? 'Active' : 'Inactive'}
                       </span>
+
+                      {session.current_bookings > 0 && (
+                        <span className="text-xs sm:text-sm text-gray-600 ml-auto sm:ml-1 font-medium">
+                          {session.current_bookings}{' '}
+                          {session.current_bookings === 1
+                            ? 'booking'
+                            : 'bookings'}
+                        </span>
+                      )}
                     </div>
 
-                    {session.current_bookings > 0 && (
-                      <div className="text-sm text-gray-600">
-                        {session.current_bookings}{' '}
-                        {session.current_bookings === 1
-                          ? 'booking'
-                          : 'bookings'}
-                      </div>
-                    )}
-
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 sm:mt-1">
                       <button
                         onClick={() => handleEdit(session)}
-                        className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium text-sm"
+                        className="flex-1 sm:flex-initial bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium text-sm text-center"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => setSessionToDelete(session)}
-                        className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
+                        className="flex-1 sm:flex-initial bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm text-center"
                       >
                         Delete
                       </button>
