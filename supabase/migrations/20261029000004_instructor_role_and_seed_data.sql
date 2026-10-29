@@ -1,4 +1,4 @@
--- Migration: Instructor Role Permissions & Rich Dummy Schedule Seed
+-- Migration: Instructor Role Permissions & Schedule Generation from Existing Templates
 
 -- 1. Helper Functions for Instructor Role
 CREATE OR REPLACE FUNCTION private.is_instructor()
@@ -258,37 +258,36 @@ BEGIN
 END;
 $$;
 
--- 3. Seed Demo Instructor, Extra Coaches, Members, Workout Templates & Multi-Session Daily Schedule
+-- 3. Seed Demo Coach Account & Schedule Sessions ONLY from EXISTING Workout Templates
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 DO $$
 DECLARE
-  v_demo_member_id     uuid := '00000000-0000-0000-0000-000000000101';
-  v_demo_admin_id      uuid := '00000000-0000-0000-0000-000000000102';
   v_demo_instructor_id uuid := '00000000-0000-0000-0000-000000000103';
-  v_coach_eszter_id    uuid := '00000000-0000-0000-0000-000000000104';
-  v_coach_bence_id     uuid := '00000000-0000-0000-0000-000000000105';
-  v_member_anna_id     uuid := '00000000-0000-0000-0000-000000000106';
-  v_member_peter_id    uuid := '00000000-0000-0000-0000-000000000107';
-  v_member_kata_id     uuid := '00000000-0000-0000-0000-000000000108';
-  v_member_david_id    uuid := '00000000-0000-0000-0000-000000000109';
+  v_template_ids       integer[];
+  v_template_durations integer[];
+  v_template_count     integer;
+  v_instructor_ids     uuid[];
+  v_instructor_count   integer;
+  v_member_ids         uuid[];
+  v_member_count       integer;
 
-  v_class_yoga       integer;
-  v_class_hiit       integer;
-  v_class_crossfit   integer;
-  v_class_spin       integer;
-  v_class_kettlebell integer;
-  v_class_mobility   integer;
-
-  v_week_monday timestamptz;
-  v_day_offset  integer;
-  v_day_base    timestamptz;
-  v_session_rec record;
+  v_week_monday        timestamptz;
+  v_day_offset         integer;
+  v_slot_idx           integer;
+  v_slot_hours         interval[];
+  v_start_ts           timestamptz;
+  v_end_ts             timestamptz;
+  v_chosen_class_id    integer;
+  v_chosen_duration    integer;
+  v_chosen_instructor  uuid;
+  v_counter            integer := 0;
+  v_session_rec        record;
+  v_m_idx              integer;
 BEGIN
   PERFORM set_config('request.jwt.claim.role', 'service_role', true);
 
-  -- Helper block to upsert demo/seed accounts into auth.users + public.user_profiles
-  -- 1) Demo Instructor (Kovács Máté)
+  -- Ensure `demo_instructor` exists for the 1-Click "Demo Coach" login button on /login
   IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'demo.instructor@workoutbooking.demo') THEN
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password,
@@ -298,7 +297,7 @@ BEGIN
       '00000000-0000-0000-0000-000000000000', v_demo_instructor_id, 'authenticated', 'authenticated',
       'demo.instructor@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
       now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"demo_instructor","full_name":"Kovács Máté (Coach)"}'::jsonb,
+      '{"username":"demo_instructor","full_name":"Demo Coach"}'::jsonb,
       now(), now(), '', '', '', ''
     );
     INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
@@ -309,264 +308,109 @@ BEGIN
   END IF;
 
   INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_demo_instructor_id, 'demo.instructor@workoutbooking.demo', 'demo_instructor', 'Kovács Máté (Coach)', 'instructor')
-  ON CONFLICT (id) DO UPDATE SET username = EXCLUDED.username, full_name = EXCLUDED.full_name, user_tier = 'instructor';
+  VALUES (v_demo_instructor_id, 'demo.instructor@workoutbooking.demo', 'demo_instructor', 'Demo Coach', 'instructor')
+  ON CONFLICT (id) DO UPDATE
+    SET username = EXCLUDED.username,
+        full_name = COALESCE(public.user_profiles.full_name, EXCLUDED.full_name),
+        user_tier = 'instructor';
 
-  -- 2) Coach Eszter
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'eszter.coach@workoutbooking.demo') THEN
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000', v_coach_eszter_id, 'authenticated', 'authenticated',
-      'eszter.coach@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
-      now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"coach_eszter","full_name":"Tóth Eszter"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-    INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
-    VALUES (gen_random_uuid(), v_coach_eszter_id, jsonb_build_object('sub', v_coach_eszter_id::text, 'email', 'eszter.coach@workoutbooking.demo'), 'email', v_coach_eszter_id::text, now(), now(), now())
-    ON CONFLICT DO NOTHING;
-  ELSE
-    SELECT id INTO v_coach_eszter_id FROM auth.users WHERE email = 'eszter.coach@workoutbooking.demo' LIMIT 1;
+  -- Load ONLY EXISTING workout templates from `public.workout_classes` (no new templates created!)
+  SELECT
+    array_agg(id ORDER BY id),
+    array_agg(COALESCE(duration, 60) ORDER BY id)
+  INTO
+    v_template_ids,
+    v_template_durations
+  FROM public.workout_classes;
+
+  v_template_count := COALESCE(array_length(v_template_ids, 1), 0);
+
+  IF v_template_count = 0 THEN
+    RAISE NOTICE 'No existing workout templates found in public.workout_classes; skipping session generation.';
+    RETURN;
   END IF;
 
-  INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_coach_eszter_id, 'eszter.coach@workoutbooking.demo', 'coach_eszter', 'Tóth Eszter', 'instructor')
-  ON CONFLICT (id) DO UPDATE SET username = EXCLUDED.username, full_name = EXCLUDED.full_name, user_tier = 'instructor';
+  -- Load all existing instructors from `public.user_profiles`
+  SELECT array_agg(id ORDER BY created_at ASC)
+  INTO v_instructor_ids
+  FROM public.user_profiles
+  WHERE user_tier = 'instructor';
 
-  -- 3) Coach Bence
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'bence.coach@workoutbooking.demo') THEN
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000', v_coach_bence_id, 'authenticated', 'authenticated',
-      'bence.coach@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
-      now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"coach_bence","full_name":"Horváth Bence"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-    INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
-    VALUES (gen_random_uuid(), v_coach_bence_id, jsonb_build_object('sub', v_coach_bence_id::text, 'email', 'bence.coach@workoutbooking.demo'), 'email', v_coach_bence_id::text, now(), now(), now())
-    ON CONFLICT DO NOTHING;
-  ELSE
-    SELECT id INTO v_coach_bence_id FROM auth.users WHERE email = 'bence.coach@workoutbooking.demo' LIMIT 1;
-  END IF;
+  v_instructor_count := COALESCE(array_length(v_instructor_ids, 1), 0);
 
-  INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_coach_bence_id, 'bence.coach@workoutbooking.demo', 'coach_bence', 'Horváth Bence', 'instructor')
-  ON CONFLICT (id) DO UPDATE SET username = EXCLUDED.username, full_name = EXCLUDED.full_name, user_tier = 'instructor';
-
-  -- 4) Sample Members (Anna, Péter, Kata, Dávid)
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'anna.varga@workoutbooking.demo') THEN
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000', v_member_anna_id, 'authenticated', 'authenticated',
-      'anna.varga@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
-      now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"anna_varga","full_name":"Varga Anna"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-  ELSE
-    SELECT id INTO v_member_anna_id FROM auth.users WHERE email = 'anna.varga@workoutbooking.demo' LIMIT 1;
-  END IF;
-  INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_member_anna_id, 'anna.varga@workoutbooking.demo', 'anna_varga', 'Varga Anna', 'regular')
-  ON CONFLICT (id) DO UPDATE SET full_name = EXCLUDED.full_name;
-
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'peter.nagy@workoutbooking.demo') THEN
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000', v_member_peter_id, 'authenticated', 'authenticated',
-      'peter.nagy@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
-      now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"peter_nagy","full_name":"Nagy Péter"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-  ELSE
-    SELECT id INTO v_member_peter_id FROM auth.users WHERE email = 'peter.nagy@workoutbooking.demo' LIMIT 1;
-  END IF;
-  INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_member_peter_id, 'peter.nagy@workoutbooking.demo', 'peter_nagy', 'Nagy Péter', 'regular')
-  ON CONFLICT (id) DO UPDATE SET full_name = EXCLUDED.full_name;
-
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'kata.szabo@workoutbooking.demo') THEN
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000', v_member_kata_id, 'authenticated', 'authenticated',
-      'kata.szabo@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
-      now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"kata_szabo","full_name":"Szabó Kata"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-  ELSE
-    SELECT id INTO v_member_kata_id FROM auth.users WHERE email = 'kata.szabo@workoutbooking.demo' LIMIT 1;
-  END IF;
-  INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_member_kata_id, 'kata.szabo@workoutbooking.demo', 'kata_szabo', 'Szabó Kata', 'regular')
-  ON CONFLICT (id) DO UPDATE SET full_name = EXCLUDED.full_name;
-
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'david.kiss@workoutbooking.demo') THEN
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000', v_member_david_id, 'authenticated', 'authenticated',
-      'david.kiss@workoutbooking.demo', extensions.crypt('demo123456', extensions.gen_salt('bf')),
-      now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"username":"david_kiss","full_name":"Kiss Dávid"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-  ELSE
-    SELECT id INTO v_member_david_id FROM auth.users WHERE email = 'david.kiss@workoutbooking.demo' LIMIT 1;
-  END IF;
-  INSERT INTO public.user_profiles (id, email, username, full_name, user_tier)
-  VALUES (v_member_david_id, 'david.kiss@workoutbooking.demo', 'david_kiss', 'Kiss Dávid', 'regular')
-  ON CONFLICT (id) DO UPDATE SET full_name = EXCLUDED.full_name;
-
-  SELECT id INTO v_demo_member_id FROM auth.users WHERE email = 'demo.member@workoutbooking.demo' LIMIT 1;
-  SELECT id INTO v_demo_admin_id  FROM auth.users WHERE email = 'demo.admin@workoutbooking.demo' LIMIT 1;
-
-  -- 5) Seed 6 Workout Class Templates
-  SELECT id INTO v_class_yoga FROM public.workout_classes WHERE title = 'Morning Flow Yoga' LIMIT 1;
-  IF v_class_yoga IS NULL THEN
-    INSERT INTO public.workout_classes (title, description, duration, max_capacity, created_by)
-    VALUES ('Morning Flow Yoga', 'Energizing vinyasa yoga sequence focusing on breath control, mobility, and core stability.', 60, 12, v_demo_admin_id)
-    RETURNING id INTO v_class_yoga;
-  END IF;
-
-  SELECT id INTO v_class_hiit FROM public.workout_classes WHERE title = 'HIIT & Core Blast' LIMIT 1;
-  IF v_class_hiit IS NULL THEN
-    INSERT INTO public.workout_classes (title, description, duration, max_capacity, created_by)
-    VALUES ('HIIT & Core Blast', 'High-intensity interval training alternating explosive cardio intervals with targeted abdominal work.', 45, 15, v_demo_admin_id)
-    RETURNING id INTO v_class_hiit;
-  END IF;
-
-  SELECT id INTO v_class_crossfit FROM public.workout_classes WHERE title = 'CrossFit WOD' LIMIT 1;
-  IF v_class_crossfit IS NULL THEN
-    INSERT INTO public.workout_classes (title, description, duration, max_capacity, created_by)
-    VALUES ('CrossFit WOD', 'Functional strength and conditioning workout of the day featuring barbell movements and gymnastics.', 60, 10, v_demo_admin_id)
-    RETURNING id INTO v_class_crossfit;
-  END IF;
-
-  SELECT id INTO v_class_spin FROM public.workout_classes WHERE title = 'Spin & Burn Cycling' LIMIT 1;
-  IF v_class_spin IS NULL THEN
-    INSERT INTO public.workout_classes (title, description, duration, max_capacity, created_by)
-    VALUES ('Spin & Burn Cycling', 'Rhythm-based indoor cycling session with hill climbs, sprints, and endurance intervals.', 45, 8, v_demo_admin_id)
-    RETURNING id INTO v_class_spin;
-  END IF;
-
-  SELECT id INTO v_class_kettlebell FROM public.workout_classes WHERE title = 'Kettlebell Strength' LIMIT 1;
-  IF v_class_kettlebell IS NULL THEN
-    INSERT INTO public.workout_classes (title, description, duration, max_capacity, created_by)
-    VALUES ('Kettlebell Strength', 'Full-body ballistic and grind kettlebell training: swings, Turkish get-ups, cleans, and presses.', 60, 12, v_demo_admin_id)
-    RETURNING id INTO v_class_kettlebell;
-  END IF;
-
-  SELECT id INTO v_class_mobility FROM public.workout_classes WHERE title = 'Evening Mobility & Stretch' LIMIT 1;
-  IF v_class_mobility IS NULL THEN
-    INSERT INTO public.workout_classes (title, description, duration, max_capacity, created_by)
-    VALUES ('Evening Mobility & Stretch', 'Guided joint mobility, myofascial release, and deep stretching for recovery and posture.', 50, 16, v_demo_admin_id)
-    RETURNING id INTO v_class_mobility;
-  END IF;
-
-  -- 6) Seed Multiple Daily Sessions Across the Week (automatically replicates across 4 weeks via trigger!)
+  -- Schedule multiple daily sessions across the current week using ONLY existing templates & instructors
+  -- (The recurring session trigger automatically replicates these for the next 3 weeks = 4 weeks total)
   v_week_monday := date_trunc('week', now());
 
   FOR v_day_offset IN 0..6 LOOP
-    v_day_base := v_week_monday + (v_day_offset * interval '1 day');
-
-    IF v_day_offset IN (0, 2, 4) THEN
-      -- Monday, Wednesday, Friday: 08:00 Yoga, 12:30 HIIT, 17:30 CrossFit, 19:00 Spin
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_yoga AND start_time = v_day_base + interval '8 hours') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_yoga, v_coach_eszter_id, v_day_base + interval '8 hours', v_day_base + interval '9 hours', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_hiit AND start_time = v_day_base + interval '12 hours 30 minutes') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_hiit, v_demo_instructor_id, v_day_base + interval '12 hours 30 minutes', v_day_base + interval '13 hours 15 minutes', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_crossfit AND start_time = v_day_base + interval '17 hours 30 minutes') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_crossfit, v_demo_instructor_id, v_day_base + interval '17 hours 30 minutes', v_day_base + interval '18 hours 30 minutes', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_spin AND start_time = v_day_base + interval '19 hours') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_spin, v_coach_bence_id, v_day_base + interval '19 hours', v_day_base + interval '19 hours 45 minutes', true, true);
-      END IF;
-
-    ELSIF v_day_offset IN (1, 3) THEN
-      -- Tuesday, Thursday: 08:30 Kettlebell, 12:00 Spin, 17:30 HIIT, 19:00 Mobility
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_kettlebell AND start_time = v_day_base + interval '8 hours 30 minutes') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_kettlebell, v_coach_bence_id, v_day_base + interval '8 hours 30 minutes', v_day_base + interval '9 hours 30 minutes', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_spin AND start_time = v_day_base + interval '12 hours') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_spin, v_demo_instructor_id, v_day_base + interval '12 hours', v_day_base + interval '12 hours 45 minutes', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_hiit AND start_time = v_day_base + interval '17 hours 30 minutes') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_hiit, v_demo_instructor_id, v_day_base + interval '17 hours 30 minutes', v_day_base + interval '18 hours 15 minutes', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_mobility AND start_time = v_day_base + interval '19 hours') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_mobility, v_coach_eszter_id, v_day_base + interval '19 hours', v_day_base + interval '19 hours 50 minutes', true, true);
-      END IF;
-
+    IF v_day_offset < 5 THEN
+      -- Weekdays (Mon-Fri): 3 sessions per day (08:30, 17:00, 18:30)
+      v_slot_hours := ARRAY[interval '8 hours 30 minutes', interval '17 hours', interval '18 hours 30 minutes'];
     ELSE
-      -- Saturday & Sunday: 09:30 Yoga / CrossFit, 16:00 Kettlebell / Mobility
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_crossfit AND start_time = v_day_base + interval '9 hours 30 minutes') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_crossfit, v_demo_instructor_id, v_day_base + interval '9 hours 30 minutes', v_day_base + interval '10 hours 30 minutes', true, true);
-      END IF;
-
-      IF NOT EXISTS (SELECT 1 FROM public.class_sessions WHERE class_id = v_class_mobility AND start_time = v_day_base + interval '16 hours') THEN
-        INSERT INTO public.class_sessions (class_id, instructor_id, start_time, end_time, is_active, is_recurring)
-        VALUES (v_class_mobility, v_coach_eszter_id, v_day_base + interval '16 hours', v_day_base + interval '16 hours 50 minutes', true, true);
-      END IF;
+      -- Weekends (Sat-Sun): 2 sessions per day (09:30, 16:30)
+      v_slot_hours := ARRAY[interval '9 hours 30 minutes', interval '16 hours 30 minutes'];
     END IF;
+
+    FOR v_slot_idx IN 1..array_length(v_slot_hours, 1) LOOP
+      v_counter := v_counter + 1;
+
+      v_chosen_class_id   := v_template_ids[((v_counter - 1) % v_template_count) + 1];
+      v_chosen_duration   := v_template_durations[((v_counter - 1) % v_template_count) + 1];
+      v_chosen_instructor := v_instructor_ids[((v_counter - 1) % v_instructor_count) + 1];
+
+      v_start_ts := v_week_monday + (v_day_offset * interval '1 day') + v_slot_hours[v_slot_idx];
+      v_end_ts   := v_start_ts + (v_chosen_duration * interval '1 minute');
+
+      -- Only insert if no session starts at this exact time yet
+      IF NOT EXISTS (
+        SELECT 1
+        FROM public.class_sessions cs
+        WHERE cs.start_time = v_start_ts
+      ) THEN
+        INSERT INTO public.class_sessions (
+          class_id,
+          instructor_id,
+          start_time,
+          end_time,
+          is_active,
+          is_recurring
+        ) VALUES (
+          v_chosen_class_id,
+          v_chosen_instructor,
+          v_start_ts,
+          v_end_ts,
+          true,
+          true
+        );
+      END IF;
+    END LOOP;
   END LOOP;
 
-  -- 7) Seed Sample Bookings into Upcoming Sessions so the Calendar & Dashboards Look Alive
-  FOR v_session_rec IN
-    SELECT id, instructor_id
-    FROM public.class_sessions
-    WHERE start_time > (now() + interval '3 hours')
-      AND start_time < (now() + interval '6 days')
-    ORDER BY start_time ASC
-    LIMIT 10
-  LOOP
-    INSERT INTO public.bookings (user_id, session_id, booking_status)
-    VALUES
-      (v_member_anna_id,  v_session_rec.id, 'confirmed'),
-      (v_member_peter_id, v_session_rec.id, 'confirmed'),
-      (v_member_kata_id,  v_session_rec.id, 'confirmed')
-    ON CONFLICT (user_id, session_id) DO NOTHING;
+  -- Add sample bookings using existing regular users on upcoming sessions
+  SELECT array_agg(id ORDER BY created_at ASC)
+  INTO v_member_ids
+  FROM public.user_profiles
+  WHERE user_tier = 'regular';
 
-    IF v_demo_member_id IS NOT NULL AND v_session_rec.instructor_id = v_demo_instructor_id THEN
-      INSERT INTO public.bookings (user_id, session_id, booking_status)
-      VALUES (v_demo_member_id, v_session_rec.id, 'confirmed')
-      ON CONFLICT (user_id, session_id) DO NOTHING;
-    END IF;
-  END LOOP;
+  v_member_count := COALESCE(array_length(v_member_ids, 1), 0);
+
+  IF v_member_count > 0 THEN
+    FOR v_session_rec IN
+      SELECT cs.id, wc.max_capacity, COALESCE(cs.current_bookings, 0) AS current_bookings
+      FROM public.class_sessions cs
+      JOIN public.workout_classes wc ON wc.id = cs.class_id
+      WHERE cs.start_time > (now() + interval '3 hours')
+        AND cs.start_time < (now() + interval '7 days')
+      ORDER BY cs.start_time ASC
+      LIMIT 12
+    LOOP
+      FOR v_m_idx IN 1..LEAST(v_member_count, 3) LOOP
+        IF (v_session_rec.current_bookings + v_m_idx) <= v_session_rec.max_capacity THEN
+          INSERT INTO public.bookings (user_id, session_id, booking_status)
+          VALUES (v_member_ids[v_m_idx], v_session_rec.id, 'confirmed')
+          ON CONFLICT (user_id, session_id) DO NOTHING;
+        END IF;
+      END LOOP;
+    END LOOP;
+  END IF;
 END $$;
