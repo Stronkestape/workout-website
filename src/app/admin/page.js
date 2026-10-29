@@ -30,6 +30,9 @@ export default function AdminDashboard() {
           .single();
 
         setAdminUser({ ...user, profile });
+        if (profile?.user_tier === 'instructor') {
+          setActiveTab('sessions');
+        }
       }
     } catch (error) {
       console.error('Error fetching admin user:', error);
@@ -41,14 +44,21 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading admin dashboard...</div>
+        <div className="text-lg">Loading dashboard...</div>
       </div>
     );
   }
 
+  const isInstructor = adminUser?.profile?.user_tier === 'instructor';
+
   const tabs = [
-    { id: 'templates', label: 'Workout Templates' },
-    { id: 'sessions', label: 'Manage Sessions' },
+    ...(!isInstructor
+      ? [{ id: 'templates', label: 'Workout Templates' }]
+      : []),
+    {
+      id: 'sessions',
+      label: isInstructor ? 'My Sessions' : 'Manage Sessions',
+    },
     { id: 'manual-booking', label: 'Manual Booking' },
     { id: 'session-details', label: 'Session Details' },
   ];
@@ -61,18 +71,24 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Admin Dashboard
+                {isInstructor ? 'Instructor Dashboard' : 'Admin Dashboard'}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
                 Welcome back,{' '}
                 {adminUser?.profile?.full_name ||
                   adminUser?.profile?.username ||
-                  'Admin'}
+                  (isInstructor ? 'Coach' : 'Admin')}
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                Admin
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  isInstructor
+                    ? 'bg-indigo-100 text-indigo-800'
+                    : 'bg-purple-100 text-purple-800'
+                }`}
+              >
+                {isInstructor ? 'Instructor' : 'Admin'}
               </span>
             </div>
           </div>
@@ -102,10 +118,18 @@ export default function AdminDashboard() {
 
       {/* Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'templates' && <WorkoutTemplateManager />}
-        {activeTab === 'sessions' && <SessionManager />}
-        {activeTab === 'manual-booking' && <ManualBookingManager />}
-        {activeTab === 'session-details' && <SessionDetailView />}
+        {activeTab === 'templates' && !isInstructor && (
+          <WorkoutTemplateManager />
+        )}
+        {activeTab === 'sessions' && (
+          <SessionManager currentUser={adminUser} />
+        )}
+        {activeTab === 'manual-booking' && (
+          <ManualBookingManager currentUser={adminUser} />
+        )}
+        {activeTab === 'session-details' && (
+          <SessionDetailView currentUser={adminUser} />
+        )}
       </div>
     </div>
   );

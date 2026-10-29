@@ -10,7 +10,8 @@ import SessionForm from './SessionForm';
 import ConfirmModal from '@/components/ConfirmModal';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 
-export default function SessionManager() {
+export default function SessionManager({ currentUser }) {
+  const isInstructor = currentUser?.profile?.user_tier === 'instructor';
   const [sessions, setSessions] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,8 @@ export default function SessionManager() {
 
   useEffect(() => {
     loadData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
 
   const loadData = async () => {
     try {
@@ -37,7 +39,12 @@ export default function SessionManager() {
       if (sessionsResult.error) throw sessionsResult.error;
       if (templatesResult.error) throw templatesResult.error;
 
-      setSessions(sessionsResult.data || []);
+      const allSessions = sessionsResult.data || [];
+      setSessions(
+        isInstructor
+          ? allSessions.filter((s) => s.instructor_id === currentUser?.id)
+          : allSessions
+      );
       setTemplates(templatesResult.data || []);
     } catch (err) {
       console.error('Error loading data:', err);
@@ -125,9 +132,13 @@ export default function SessionManager() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Manage Sessions</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {isInstructor ? 'My Scheduled Sessions' : 'Manage Sessions'}
+          </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Schedule workout sessions from templates and assign instructors
+            {isInstructor
+              ? 'Schedule and manage your own workout classes'
+              : 'Schedule workout sessions from templates and assign instructors'}
           </p>
         </div>
         <button
@@ -324,6 +335,7 @@ export default function SessionManager() {
         <SessionForm
           session={editingSession}
           templates={templates}
+          currentUser={currentUser}
           onSubmit={handleFormSubmit}
           onCancel={handleFormCancel}
         />

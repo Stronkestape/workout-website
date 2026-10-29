@@ -7,12 +7,19 @@ import { FormMessage } from '@/components/FormMessage';
 import { validateSession, formatDateTimeLocal, calculateEndTime } from '@/utils/sessionValidation';
 import InstructorSelect from './InstructorSelect';
 
-export default function SessionForm({ session, templates, onSubmit, onCancel }) {
+export default function SessionForm({
+  session,
+  templates,
+  currentUser,
+  onSubmit,
+  onCancel,
+}) {
+  const isInstructor = currentUser?.profile?.user_tier === 'instructor';
   const [formData, setFormData] = useState({
     class_id: '',
     start_time: '',
     end_time: '',
-    instructor_id: '',
+    instructor_id: isInstructor ? currentUser?.id || '' : '',
     is_active: true,
     is_recurring: true,
   });
@@ -235,9 +242,15 @@ export default function SessionForm({ session, templates, onSubmit, onCancel }) 
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Instructor (Optional)
+              Instructor {isInstructor ? '' : '(Optional)'}
             </label>
-            {loadingInstructors ? (
+            {isInstructor ? (
+              <div className="px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 font-medium">
+                {currentUser?.profile?.full_name ||
+                  currentUser?.profile?.username ||
+                  'Assigned to you'}
+              </div>
+            ) : loadingInstructors ? (
               <div className="text-sm text-gray-600">
                 Loading instructors...
               </div>

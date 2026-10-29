@@ -99,13 +99,17 @@ export default function Navbar({ user }) {
               Calendar
             </Link>
 
-            {isLoggedIn && userTier === "admin" && (
+            {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
               <Link
                 href="/admin"
                 className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5 ${
                   pathname.startsWith("/admin")
-                    ? "bg-purple-600 text-white"
-                    : "bg-purple-700 text-white hover:bg-purple-600"
+                    ? userTier === "admin"
+                      ? "bg-purple-600 text-white"
+                      : "bg-indigo-600 text-white"
+                    : userTier === "admin"
+                    ? "bg-purple-700 text-white hover:bg-purple-600"
+                    : "bg-indigo-700 text-white hover:bg-indigo-600"
                 }`}
               >
                 <svg
@@ -121,7 +125,7 @@ export default function Navbar({ user }) {
                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                   />
                 </svg>
-                <span>Admin</span>
+                <span>{userTier === "admin" ? "Admin" : "Coach Panel"}</span>
               </Link>
             )}
 
@@ -203,12 +207,20 @@ export default function Navbar({ user }) {
               Calendar
             </Link>
 
-            {isLoggedIn && userTier === "admin" && (
+            {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
               <Link
                 href="/admin"
-                className="px-4 py-2 bg-purple-700 rounded-lg hover:bg-purple-600 transition-colors font-medium text-sm flex items-center gap-1.5"
+                className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5 ${
+                  userTier === "admin"
+                    ? "bg-purple-700 hover:bg-purple-600"
+                    : "bg-indigo-700 hover:bg-indigo-600"
+                }`}
               >
-                <span>Admin Dashboard</span>
+                <span>
+                  {userTier === "admin"
+                    ? "Admin Dashboard"
+                    : "Instructor Dashboard"}
+                </span>
               </Link>
             )}
 

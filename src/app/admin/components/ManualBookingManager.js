@@ -9,7 +9,8 @@ import {
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 import UserSearchSelect from './UserSearchSelect';
 
-export default function ManualBookingManager() {
+export default function ManualBookingManager({ currentUser }) {
+  const isInstructor = currentUser?.profile?.user_tier === 'instructor';
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -20,7 +21,8 @@ export default function ManualBookingManager() {
 
   useEffect(() => {
     loadSessions();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
 
   useEffect(() => {
     if (selectedSession) {
@@ -37,7 +39,11 @@ export default function ManualBookingManager() {
 
       if (error) throw error;
 
-      const activeSessions = (data || []).filter((s) => s.is_active);
+      const activeSessions = (data || []).filter(
+        (s) =>
+          s.is_active &&
+          (!isInstructor || s.instructor_id === currentUser?.id)
+      );
       setSessions(activeSessions);
     } catch (err) {
       console.error('Error loading sessions:', err);

@@ -42,7 +42,7 @@ export async function proxy(request) {
     return NextResponse.redirect(new URL('/calendar', request.url));
   }
 
-  // Protect /admin routes - check if user is admin
+  // Protect /admin routes - check if user is admin or instructor
   if (pathname.startsWith('/admin')) {
     if (!user) {
       return NextResponse.redirect(new URL('/login', request.url));
@@ -54,7 +54,11 @@ export async function proxy(request) {
       .eq('id', user.id)
       .single();
 
-    if (error || !profile || profile.user_tier !== 'admin') {
+    if (
+      error ||
+      !profile ||
+      !['admin', 'instructor'].includes(profile.user_tier)
+    ) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

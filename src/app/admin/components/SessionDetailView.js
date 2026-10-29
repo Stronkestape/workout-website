@@ -10,7 +10,8 @@ import {
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 import ConfirmModal from '@/components/ConfirmModal';
 
-export default function SessionDetailView() {
+export default function SessionDetailView({ currentUser }) {
+  const isInstructor = currentUser?.profile?.user_tier === 'instructor';
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [bookings, setBookings] = useState([]);
@@ -23,7 +24,8 @@ export default function SessionDetailView() {
 
   useEffect(() => {
     loadSessions();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
 
   useEffect(() => {
     if (selectedSession) {
@@ -38,7 +40,12 @@ export default function SessionDetailView() {
 
       if (error) throw error;
 
-      setSessions(data || []);
+      const allSessions = data || [];
+      setSessions(
+        isInstructor
+          ? allSessions.filter((s) => s.instructor_id === currentUser?.id)
+          : allSessions
+      );
     } catch (err) {
       console.error('Error loading sessions:', err);
       setError('Failed to load sessions');
