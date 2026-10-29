@@ -2,6 +2,7 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "../components/Navbar";
 import { createSupabaseServerClient } from "@/lib/server";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }) {
       >
         <Navbar user={user}/>
         <main>{children}</main>
+        <SpeedInsights />
       </body>
     </html>
   );
