@@ -39,11 +39,15 @@ export default function ManualBookingManager({ currentUser }) {
 
       if (error) throw error;
 
-      const activeSessions = (data || []).filter(
-        (s) =>
-          s.is_active &&
-          (!isInstructor || s.instructor_id === currentUser?.id)
-      );
+      const now = new Date();
+      const activeSessions = (data || [])
+        .filter(
+          (s) =>
+            s.is_active &&
+            new Date(s.start_time) >= now &&
+            (!isInstructor || s.instructor_id === currentUser?.id)
+        )
+        .sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
       setSessions(activeSessions);
     } catch (err) {
       console.error('Error loading sessions:', err);
