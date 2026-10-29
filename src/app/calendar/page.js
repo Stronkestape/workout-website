@@ -3,7 +3,7 @@
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
-import { format, parse, startOfWeek, endOfWeek, addDays, isSameDay, getDay, isBefore, isAfter } from "date-fns";
+import { format, parse, startOfWeek, endOfWeek, addDays, addWeeks, subWeeks, isSameDay, getDay, isBefore, isAfter } from "date-fns";
 import hu from "date-fns/locale/hu";
 import { useState, useEffect, useCallback } from "react";
 import styles from './Calendar.module.css';
@@ -11,7 +11,7 @@ import { supabaseBrowser } from '@/lib/browser';
 import WorkoutCard from '@/components/WorkoutCard';
 import CalendarToolbar from "@/components/CalendarToolbar";
 import CalendarEvent from "@/components/CalendarEvent";
-import { getDateLimits, navigateDate } from '@/utils/calendarHelpers';
+import { getDateLimits } from '@/utils/calendarHelpers';
 import { fetchClassSessions } from '@/utils/supabaseQueries';
 import { 
   CALENDAR_MIN_HOUR, 
@@ -185,9 +185,9 @@ export default function CalendarPage() {
   const mobileWeekDays = Array.from({ length: 7 }, (_, i) => addDays(mobileWeekStart, i));
 
   const weekLimits = getDateLimits('week', today);
-  const prevWeekDate = navigateDate(currentDate, 'week', 'PREV');
+  const prevWeekDate = subWeeks(currentDate, 1);
   prevWeekDate.setHours(0, 0, 0, 0);
-  const nextWeekDate = navigateDate(currentDate, 'week', 'NEXT');
+  const nextWeekDate = addWeeks(currentDate, 1);
   nextWeekDate.setHours(0, 0, 0, 0);
   const canMobileGoPrev = !isBefore(prevWeekDate, weekLimits.min);
   const canMobileGoNext = !isAfter(nextWeekDate, weekLimits.max);
@@ -195,14 +195,14 @@ export default function CalendarPage() {
   const handleMobilePrevWeek = () => {
     if (canMobileGoPrev) {
       setSelectedMobileDay(null);
-      handleNavigate(navigateDate(currentDate, 'week', 'PREV'), 'week');
+      handleNavigate(subWeeks(currentDate, 1), 'week');
     }
   };
 
   const handleMobileNextWeek = () => {
     if (canMobileGoNext) {
       setSelectedMobileDay(null);
-      handleNavigate(navigateDate(currentDate, 'week', 'NEXT'), 'week');
+      handleNavigate(addWeeks(currentDate, 1), 'week');
     }
   };
 
