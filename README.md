@@ -47,12 +47,12 @@ flowchart TD
         Tables[("Tables: user_profiles, workout_classes,\nclass_sessions, bookings, waitlist")]
     end
 
-    Forms -->|FormData| SA
-    SA -->|createServerClient (setAll cookies)| Auth
-    Proxy -->|getUser() & role check| Auth
-    Proxy -->|Admin tier verification| Tables
-    RSC -->|Initial Auth State| Auth
-    UI -->|createBrowserClient (anon key + JWT)| RLS
+    Forms -->|"FormData"| SA
+    SA -->|"createServerClient (setAll cookies)"| Auth
+    Proxy -->|"getUser & role check"| Auth
+    Proxy -->|"Admin tier verification"| Tables
+    RSC -->|"Initial Auth State"| Auth
+    UI -->|"createBrowserClient (anon key + JWT)"| RLS
     RLS --> Tables
     Tables --> Triggers
 ```
