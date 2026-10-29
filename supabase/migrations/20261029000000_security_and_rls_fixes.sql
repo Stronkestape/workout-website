@@ -24,6 +24,7 @@ REVOKE ALL ON FUNCTION public.prevent_user_tier_change() FROM PUBLIC, anon, auth
 -- Functions in `private` are not exposed to PostgREST (/rest/v1/rpc),
 -- preventing both infinite RLS recursion on `user_profiles` and linter warnings.
 CREATE SCHEMA IF NOT EXISTS private;
+GRANT USAGE ON SCHEMA private TO anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION private.is_admin()
 RETURNS boolean
@@ -40,8 +41,8 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated;
+REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.is_admin() TO anon, authenticated, service_role;
 
 -- 5. Add missing RLS policies on `user_profiles` and `waitlist`
 

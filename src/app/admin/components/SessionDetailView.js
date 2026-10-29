@@ -23,9 +23,11 @@ export default function SessionDetailView({ currentUser }) {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    loadSessions();
+    if (currentUser?.id) {
+      loadSessions();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id]);
+  }, [currentUser?.id, isInstructor]);
 
   useEffect(() => {
     if (selectedSession) {
@@ -36,7 +38,9 @@ export default function SessionDetailView({ currentUser }) {
   const loadSessions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await fetchAllSessions();
+      const { data, error } = await fetchAllSessions(
+        isInstructor ? currentUser?.id : null
+      );
 
       if (error) throw error;
 
@@ -113,17 +117,31 @@ export default function SessionDetailView({ currentUser }) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    const byNearestFirst = (a, b) =>
+      new Date(a.start_time) - new Date(b.start_time);
+
     switch (filter) {
       case 'today':
-        return sessions.filter((s) => {
-          const sessionDate = new Date(s.start_time);
-          return sessionDate >= today && sessionDate < tomorrow;
-        });
+        return sessions
+          .filter((s) => {
+            const sessionDate = new Date(s.start_time);
+            return sessionDate >= today && sessionDate < tomorrow;
+          })
+          .sort(byNearestFirst);
       case 'upcoming':
-        return sessions.filter((s) => new Date(s.start_time) >= now);
+        return sessions
+          .filter((s) => new Date(s.start_time) >= now)
+          .sort(byNearestFirst);
       case 'all':
-      default:
-        return sessions;
+      default: {
+        const upcoming = sessions
+          .filter((s) => new Date(s.start_time) >= now)
+          .sort(byNearestFirst);
+        const past = sessions
+          .filter((s) => new Date(s.start_time) < now)
+          .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+        return [...upcoming, ...past];
+      }
     }
   };
 

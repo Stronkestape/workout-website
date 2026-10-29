@@ -23,16 +23,18 @@ export default function SessionManager({ currentUser }) {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    loadData();
+    if (currentUser?.id) {
+      loadData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id]);
+  }, [currentUser?.id, isInstructor]);
 
   const loadData = async () => {
     try {
       setLoading(true);
 
       const [sessionsResult, templatesResult] = await Promise.all([
-        fetchAllSessions(),
+        fetchAllSessions(isInstructor ? currentUser?.id : null),
         fetchWorkoutTemplates(),
       ]);
 
@@ -102,17 +104,31 @@ export default function SessionManager({ currentUser }) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    const byNearestFirst = (a, b) =>
+      new Date(a.start_time) - new Date(b.start_time);
+
     switch (filter) {
       case 'today':
-        return sessions.filter((s) => {
-          const sessionDate = new Date(s.start_time);
-          return sessionDate >= today && sessionDate < tomorrow;
-        });
+        return sessions
+          .filter((s) => {
+            const sessionDate = new Date(s.start_time);
+            return sessionDate >= today && sessionDate < tomorrow;
+          })
+          .sort(byNearestFirst);
       case 'upcoming':
-        return sessions.filter((s) => new Date(s.start_time) >= now);
+        return sessions
+          .filter((s) => new Date(s.start_time) >= now)
+          .sort(byNearestFirst);
       case 'all':
-      default:
-        return sessions;
+      default: {
+        const upcoming = sessions
+          .filter((s) => new Date(s.start_time) >= now)
+          .sort(byNearestFirst);
+        const past = sessions
+          .filter((s) => new Date(s.start_time) < now)
+          .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+        return [...upcoming, ...past];
+      }
     }
   };
 

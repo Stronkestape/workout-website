@@ -20,9 +20,11 @@ export default function ManualBookingManager({ currentUser }) {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    loadSessions();
+    if (currentUser?.id) {
+      loadSessions();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id]);
+  }, [currentUser?.id, isInstructor]);
 
   useEffect(() => {
     if (selectedSession) {
@@ -35,15 +37,21 @@ export default function ManualBookingManager({ currentUser }) {
   const loadSessions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await fetchAllSessions();
+      const { data, error } = await fetchAllSessions(
+        isInstructor ? currentUser?.id : null
+      );
 
       if (error) throw error;
 
-      const activeSessions = (data || []).filter(
-        (s) =>
-          s.is_active &&
-          (!isInstructor || s.instructor_id === currentUser?.id)
-      );
+      const now = new Date();
+      const activeSessions = (data || [])
+        .filter(
+          (s) =>
+            s.is_active &&
+            new Date(s.start_time) >= now &&
+            (!isInstructor || s.instructor_id === currentUser?.id)
+        )
+        .sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
       setSessions(activeSessions);
     } catch (err) {
       console.error('Error loading sessions:', err);

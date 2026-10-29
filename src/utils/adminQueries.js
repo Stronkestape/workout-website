@@ -11,19 +11,26 @@ export const searchUsers = async (searchTerm) => {
     .select('id, username, email, full_name')
     .or(`username.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`)
     .limit(10);
-  
+
   return { data, error };
 };
 
 /**
  * Fetch available instructors (users with instructor or admin tier)
- * Admin only
  */
 export const fetchInstructors = async () => {
   const { data, error } = await supabaseBrowser
     .rpc('get_available_instructors');
-  
-  return { data, error };
+
+  if (!error && data) {
+    return { data, error: null };
+  }
+
+  return await supabaseBrowser
+    .from('user_profiles')
+    .select('id, username, full_name, email')
+    .in('user_tier', ['instructor', 'admin'])
+    .order('username', { ascending: true });
 };
 
 /**
@@ -35,7 +42,7 @@ export const fetchWorkoutTemplates = async () => {
     .from('workout_classes')
     .select('*')
     .order('created_at', { ascending: false });
-  
+
   return { data, error };
 };
 
@@ -48,7 +55,7 @@ export const createWorkoutTemplate = async (template) => {
     .from('workout_classes')
     .insert(template)
     .select();
-  
+
   return { data, error };
 };
 
@@ -62,7 +69,7 @@ export const updateWorkoutTemplate = async (id, updates) => {
     .update(updates)
     .eq('id', id)
     .select();
-  
+
   return { data, error };
 };
 
@@ -75,16 +82,15 @@ export const deleteWorkoutTemplate = async (id) => {
     .from('workout_classes')
     .delete()
     .eq('id', id);
-  
+
   return { error };
 };
 
 /**
- * Fetch all class sessions (for admin management)
- * Admin only
+ * Fetch class sessions (all for admin, or filtered by instructorId for instructors)
  */
-export const fetchAllSessions = async () => {
-  const { data, error } = await supabaseBrowser
+export const fetchAllSessions = async (instructorId = null) => {
+  let query = supabaseBrowser
     .from('class_sessions')
     .select(`
       *,
@@ -99,8 +105,14 @@ export const fetchAllSessions = async () => {
         full_name
       )
     `)
-    .order('start_time', { ascending: false });
-  
+    .order('start_time', { ascending: true });
+
+  if (instructorId) {
+    query = query.eq('instructor_id', instructorId);
+  }
+
+  const { data, error } = await query;
+
   return { data, error };
 };
 
@@ -125,7 +137,7 @@ export const createSession = async (session) => {
         full_name
       )
     `);
-  
+
   return { data, error };
 };
 
@@ -151,7 +163,7 @@ export const updateSession = async (id, updates) => {
         full_name
       )
     `);
-  
+
   return { data, error };
 };
 
@@ -164,7 +176,7 @@ export const deleteSession = async (id) => {
     .from('class_sessions')
     .delete()
     .eq('id', id);
-  
+
   return { error };
 };
 
@@ -175,13 +187,13 @@ export const deleteSession = async (id) => {
 export const adminBookUser = async (userId, sessionId) => {
   const { data, error } = await supabaseBrowser
     .from('bookings')
-    .insert({ 
-      user_id: userId, 
-      session_id: sessionId, 
-      booking_status: 'confirmed' 
+    .insert({
+      user_id: userId,
+      session_id: sessionId,
+      booking_status: 'confirmed',
     })
     .select();
-  
+
   return { data, error };
 };
 
@@ -205,7 +217,7 @@ export const getSessionBookings = async (sessionId) => {
     .eq('session_id', sessionId)
     .eq('booking_status', 'confirmed')
     .order('booked_at', { ascending: true });
-  
+
   return { data, error };
 };
 
@@ -217,7 +229,7 @@ export const adminRemoveBooking = async (bookingId) => {
     .from('bookings')
     .delete()
     .eq('id', bookingId);
-  
+
   return { error };
 };
 
@@ -240,6 +252,6 @@ export const getSessionWaitlist = async (sessionId) => {
     `)
     .eq('session_id', sessionId)
     .order('position', { ascending: true });
-  
+
   return { data, error };
 };
