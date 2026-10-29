@@ -68,19 +68,30 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {isInstructor ? 'Instructor Dashboard' : 'Admin Dashboard'}
-              </h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Welcome back,{' '}
-                {adminUser?.profile?.full_name ||
-                  adminUser?.profile?.username ||
-                  (isInstructor ? 'Coach' : 'Admin')}
-              </p>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 sm:py-6">
+            <div className="flex items-center justify-between sm:block">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  {isInstructor ? 'Instructor Dashboard' : 'Admin Dashboard'}
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                  Welcome back,{' '}
+                  {adminUser?.profile?.full_name ||
+                    adminUser?.profile?.username ||
+                    (isInstructor ? 'Coach' : 'Admin')}
+                </p>
+              </div>
+              <span
+                className={`sm:hidden px-3 py-1 rounded-full text-xs font-medium shrink-0 ${
+                  isInstructor
+                    ? 'bg-indigo-100 text-indigo-800'
+                    : 'bg-purple-100 text-purple-800'
+                }`}
+              >
+                {isInstructor ? 'Instructor' : 'Admin'}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
                   isInstructor
@@ -94,13 +105,13 @@ export default function AdminDashboard() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex overflow-x-auto space-x-1 border-b border-gray-200">
+          <div className="flex overflow-x-auto space-x-1 border-b border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  flex items-center gap-2 px-6 py-3 font-medium text-sm transition-colors whitespace-nowrap
+                  flex items-center gap-2 px-4 sm:px-6 py-3 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap
                   border-b-2 -mb-px
                   ${
                     activeTab === tab.id
@@ -117,7 +128,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === 'templates' && !isInstructor && (
           <WorkoutTemplateManager />
         )}

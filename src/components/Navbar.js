@@ -76,16 +76,23 @@ export default function Navbar({ user }) {
     `px-4 py-2 rounded-lg transition-colors font-medium text-sm ${
       pathname === href
         ? "bg-green-600 text-white"
-        : "bg-stone-700 text-stone-100 hover:bg-stone-600"
+        : "bg-stone-800 text-stone-200 hover:bg-stone-700 hover:text-white"
+    }`;
+
+  const mobileNavLinkClass = (href) =>
+    `flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+      pathname === href
+        ? "bg-green-600/20 text-green-400 border border-green-500/30"
+        : "text-stone-200 hover:bg-stone-800 active:bg-stone-800"
     }`;
 
   return (
-    <nav className="bg-stone-900 text-white shadow-md relative z-50 border-b border-stone-800">
+    <nav className="bg-stone-900 text-white shadow-md sticky top-0 z-50 border-b border-stone-800">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link
             href="/"
-            className="text-xl font-bold tracking-tight hover:text-green-400 transition-colors"
+            className="text-lg sm:text-xl font-bold tracking-tight hover:text-green-400 transition-colors truncate"
           >
             Mozgás Központ
           </Link>
@@ -162,7 +169,7 @@ export default function Navbar({ user }) {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="md:hidden p-2 rounded-lg text-stone-300 hover:text-white hover:bg-stone-800 focus:outline-none"
+            className="md:hidden p-2.5 rounded-xl text-stone-300 hover:text-white hover:bg-stone-800 active:bg-stone-700 transition-colors focus:outline-none"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? (
@@ -199,56 +206,97 @@ export default function Navbar({ user }) {
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 pt-2 border-t border-stone-800 flex flex-col space-y-2">
-            <Link href="/" className={navLinkClass("/")}>
-              Home
-            </Link>
-            <Link href="/calendar" className={navLinkClass("/calendar")}>
-              Calendar
-            </Link>
-
-            {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-              <Link
-                href="/admin"
-                className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5 ${
-                  userTier === "admin"
-                    ? "bg-purple-700 hover:bg-purple-600"
-                    : "bg-indigo-700 hover:bg-indigo-600"
-                }`}
-              >
-                <span>
-                  {userTier === "admin"
-                    ? "Admin Dashboard"
-                    : "Instructor Dashboard"}
-                </span>
-              </Link>
+          <div className="md:hidden pb-5 pt-3 border-t border-stone-800 space-y-3">
+            {isLoggedIn && (
+              <div className="flex items-center justify-between px-4 py-3 bg-stone-800/70 rounded-xl border border-stone-700/60">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {(username || "U").charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-white truncate">
+                      {username || "Member"}
+                    </div>
+                    <div className="text-xs text-stone-400 capitalize">
+                      {userTier || "regular"} account
+                    </div>
+                  </div>
+                </div>
+                {["admin", "instructor"].includes(userTier) && (
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-semibold shrink-0 ${
+                      userTier === "admin"
+                        ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                        : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                    }`}
+                  >
+                    {userTier === "admin" ? "Admin" : "Coach"}
+                  </span>
+                )}
+              </div>
             )}
 
-            {isLoggedIn ? (
-              <>
-                <Link href="/profile" className={navLinkClass("/profile")}>
-                  {username || "Profile"}
+            <div className="space-y-1">
+              <Link href="/" className={mobileNavLinkClass("/")}>
+                <span>Home</span>
+                <span className="text-stone-500 text-xs">→</span>
+              </Link>
+              <Link href="/calendar" className={mobileNavLinkClass("/calendar")}>
+                <span>Workout Calendar</span>
+                <span className="text-stone-500 text-xs">→</span>
+              </Link>
+
+              {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
+                <Link
+                  href="/admin"
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+                    pathname.startsWith("/admin")
+                      ? "bg-purple-600/25 text-purple-300 border border-purple-500/40"
+                      : "text-purple-300 hover:bg-stone-800"
+                  }`}
+                >
+                  <span>
+                    {userTier === "admin"
+                      ? "Admin Dashboard"
+                      : "Coach Panel"}
+                  </span>
+                  <span className="text-xs">→</span>
                 </Link>
+              )}
+
+              {isLoggedIn && (
+                <Link href="/profile" className={mobileNavLinkClass("/profile")}>
+                  <span>My Profile & Bookings</span>
+                  <span className="text-stone-500 text-xs">→</span>
+                </Link>
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-stone-800">
+              {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="text-left px-4 py-2 bg-stone-800 rounded-lg hover:bg-red-600 transition-colors font-medium text-sm"
+                  className="w-full py-2.5 px-4 bg-red-600/15 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-600 hover:text-white transition-colors font-medium text-sm text-center"
                 >
                   Log Out
                 </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className={navLinkClass("/login")}>
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
-                >
-                  Register
-                </Link>
-              </>
-            )}
+              ) : (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Link
+                    href="/login"
+                    className="py-2.5 px-4 bg-stone-800 text-stone-200 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors font-medium text-sm text-center"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="py-2.5 px-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium text-sm text-center"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

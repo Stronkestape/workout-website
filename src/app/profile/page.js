@@ -92,23 +92,23 @@ export default function ProfilePage() {
   const isInstructor = profile.user_tier === "instructor";
 
   return (
-    <div className="container mx-auto max-w-6xl p-6">
+    <div className="container mx-auto max-w-6xl p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">
               Manage your account settings and view your bookings
             </p>
           </div>
           {isAdmin && (
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow-sm text-sm">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold shadow-sm text-xs sm:text-sm shrink-0">
               Admin
             </div>
           )}
           {isInstructor && !isAdmin && (
-            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2 rounded-lg font-semibold shadow-sm text-sm">
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold shadow-sm text-xs sm:text-sm shrink-0">
               Instructor
             </div>
           )}
