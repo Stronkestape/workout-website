@@ -33,38 +33,20 @@ export async function registerAction(prevState, formData) {
   const supabase = await createSupabaseServerClient();
 
   try {
-    // 1. Check if email is already registered using SECURITY DEFINER RPC (bypasses RLS)
-    const { data: existingEmail } = await supabase.rpc(
-      'get_user_by_username_or_email',
-      { identifier: email }
+    // 1. Check if username is available using boolean-only RPC (does not expose profile rows/emails)
+    const { data: isAvailable, error: rpcError } = await supabase.rpc(
+      'username_available',
+      { candidate: usernameValidation.cleanUsername }
     );
 
-    if (existingEmail?.some((u) => u.email?.toLowerCase() === email)) {
-      return {
-        fieldErrors: { email: MESSAGES.EMAIL_TAKEN },
-        emailTaken: true,
-        values: { email, username },
-      };
-    }
-
-    // 2. Check if username is already taken using SECURITY DEFINER RPC
-    const { data: existingUsername } = await supabase.rpc(
-      'get_user_by_username_or_email',
-      { identifier: usernameValidation.cleanUsername }
-    );
-
-    if (
-      existingUsername?.some(
-        (u) => u.username?.toLowerCase() === usernameValidation.cleanUsername
-      )
-    ) {
+    if (!rpcError && isAvailable === false) {
       return {
         fieldErrors: { username: MESSAGES.USERNAME_TAKEN },
         values: { email, username },
       };
     }
 
-    // 3. Perform Supabase Auth signUp with dynamic origin redirect
+    // 2. Perform Supabase Auth signUp with dynamic origin redirect
     const headerList = await headers();
     const host = headerList.get('x-forwarded-host') || headerList.get('host');
     const proto = headerList.get('x-forwarded-proto') || 'https';

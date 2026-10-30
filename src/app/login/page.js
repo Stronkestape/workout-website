@@ -6,6 +6,8 @@ import { loginAction } from './actions';
 import { FormField } from '@/components/FormField';
 import { FormMessage } from '@/components/FormMessage';
 
+const DEMO_ADMIN_ENABLED = process.env.NEXT_PUBLIC_DEMO_ADMIN === 'true';
+
 const DEMO_ACCOUNTS = {
   member: {
     identifier:
@@ -17,10 +19,15 @@ const DEMO_ACCOUNTS = {
       process.env.NEXT_PUBLIC_DEMO_INSTRUCTOR_IDENTIFIER || 'demo_instructor',
     password: process.env.NEXT_PUBLIC_DEMO_INSTRUCTOR_PASSWORD || 'demo123456',
   },
-  admin: {
-    identifier: process.env.NEXT_PUBLIC_DEMO_ADMIN_IDENTIFIER || 'demo_admin',
-    password: process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD || 'demo123456',
-  },
+  ...(DEMO_ADMIN_ENABLED && process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD
+    ? {
+        admin: {
+          identifier:
+            process.env.NEXT_PUBLIC_DEMO_ADMIN_IDENTIFIER || 'demo_admin',
+          password: process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD,
+        },
+      }
+    : {}),
 };
 
 export default function LoginPage() {
@@ -95,7 +102,11 @@ export default function LoginPage() {
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 text-center mb-3">
               Quick Demo Access (1-Click Login)
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div
+              className={`grid gap-2 ${
+                DEMO_ACCOUNTS.admin ? 'grid-cols-3' : 'grid-cols-2'
+              }`}
+            >
               <button
                 type="button"
                 disabled={isPending}
@@ -112,14 +123,16 @@ export default function LoginPage() {
               >
                 Demo Coach
               </button>
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={() => handleDemoLogin('admin')}
-                className="px-2.5 py-2 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition-colors disabled:opacity-50"
-              >
-                Demo Admin
-              </button>
+              {DEMO_ACCOUNTS.admin && (
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => handleDemoLogin('admin')}
+                  className="px-2.5 py-2 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition-colors disabled:opacity-50"
+                >
+                  Demo Admin
+                </button>
+              )}
             </div>
           </div>
 

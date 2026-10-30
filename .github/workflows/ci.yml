@@ -7,18 +7,18 @@ on:
     branches: [main, master, dev, develop]
 
 jobs:
-  lint-and-test:
-    name: Lint & Unit Tests
+  lint-test-and-build:
+    name: Lint, Unit Tests & Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: Install dependencies
@@ -27,5 +27,11 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      - name: Run Unit Tests
+      - name: Run Unit & Integrity Tests
         run: npm test
+
+      - name: Verify Next.js Production Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-for-ci-build
+        run: npm run build

@@ -57,13 +57,12 @@ export async function updateProfileAction(prevState, formData) {
     .single();
 
   if (currentProfile && cleanUsername !== currentProfile.username) {
-    const { data: existing } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('username', cleanUsername)
-      .maybeSingle();
+    const { data: isAvailable, error: rpcError } = await supabase.rpc(
+      'username_available',
+      { candidate: cleanUsername }
+    );
 
-    if (existing) {
+    if (!rpcError && isAvailable === false) {
       return {
         fieldErrors: { username: MESSAGES.USERNAME_TAKEN },
         values,
@@ -72,6 +71,23 @@ export async function updateProfileAction(prevState, formData) {
   }
 
   try {
+    const emailChanged = Boolean(currentProfile && email !== currentProfile.email);
+
+    // 1. If email changed, update Supabase Auth FIRST so profile and auth never desynchronize
+    if (emailChanged) {
+      const { error: authError } = await supabase.auth.updateUser({
+        email,
+      });
+
+      if (authError) {
+        return {
+          error: authError.message || 'Failed to update email address',
+          values,
+        };
+      }
+    }
+
+    // 2. Update user_profiles
     const { error: profileError } = await supabase
       .from('user_profiles')
       .update({
@@ -82,28 +98,25 @@ export async function updateProfileAction(prevState, formData) {
       .eq('id', user.id);
 
     if (profileError) {
-      return { error: profileError.message || 'Failed to update profile', values };
-    }
-
-    if (currentProfile && email !== currentProfile.email) {
-      const { error: authError } = await supabase.auth.updateUser({
-        email,
-      });
-
-      revalidatePath('/profile');
-      revalidatePath('/', 'layout');
-
-      if (authError) {
+      if (profileError.code === '23505') {
         return {
-          success: MESSAGES.PROFILE_UPDATED_EMAIL_VERIFY,
-          updatedAt: Date.now(),
-          values: { username: cleanUsername, email, fullName },
+          fieldErrors: { username: MESSAGES.USERNAME_TAKEN },
+          values,
         };
       }
+      return { error: profileError.message || 'Failed to update profile', values };
     }
 
     revalidatePath('/profile');
     revalidatePath('/', 'layout');
+
+    if (emailChanged) {
+      return {
+        success: MESSAGES.PROFILE_UPDATED_EMAIL_VERIFY,
+        updatedAt: Date.now(),
+        values: { username: cleanUsername, email, fullName },
+      };
+    }
 
     return {
       success: MESSAGES.PROFILE_UPDATED,

@@ -71,11 +71,14 @@ export default function SessionDetailView({ currentUser }) {
       if (bookingsResult.error) throw bookingsResult.error;
       if (waitlistResult.error) throw waitlistResult.error;
 
-      setBookings(bookingsResult.data || []);
+      const nextBookings = bookingsResult.data || [];
+      setBookings(nextBookings);
       setWaitlist(waitlistResult.data || []);
+      return nextBookings.length;
     } catch (err) {
       console.error('Error loading session details:', err);
       setError('Failed to load session details');
+      return null;
     } finally {
       setLoading(false);
     }
@@ -91,15 +94,15 @@ export default function SessionDetailView({ currentUser }) {
 
       if (error) throw error;
 
-      await loadSessionDetails(selectedSession.id);
+      const updatedCount = await loadSessionDetails(selectedSession.id);
       await loadSessions();
 
       setSelectedSession({
         ...selectedSession,
-        current_bookings: Math.max(
-          0,
-          (selectedSession.current_bookings || 1) - 1
-        ),
+        current_bookings:
+          typeof updatedCount === 'number'
+            ? updatedCount
+            : Math.max(0, (selectedSession.current_bookings || 1) - 1),
       });
       setBookingToRemove(null);
     } catch (err) {
