@@ -190,6 +190,20 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 # Optional: Enable 1-Click Demo Admin button in dedicated sandbox environments only
 # NEXT_PUBLIC_DEMO_ADMIN=true
 # NEXT_PUBLIC_DEMO_ADMIN_PASSWORD=your-custom-demo-admin-password
+
+# Optional: Transactional Email Notifications (Session updates and cancellations)
+# Option A: Nodemailer SMTP (e.g. Gmail App Password, Brevo, Mailgun)
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=your-email@gmail.com
+# SMTP_PASS=your-gmail-app-password
+# EMAIL_FROM="Mozgás Központ <noreply@mozgaskozpont.hu>"
+
+# Option B: Resend API (Free 3,000 emails/month)
+# RESEND_API_KEY=re_xxxxxxxxxxxx
+
+# Optional: Admin notification inbox for session cancellation/modification alerts
+# ADMIN_NOTIFICATION_EMAIL=admin@mozgaskozpont.hu
 ```
 > **Security Note:** Never enable `NEXT_PUBLIC_DEMO_ADMIN=true` on a database containing real member data. Migration `20261030000000_security_and_integrity_fixes.sql` automatically rotates the `demo_admin` password away from the default seed password unless `app.demo_admin_password` is explicitly configured in PostgreSQL.
 

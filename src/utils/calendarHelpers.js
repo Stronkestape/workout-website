@@ -60,3 +60,53 @@ export const canCancelBooking = (startTime, now = new Date()) => {
   const hoursUntil = (workoutTime - now) / (1000 * 60 * 60);
   return hoursUntil >= BOOKING_CANCEL_HOURS;
 };
+
+export const getCancellationInfo = (startTime, now = new Date()) => {
+  if (!startTime) {
+    return {
+      canCancel: false,
+      deadline: null,
+      deadlineFormatted: '',
+      isPast: true,
+      hoursRemainingToCancel: 0,
+    };
+  }
+
+  const workoutTime = new Date(startTime);
+  if (Number.isNaN(workoutTime.getTime())) {
+    return {
+      canCancel: false,
+      deadline: null,
+      deadlineFormatted: '',
+      isPast: true,
+      hoursRemainingToCancel: 0,
+    };
+  }
+
+  const isPast = workoutTime <= now;
+  const deadline = new Date(
+    workoutTime.getTime() - BOOKING_CANCEL_HOURS * 60 * 60 * 1000
+  );
+  const canCancel = !isPast && now <= deadline;
+  const msUntilDeadline = deadline.getTime() - now.getTime();
+  const hoursRemainingToCancel = Math.max(
+    0,
+    Math.round((msUntilDeadline / (1000 * 60 * 60)) * 10) / 10
+  );
+
+  const deadlineFormatted = `${deadline.toLocaleDateString('hu-HU', {
+    month: 'short',
+    day: 'numeric',
+  })} ${deadline.toLocaleTimeString('hu-HU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`;
+
+  return {
+    canCancel,
+    deadline,
+    deadlineFormatted,
+    isPast,
+    hoursRemainingToCancel,
+  };
+};

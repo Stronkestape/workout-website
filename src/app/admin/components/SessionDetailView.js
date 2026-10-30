@@ -9,9 +9,11 @@ import {
 } from '@/utils/adminQueries';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 import ConfirmModal from '@/components/ConfirmModal';
+import { useToast } from '@/context/ToastContext';
 
 export default function SessionDetailView({ currentUser }) {
   const isInstructor = currentUser?.profile?.user_tier === 'instructor';
+  const toast = useToast();
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [bookings, setBookings] = useState([]);
@@ -104,10 +106,14 @@ export default function SessionDetailView({ currentUser }) {
             ? updatedCount
             : Math.max(0, (selectedSession.current_bookings || 1) - 1),
       });
+      const userName = bookingToRemove.user_profiles?.username || 'résztvevő';
+      toast.success(`@${userName} sikeresen eltávolítva az edzésről!`, 'Résztvevő eltávolítva');
       setBookingToRemove(null);
     } catch (err) {
       console.error('Error removing booking:', err);
       setError('Failed to remove booking: ' + err.message);
+      const errMsg = err.message || 'Nem sikerült a résztvevő eltávolítása.';
+      toast.error(errMsg, 'Eltávolítási hiba');
       setBookingToRemove(null);
     } finally {
       setRemoving(false);

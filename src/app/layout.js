@@ -2,7 +2,7 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "../components/Navbar";
 import { createSupabaseServerClient } from "@/lib/server";
-
+import { ToastProvider } from "@/context/ToastContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,16 +23,18 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const supabase = await createSupabaseServerClient();
   const {
-    data: {user},
+    data: { user },
   } = await supabase.auth.getUser();
 
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen`}
       >
-        <Navbar user={user}/>
-        <main>{children}</main>
+        <ToastProvider>
+          <Navbar user={user} />
+          <main>{children}</main>
+        </ToastProvider>
       </body>
     </html>
   );

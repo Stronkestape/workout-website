@@ -1,4 +1,24 @@
 @import "tailwindcss";
+
+@theme {
+  --color-white: #f2efe9;
+  --color-stone-50: #ece7df;
+  --color-stone-100: #e0dbd1;
+  --color-stone-200: #d2ccc0;
+  --color-stone-300: #bcb5a7;
+  --color-gray-50: #e0dbd1;
+  --color-gray-100: #d2ccc0;
+  --color-gray-200: #bcb5a7;
+}
+
+@layer base {
+  html,
+  body {
+    background-color: #e0dbd1;
+    color: #1c1917;
+  }
+}
+
 @layer utilities {
   .scrollbar-hidden {
     -ms-overflow-style: none;  /* IE and Edge */
@@ -8,7 +28,4 @@
       display: none;           /* Chrome, Safari */
     }
   }
-}
-body{
-    background-color: oklch(100% 0.00011 271.152);
 }

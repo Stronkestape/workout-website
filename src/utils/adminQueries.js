@@ -3,7 +3,7 @@ import { supabaseBrowser } from '../lib/browser';
 import { sanitizeSearchTerm } from './validators';
 
 /**
- * Search users by username, email, or full name
+ * Search users by username or full name (email excluded for privacy)
  * Admin & Instructor (via scoped RPC with sanitized PostgREST fallback)
  */
 export const searchUsers = async (searchTerm) => {
@@ -20,11 +20,12 @@ export const searchUsers = async (searchTerm) => {
     return { data: rpcResult.data, error: null };
   }
 
+  // Fallback query strictly excludes email to preserve user privacy
   const { data, error } = await supabaseBrowser
     .from('user_profiles')
-    .select('id, username, email, full_name')
+    .select('id, username, full_name')
     .or(
-      `username.ilike.%${cleanTerm}%,email.ilike.%${cleanTerm}%,full_name.ilike.%${cleanTerm}%`
+      `username.ilike.%${cleanTerm}%,full_name.ilike.%${cleanTerm}%`
     )
     .limit(10);
 
