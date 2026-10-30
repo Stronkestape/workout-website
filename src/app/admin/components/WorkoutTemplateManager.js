@@ -9,6 +9,7 @@ import {
 } from '@/utils/adminQueries';
 import WorkoutTemplateForm from './WorkoutTemplateForm';
 import ConfirmModal from '@/components/ConfirmModal';
+import { useToast } from '@/context/ToastContext';
 
 export default function WorkoutTemplateManager() {
   const [templates, setTemplates] = useState([]);
@@ -18,9 +19,11 @@ export default function WorkoutTemplateManager() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [error, setError] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     loadTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadTemplates = async () => {
@@ -33,7 +36,8 @@ export default function WorkoutTemplateManager() {
       setTemplates(data || []);
     } catch (err) {
       console.error('Error loading templates:', err);
-      setError('Failed to load workout templates');
+      setError('Nem sikerült betölteni az edzéssablonokat.');
+      toast.error('Nem sikerült betölteni az edzéssablonokat.');
     } finally {
       setLoading(false);
     }
@@ -59,11 +63,15 @@ export default function WorkoutTemplateManager() {
 
       if (error) throw error;
 
+      const deletedTitle = templateToDelete.title;
       setTemplates(templates.filter((t) => t.id !== templateToDelete.id));
       setTemplateToDelete(null);
+      toast.success(`A(z) "${deletedTitle}" sablon sikeresen törölve!`, 'Sablon törölve');
     } catch (err) {
       console.error('Error deleting template:', err);
-      setError('Failed to delete template: ' + err.message);
+      const errMsg = err.message || 'Hiba történt a sablon törlése során.';
+      setError(errMsg);
+      toast.error(errMsg, 'Törlési hiba');
       setTemplateToDelete(null);
     } finally {
       setDeleting(false);
@@ -83,18 +91,21 @@ export default function WorkoutTemplateManager() {
         setTemplates(
           templates.map((t) => (t.id === editingTemplate.id ? data[0] : t))
         );
+        toast.success(`A(z) "${formData.title}" sablon adatai sikeresen frissítve!`, 'Sikeres módosítás');
       } else {
         const { data, error } = await createWorkoutTemplate(formData);
 
         if (error) throw error;
 
         setTemplates([data[0], ...templates]);
+        toast.success(`A(z) "${formData.title}" új edzéssablon sikeresen létrehozva!`, 'Sikeres létrehozás');
       }
 
       setShowForm(false);
       setEditingTemplate(null);
     } catch (err) {
       console.error('Error saving template:', err);
+      toast.error(err.message || 'Nem sikerült elmenteni az edzéssablont.', 'Mentési hiba');
       throw err;
     }
   };
@@ -106,9 +117,9 @@ export default function WorkoutTemplateManager() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">
-          <div className="text-gray-600">Loading templates...</div>
+          <div className="text-stone-600 font-medium">Sablonok betöltése...</div>
         </div>
       </div>
     );
@@ -118,41 +129,48 @@ export default function WorkoutTemplateManager() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-            Workout Templates
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
+            Edzéssablonok
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Create and manage workout class templates. These are blueprints for
-            scheduling sessions.
+          <p className="text-sm text-stone-600 mt-1">
+            Csoportos óratípusok és sablonok kezelése (időtartam, kapacitás, leírás).
           </p>
         </div>
         <button
+          type="button"
           onClick={handleCreate}
-          className="w-full sm:w-auto justify-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2 shrink-0"
+          className="w-full sm:w-auto justify-center bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm flex items-center gap-2 shrink-0 shadow-xs"
         >
-          <span>+ Create Template</span>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Új sablon létrehozása</span>
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start gap-3">
+          <svg className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p className="text-rose-800 text-sm font-medium">{error}</p>
         </div>
       )}
 
       {templates.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            No Templates Yet
+        <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-12 text-center">
+          <h3 className="text-xl font-bold text-stone-900 mb-2">
+            Még nincsenek sablonok
           </h3>
-          <p className="text-gray-600 mb-6">
-            Create your first workout template to get started
+          <p className="text-stone-600 mb-6 max-w-sm mx-auto text-sm">
+            Hozz létre egy új edzéssablont az órák naptárba történő ütemezéséhez.
           </p>
           <button
+            type="button"
             onClick={handleCreate}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+            className="inline-flex items-center gap-2 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
           >
-            Create Your First Template
+            <span>Első sablon létrehozása</span>
           </button>
         </div>
       ) : (
@@ -160,48 +178,50 @@ export default function WorkoutTemplateManager() {
           {templates.map((template) => (
             <div
               key={template.id}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200"
+              className="bg-white rounded-2xl shadow-xs hover:shadow-md transition-shadow border border-stone-200/80 p-6 flex flex-col justify-between"
             >
-              <div className="p-6">
+              <div>
                 <div className="mb-3">
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg font-bold text-stone-900">
                     {template.title}
                   </h3>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4 line-clamp-3 min-h-[60px]">
-                  {template.description || 'No description'}
+                <p className="text-sm text-stone-600 mb-4 line-clamp-3 min-h-[60px] leading-relaxed">
+                  {template.description || 'Nincs megadva leírás.'}
                 </p>
 
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Duration:</span>
-                    <span className="font-medium text-gray-900">
-                      {template.duration} minutes
+                <div className="space-y-2 mb-4 bg-stone-50 rounded-xl p-3 border border-stone-200/60">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-stone-500 font-medium">Időtartam:</span>
+                    <span className="font-bold text-stone-900">
+                      {template.duration} perc
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Capacity:</span>
-                    <span className="font-medium text-gray-900">
-                      {template.max_capacity} people
+                  <div className="flex justify-between text-xs">
+                    <span className="text-stone-500 font-medium">Férőhely:</span>
+                    <span className="font-bold text-stone-900">
+                      {template.max_capacity} fő
                     </span>
                   </div>
                 </div>
+              </div>
 
-                <div className="flex gap-2 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => handleEdit(template)}
-                    className="flex-1 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setTemplateToDelete(template)}
-                    className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
+              <div className="flex gap-2 pt-4 border-t border-stone-200/80">
+                <button
+                  type="button"
+                  onClick={() => handleEdit(template)}
+                  className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl transition-colors font-semibold text-xs"
+                >
+                  Szerkesztés
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTemplateToDelete(template)}
+                  className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl transition-colors font-semibold text-xs"
+                >
+                  Törlés
+                </button>
               </div>
             </div>
           ))}
@@ -218,13 +238,13 @@ export default function WorkoutTemplateManager() {
 
       <ConfirmModal
         isOpen={!!templateToDelete}
-        title="Delete Workout Template"
+        title="Edzéssablon törlése"
         message={
           templateToDelete
-            ? `Are you sure you want to delete "${templateToDelete.title}"?\n\nThis will also delete all sessions created from this template.`
+            ? `Biztosan törölni szeretnéd a(z) "${templateToDelete.title}" sablont?\n\nFigyelem: ez a művelet a sablonhoz kapcsolódó összes jövőbeli edzésidőpontot is érintheti.`
             : ''
         }
-        confirmLabel="Delete Template"
+        confirmLabel="Sablon törlése"
         loading={deleting}
         onConfirm={confirmDeleteTemplate}
         onCancel={() => setTemplateToDelete(null)}

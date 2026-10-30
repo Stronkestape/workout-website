@@ -11,13 +11,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/calendarHelpers.test.mjs tests/validators.test.mjs tests/workoutValidation.test.mjs tests/databaseIntegrity.test.mjs"
+    "test": "node --test tests/calendarHelpers.test.mjs tests/validators.test.mjs tests/workoutValidation.test.mjs tests/databaseIntegrity.test.mjs tests/sessionNotifications.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.109.0",
     "date-fns": "^4.1.0",
     "next": "^16.4.3",
+    "nodemailer": "^10.3.1",
     "react": "19.1.0",
     "react-big-calendar": "^1.19.4",
     "react-dom": "19.1.0"

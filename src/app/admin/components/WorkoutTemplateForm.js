@@ -33,13 +33,14 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
       ...formData,
       [name]:
         name === 'duration' || name === 'max_capacity'
-          ? parseInt(value)
+          ? parseInt(value) || 0
           : value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; // Prevent double-submit
     setError('');
 
     const validation = validateTemplate(formData);
@@ -52,57 +53,62 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
     try {
       await onSubmit(formData);
     } catch (err) {
-      setError(err.message || 'Failed to save template');
+      setError(err.message || 'Hiba történt a sablon mentése során.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {template ? 'Edit Template' : 'Create New Template'}
+    <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl border border-stone-200/80 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6 border-b border-stone-200/80">
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
+            {template ? 'Edzéssablon szerkesztése' : 'Új edzéssablon létrehozása'}
           </h2>
           <button
+            type="button"
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none"
+            disabled={loading}
+            className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg transition-colors focus:outline-none"
+            aria-label="Ablak bezárása"
           >
-            ×
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <FormInput
             id="title"
             name="title"
-            label="Workout Title"
+            label="Edzés megnevezése"
             value={formData.title}
             onChange={handleChange}
             error={fieldErrors.title}
             disabled={loading}
-            placeholder="e.g., Morning Yoga"
+            placeholder="pl. Spinning, WALKenergie, Cross Training"
             required
           />
 
           <FormInput
             id="description"
             name="description"
-            label="Description"
+            label="Leírás"
             type="textarea"
             value={formData.description}
             onChange={handleChange}
             disabled={loading}
-            placeholder="Describe the workout type and what participants can expect..."
+            placeholder="Részletes ismertető a mozgásformáról, az edzés menetéről és intenzitásáról..."
             rows={4}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormInput
               id="duration"
               name="duration"
-              label="Duration (minutes)"
+              label="Időtartam (perc)"
               type="number"
               value={formData.duration}
               onChange={handleChange}
@@ -116,7 +122,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
             <FormInput
               id="max_capacity"
               name="max_capacity"
-              label="Max Capacity"
+              label="Maximális férőhely (fő)"
               type="number"
               value={formData.max_capacity}
               onChange={handleChange}
@@ -128,34 +134,36 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
             />
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
-              This is a template. Create scheduled sessions from this template
-              later to assign instructors and set specific dates/times.
-            </p>
+          <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 text-xs text-stone-600 leading-relaxed">
+            Ez az edzés egy általános sablonként szolgál. Az időpontok menüpontban ebből a sablonból hozhatsz létre konkrét órákat kijelölt edzővel és kezdési időponttal.
           </div>
 
           {error && <FormMessage type="error" message={error} />}
 
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex gap-3 pt-3 border-t border-stone-200/80">
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
+              className="flex-1 px-5 py-2.5 border border-stone-300 rounded-xl hover:bg-stone-50 transition-colors font-medium text-stone-700 text-sm"
               disabled={loading}
             >
-              Cancel
+              Mégse
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+              className="flex-1 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors font-semibold text-sm shadow-xs flex items-center justify-center gap-2"
             >
-              {loading
-                ? 'Saving...'
-                : template
-                ? 'Update Template'
-                : 'Create Template'}
+              {loading && (
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+              )}
+              <span>
+                {loading
+                  ? 'Mentés folyamatban...'
+                  : template
+                  ? 'Módosítások mentése'
+                  : 'Sablon létrehozása'}
+              </span>
             </button>
           </div>
         </form>

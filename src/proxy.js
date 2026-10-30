@@ -63,8 +63,11 @@ export async function proxy(request) {
     }
   }
 
-  // Protect /profile route - must be logged in
-  if (pathname.startsWith('/profile') && !user) {
+  // Protect /profile and /bookings routes - must be logged in
+  if (
+    (pathname.startsWith('/profile') || pathname.startsWith('/bookings')) &&
+    !user
+  ) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

@@ -75,14 +75,14 @@ export default function Navbar({ user }) {
   const navLinkClass = (href) =>
     `px-4 py-2 rounded-lg transition-colors font-medium text-sm ${
       pathname === href
-        ? "bg-green-600 text-white"
+        ? "bg-warm-terracotta text-white"
         : "bg-stone-800 text-stone-200 hover:bg-stone-700 hover:text-white"
     }`;
 
   const mobileNavLinkClass = (href) =>
     `flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
       pathname === href
-        ? "bg-green-600/20 text-green-400 border border-green-500/30"
+        ? "bg-warm-terracotta/20 text-warm-terracotta border border-warm-terracotta/30"
         : "text-stone-200 hover:bg-stone-800 active:bg-stone-800"
     }`;
 
@@ -92,19 +92,24 @@ export default function Navbar({ user }) {
         <div className="flex justify-between items-center h-16">
           <Link
             href="/"
-            className="text-lg sm:text-xl font-bold tracking-tight hover:text-green-400 transition-colors truncate"
+            aria-label="Mozgás Központ – Go to homepage"
+            className="inline-flex items-center gap-2 text-lg sm:text-xl font-bold tracking-tight text-white hover:text-warm-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm-terracotta rounded-lg py-1 transition-colors truncate"
           >
-            Mozgás Központ
+            <span className="w-2.5 h-2.5 rounded-full bg-warm-terracotta shrink-0" aria-hidden="true" />
+            <span>Mozgás Központ</span>
           </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-2">
-            <Link href="/" className={navLinkClass("/")}>
-              Home
-            </Link>
             <Link href="/calendar" className={navLinkClass("/calendar")}>
               Calendar
             </Link>
+
+            {isLoggedIn && (
+              <Link href="/bookings" className={navLinkClass("/bookings")}>
+                My Bookings
+              </Link>
+            )}
 
             {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
               <Link
@@ -124,6 +129,7 @@ export default function Navbar({ user }) {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -139,7 +145,7 @@ export default function Navbar({ user }) {
             {isLoggedIn ? (
               <>
                 <Link href="/profile" className={navLinkClass("/profile")}>
-                  {username || "Profile"}
+                  Profile
                 </Link>
                 <div className="h-4 w-px bg-stone-700 mx-2" />
                 <button
@@ -157,7 +163,7 @@ export default function Navbar({ user }) {
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                  className="px-4 py-2 bg-warm-terracotta text-white rounded-lg hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
                 >
                   Register
                 </Link>
@@ -171,6 +177,7 @@ export default function Navbar({ user }) {
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             className="md:hidden p-2.5 rounded-xl text-stone-300 hover:text-white hover:bg-stone-800 active:bg-stone-700 transition-colors focus:outline-none"
             aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
               <svg
@@ -178,6 +185,7 @@ export default function Navbar({ user }) {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -192,6 +200,7 @@ export default function Navbar({ user }) {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -210,12 +219,12 @@ export default function Navbar({ user }) {
             {isLoggedIn && (
               <div className="flex items-center justify-between px-4 py-3 bg-stone-800/70 rounded-xl border border-stone-700/60">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-warm-terracotta flex items-center justify-center text-white font-bold text-sm shrink-0">
                     {(username || "U").charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-white truncate">
-                      {username || "Member"}
+                      @{username || "Member"}
                     </div>
                     <div className="text-xs text-stone-400 capitalize">
                       {userTier || "regular"} account
@@ -237,14 +246,24 @@ export default function Navbar({ user }) {
             )}
 
             <div className="space-y-1">
-              <Link href="/" className={mobileNavLinkClass("/")}>
-                <span>Home</span>
-                <span className="text-stone-500 text-xs">→</span>
-              </Link>
               <Link href="/calendar" className={mobileNavLinkClass("/calendar")}>
                 <span>Workout Calendar</span>
-                <span className="text-stone-500 text-xs">→</span>
+                <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
+
+              {isLoggedIn && (
+                <Link href="/bookings" className={mobileNavLinkClass("/bookings")}>
+                  <span>My Bookings</span>
+                  <ChevronRightIcon className="w-4 h-4 text-stone-500" />
+                </Link>
+              )}
+
+              {isLoggedIn && (
+                <Link href="/profile" className={mobileNavLinkClass("/profile")}>
+                  <span>Profile</span>
+                  <ChevronRightIcon className="w-4 h-4 text-stone-500" />
+                </Link>
+              )}
 
               {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
                 <Link
@@ -260,14 +279,7 @@ export default function Navbar({ user }) {
                       ? "Admin Dashboard"
                       : "Coach Panel"}
                   </span>
-                  <span className="text-xs">→</span>
-                </Link>
-              )}
-
-              {isLoggedIn && (
-                <Link href="/profile" className={mobileNavLinkClass("/profile")}>
-                  <span>My Profile & Bookings</span>
-                  <span className="text-stone-500 text-xs">→</span>
+                  <ChevronRightIcon className="w-4 h-4 text-purple-400" />
                 </Link>
               )}
             </div>
@@ -290,7 +302,7 @@ export default function Navbar({ user }) {
                   </Link>
                   <Link
                     href="/register"
-                    className="py-2.5 px-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium text-sm text-center"
+                    className="py-2.5 px-4 bg-warm-terracotta text-white rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm text-center shadow-xs"
                   >
                     Register
                   </Link>
@@ -301,5 +313,24 @@ export default function Navbar({ user }) {
         )}
       </div>
     </nav>
+  );
+}
+
+function ChevronRightIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5l7 7-7 7"
+      />
+    </svg>
   );
 }
