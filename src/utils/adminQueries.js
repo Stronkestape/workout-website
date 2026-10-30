@@ -1,15 +1,31 @@
 // src/utils/adminQueries.js
 import { supabaseBrowser } from '../lib/browser';
+import { sanitizeSearchTerm } from './validators';
 
 /**
  * Search users by username, email, or full name
- * Admin only
+ * Admin & Instructor (via scoped RPC with sanitized PostgREST fallback)
  */
 export const searchUsers = async (searchTerm) => {
+  const cleanTerm = sanitizeSearchTerm(searchTerm);
+  if (cleanTerm.length < 2) {
+    return { data: [], error: null };
+  }
+
+  const rpcResult = await supabaseBrowser.rpc('search_users_for_booking', {
+    search_term: cleanTerm,
+  });
+
+  if (!rpcResult.error && rpcResult.data) {
+    return { data: rpcResult.data, error: null };
+  }
+
   const { data, error } = await supabaseBrowser
     .from('user_profiles')
     .select('id, username, email, full_name')
-    .or(`username.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`)
+    .or(
+      `username.ilike.%${cleanTerm}%,email.ilike.%${cleanTerm}%,full_name.ilike.%${cleanTerm}%`
+    )
     .limit(10);
 
   return { data, error };
@@ -28,7 +44,7 @@ export const fetchInstructors = async () => {
 
   return await supabaseBrowser
     .from('user_profiles')
-    .select('id, username, full_name, email')
+    .select('id, username, full_name')
     .in('user_tier', ['instructor', 'admin'])
     .order('username', { ascending: true });
 };

@@ -95,3 +95,8 @@ export const validateFullName = (fullName) => {
 
   return { isValid: true };
 };
+
+export const sanitizeSearchTerm = (rawTerm) => {
+  if (typeof rawTerm !== "string") return "";
+  return rawTerm.replace(/[,().%\\*]/g, "").trim();
+};

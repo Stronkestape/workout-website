@@ -34,7 +34,7 @@ export async function loginAction(prevState, formData) {
 
     if (lookupError || !data?.length) {
       return {
-        error: MESSAGES.USER_NOT_FOUND,
+        error: MESSAGES.INVALID_LOGIN,
         values: { emailOrUsername },
       };
     }

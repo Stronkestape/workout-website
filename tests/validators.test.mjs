@@ -6,6 +6,7 @@ import {
   validatePassword,
   validatePasswordMatch,
   validateFullName,
+  sanitizeSearchTerm,
 } from "../src/utils/validators.js";
 
 test("isValidEmail - accepts valid standard and plus-tagged emails, including whitespace trimming", () => {
@@ -81,4 +82,15 @@ test("validateFullName - allows optional empty name and rejects > 100 character 
   const tooLong = validateFullName("A".repeat(101));
   assert.equal(tooLong.isValid, false);
   assert.equal(tooLong.error, "Full name is too long");
+});
+
+test("sanitizeSearchTerm - strips PostgREST filter metacharacters to prevent .or() injection", () => {
+  assert.equal(sanitizeSearchTerm("  kovacs_david  "), "kovacs_david");
+  assert.equal(
+    sanitizeSearchTerm("a%,email.ilike.%admin%,full_name.eq.(test)*\\"),
+    "aemaililikeadminfull_nameeqtest"
+  );
+  assert.equal(sanitizeSearchTerm(null), "");
+  assert.equal(sanitizeSearchTerm(undefined), "");
+  assert.equal(sanitizeSearchTerm(123), "");
 });
