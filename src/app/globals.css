@@ -9,8 +9,8 @@
   --color-gray-50: #e0dbd1;
   --color-gray-100: #d2ccc0;
   --color-gray-200: #bcb5a7;
-  --color-warm-terracotta: #c85a32;
-  --color-warm-terracotta-hover: #b44f2b;
+  --color-warm-terracotta: #b84c24;
+  --color-warm-terracotta-hover: #9e3d1a;
 }
 
 @layer base {
@@ -23,11 +23,10 @@
 
 @layer utilities {
   .scrollbar-hidden {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
-
-    &::-webkit-scrollbar {
-      display: none;           /* Chrome, Safari */
-    }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
   }
 }

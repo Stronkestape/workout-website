@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { createSupabaseServerClient } from "@/lib/server";
 import { ToastProvider } from "@/context/ToastContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }) {
           <main className="flex-1">{children}</main>
           <Footer />
         </ToastProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
