@@ -151,22 +151,25 @@ erDiagram
 ## Project Structure
 
 ```text
+vercel.json                         # Vercel deployment configuration (fra1 Frankfurt serverless region)
 src/
 ├── proxy.js                        # Next.js 16 request proxy (session refresh & RBAC guards)
 ├── app/
-│   ├── layout.js                   # Root Server Component layout (fetches initial auth user)
-│   ├── page.js                     # Landing page with deep-linked workout categories
+│   ├── layout.js                   # Static Root Component layout (zero dynamic cookies, instant edge caching)
+│   ├── loading.js                  # Accessible root pulse skeleton loader (< 40ms instant transition)
+│   ├── page.js                     # Static landing page with deep-linked workout categories
 │   ├── calendar/                   # Desktop calendar & mobile schedule + booking modal
-│   ├── instructors/                # Instructors showcase page
+│   ├── instructors/                # Instructors showcase page with 5-minute Edge ISR caching
 │   ├── bookings/                   # User bookings & waitlist hub
-│   ├── login/                      # Login page + Server Action (loginAction)
-│   ├── register/                   # Registration page + Server Action (registerAction)
+│   ├── login/                      # Static login page + Server Action (loginAction)
+│   ├── register/                   # Static registration page + Server Action (registerAction)
 │   ├── profile/                    # User profile, settings & Server Actions
 │   └── admin/                      # Admin & Instructor dashboard (Templates, Sessions, Roster)
 ├── components/                     # Reusable UI components (Navbar, Footer, WorkoutCard, ConfirmModal)
 ├── hooks/                          # Custom hooks (useWorkoutBooking)
 ├── lib/
 │   ├── browser.js                  # Supabase browser client (@supabase/ssr)
+│   ├── publicSupabase.js           # Dedicated Supabase client for static / ISR Edge data fetching
 │   ├── server.js                   # Supabase server client with cookie store integration
 │   └── notifications/              # Transactional email notification service (SMTP / Resend)
 └── utils/                          # Query helpers, validators, date formatters & constants

@@ -17,7 +17,7 @@ import {
   isAfter,
 } from "date-fns";
 import { enUS, hu } from "date-fns/locale";
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import styles from "./Calendar.module.css";
 import { supabaseBrowser } from "@/lib/browser";
@@ -61,6 +61,11 @@ function CalendarContent() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("week");
   const [user, setUser] = useState(null);
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
   const [selectedWorkoutType, setSelectedWorkoutType] = useState("all");
 
   // Workout card state
@@ -79,39 +84,34 @@ function CalendarContent() {
     }
   }, [searchParams]);
 
-  const getCurrentUser = async () => {
-    const {
-      data: { user },
-    } = await supabaseBrowser.auth.getUser();
-    setUser(user);
-  };
-
   const fetchEvents = useCallback(
-    async ({ silent = false } = {}) => {
+    async ({ silent = false, currentUser = undefined } = {}) => {
       try {
         if (!silent) {
           setLoading(true);
         }
 
-        const { data, error } = await fetchClassSessions();
+        const activeUser = currentUser !== undefined ? currentUser : userRef.current;
 
-        if (error) {
-          throw error;
+        const [sessionsResult, bookingsResult] = await Promise.all([
+          fetchClassSessions(),
+          activeUser
+            ? supabaseBrowser
+                .from("bookings")
+                .select("session_id")
+                .eq("user_id", activeUser.id)
+                .eq("booking_status", "confirmed")
+            : Promise.resolve({ data: [] }),
+        ]);
+
+        if (sessionsResult.error) {
+          throw sessionsResult.error;
         }
 
-        // Get user's bookings if logged in
-        let userBookedSessions = new Set();
-        if (user) {
-          const { data: bookingsData } = await supabaseBrowser
-            .from("bookings")
-            .select("session_id")
-            .eq("user_id", user.id)
-            .eq("booking_status", "confirmed");
-
-          if (bookingsData) {
-            userBookedSessions = new Set(bookingsData.map((b) => b.session_id));
-          }
-        }
+        const data = sessionsResult.data || [];
+        const userBookedSessions = new Set(
+          (bookingsResult.data || []).map((b) => b.session_id)
+        );
 
         // Transform data for react-big-calendar
         const calendarEvents = data.map((session) => {
@@ -156,17 +156,39 @@ function CalendarContent() {
         }
       }
     },
-    [user]
+    []
   );
 
-  // Get current user
+  // Initialize session and fetch events in parallel once on mount (no double-fetching)
   useEffect(() => {
-    getCurrentUser();
-  }, []);
+    let isMounted = true;
 
-  // Fetch events from Supabase
-  useEffect(() => {
-    fetchEvents();
+    async function initCalendar() {
+      const {
+        data: { session },
+      } = await supabaseBrowser.auth.getSession();
+      const initialUser = session?.user || null;
+      if (isMounted) {
+        setUser(initialUser);
+        await fetchEvents({ currentUser: initialUser });
+      }
+    }
+
+    initCalendar();
+
+    const { data: authListener } = supabaseBrowser.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!isMounted) return;
+        const updatedUser = session?.user || null;
+        setUser(updatedUser);
+        fetchEvents({ silent: true, currentUser: updatedUser });
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      authListener?.subscription?.unsubscribe();
+    };
   }, [fetchEvents]);
 
   // Filtered events based on selected workout type

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { supabaseBrowser } from "../lib/browser";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function Navbar({ user }) {
+export default function Navbar({ user = null } = {}) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
   const [username, setUsername] = useState(null);
   const [userTier, setUserTier] = useState(null);
@@ -18,9 +18,16 @@ export default function Navbar({ user }) {
       setIsLoggedIn(true);
       fetchUserProfile(user.id);
     } else {
-      setIsLoggedIn(false);
-      setUsername(null);
-      setUserTier(null);
+      supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          setIsLoggedIn(true);
+          fetchUserProfile(session.user.id);
+        } else {
+          setIsLoggedIn(false);
+          setUsername(null);
+          setUserTier(null);
+        }
+      });
     }
 
     const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
