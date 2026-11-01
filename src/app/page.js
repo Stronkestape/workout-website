@@ -117,6 +117,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/calendar"
+              prefetch={true}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-colors shadow-sm"
             >
               <span>View Schedule & Book</span>
@@ -139,6 +140,7 @@ function HeroSection() {
           fill
           className="object-cover object-center opacity-50"
           priority
+          quality={75}
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/65 to-stone-950/90" />
@@ -158,6 +160,7 @@ function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/calendar"
+            prefetch={true}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-8 py-4 rounded-xl text-base sm:text-lg font-semibold transition-all shadow-lg"
           >
             <span>View Schedule</span>
@@ -202,8 +205,9 @@ function WorkoutSection({
               src={image}
               alt={title}
               fill
+              quality={75}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 1024px) 100vw, 60vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 58vw, 750px"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
             <div className="absolute top-4 left-4">
