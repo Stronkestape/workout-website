@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabaseBrowser } from "../lib/browser";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -10,49 +10,31 @@ export default function Navbar({ user = null } = {}) {
   const [username, setUsername] = useState(null);
   const [userTier, setUserTier] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const currentUserIdRef = useRef(null);
+  const userTierRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (user) {
-      setIsLoggedIn(true);
-      fetchUserProfile(user.id);
-    } else {
-      supabaseBrowser.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setIsLoggedIn(true);
-          fetchUserProfile(session.user.id);
-        } else {
-          setIsLoggedIn(false);
-          setUsername(null);
-          setUserTier(null);
-        }
-      });
-    }
+    userTierRef.current = userTier;
+  }, [userTier]);
 
-    const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
-      async (_event, session) => {
-        setIsLoggedIn(!!session);
-
-        if (session?.user) {
-          fetchUserProfile(session.user.id);
-        } else {
-          setUsername(null);
-          setUserTier(null);
+  // 1. Fetch user profile with local storage cache for instant 0ms display
+  const fetchUserProfile = useCallback(async (userId) => {
+    try {
+      const cached = sessionStorage.getItem(`user_profile_${userId}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.username) setUsername(parsed.username);
+        if (parsed.user_tier) {
+          setUserTier(parsed.user_tier);
+          userTierRef.current = parsed.user_tier;
         }
       }
-    );
+    } catch {
+      // Ignore storage errors in private browsing
+    }
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, [user]);
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
-  const fetchUserProfile = async (userId) => {
     const { data } = await supabaseBrowser
       .from("user_profiles")
       .select("username, user_tier")
@@ -62,18 +44,81 @@ export default function Navbar({ user = null } = {}) {
     if (data) {
       setUsername(data.username);
       setUserTier(data.user_tier);
+      userTierRef.current = data.user_tier;
+      try {
+        sessionStorage.setItem(`user_profile_${userId}`, JSON.stringify(data));
+      } catch {
+        // Ignore storage errors
+      }
     }
-  };
+  }, []);
 
-  const handleLogout = async () => {
-    const { error } = await supabaseBrowser.auth.signOut();
-    if (error) {
-      console.error("Logout error:", error.message);
+  // 2. Synchronize session from client cookie storage
+  const syncSession = useCallback(async () => {
+    const {
+      data: { session },
+    } = await supabaseBrowser.auth.getSession();
+
+    if (session?.user) {
+      setIsLoggedIn(true);
+      if (currentUserIdRef.current !== session.user.id || !userTierRef.current) {
+        currentUserIdRef.current = session.user.id;
+        await fetchUserProfile(session.user.id);
+      }
     } else {
+      currentUserIdRef.current = null;
       setIsLoggedIn(false);
       setUsername(null);
       setUserTier(null);
+      userTierRef.current = null;
     }
+  }, [fetchUserProfile]);
+
+  // 3. Mount lifecycle & auth event subscription
+  useEffect(() => {
+    syncSession();
+
+    const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_OUT" || !session) {
+          currentUserIdRef.current = null;
+          setIsLoggedIn(false);
+          setUsername(null);
+          setUserTier(null);
+          userTierRef.current = null;
+          try {
+            sessionStorage.clear();
+          } catch {}
+        } else if (session?.user) {
+          setIsLoggedIn(true);
+          currentUserIdRef.current = session.user.id;
+          fetchUserProfile(session.user.id);
+        }
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [syncSession, fetchUserProfile]);
+
+  // 4. Route transition listener: Catches Server Action redirects (e.g. /login -> /calendar)
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    syncSession();
+  }, [pathname, syncSession]);
+
+  // 5. Logout handler
+  const handleLogout = async () => {
+    await supabaseBrowser.auth.signOut();
+    currentUserIdRef.current = null;
+    setIsLoggedIn(false);
+    setUsername(null);
+    setUserTier(null);
+    userTierRef.current = null;
+    try {
+      sessionStorage.clear();
+    } catch {}
     setMobileMenuOpen(false);
     router.push("/");
     router.refresh();
