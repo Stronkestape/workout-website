@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { createSupabaseServerClient } from "@/lib/server";
 import { ToastProvider } from "@/context/ToastContext";
 
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Workout Booking",
-  description: "Book your workout sessions easily",
+  title: "Workout Booking | Mozgás Központ",
+  description: "Prémium csoportos funkcionális edzések, Spinning és WALKenergie órák Újbudán.",
 };
 
 export default async function RootLayout({ children }) {
@@ -27,13 +28,14 @@ export default async function RootLayout({ children }) {
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="en">
+    <html lang="hu">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col`}
       >
         <ToastProvider>
           <Navbar user={user} />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
+          <Footer />
         </ToastProvider>
       </body>
     </html>

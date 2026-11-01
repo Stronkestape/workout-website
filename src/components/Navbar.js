@@ -105,6 +105,10 @@ export default function Navbar({ user }) {
               Calendar
             </Link>
 
+            <Link href="/instructors" className={navLinkClass("/instructors")}>
+              Instructors
+            </Link>
+
             {isLoggedIn && (
               <Link href="/bookings" className={navLinkClass("/bookings")}>
                 My Bookings
@@ -248,6 +252,11 @@ export default function Navbar({ user }) {
             <div className="space-y-1">
               <Link href="/calendar" className={mobileNavLinkClass("/calendar")}>
                 <span>Workout Calendar</span>
+                <ChevronRightIcon className="w-4 h-4 text-stone-500" />
+              </Link>
+
+              <Link href="/instructors" className={mobileNavLinkClass("/instructors")}>
+                <span>Instructors</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 

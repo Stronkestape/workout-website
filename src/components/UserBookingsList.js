@@ -30,7 +30,7 @@ export default function UserBookingsList({ userId }) {
 
       if (errors.bookingsError) {
         console.error("Error fetching bookings:", errors.bookingsError);
-        setError("Nem sikerült betölteni a foglalásokat.");
+        setError("Failed to load your bookings.");
       } else {
         setBookings(bookingsData || []);
       }
@@ -42,7 +42,7 @@ export default function UserBookingsList({ userId }) {
       }
     } catch (err) {
       console.error("Unexpected error:", err);
-      setError("Váratlan hiba történt az adatok betöltésekor.");
+      setError("An unexpected error occurred while loading bookings.");
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function UserBookingsList({ userId }) {
       await fetchBookingsData();
     } catch (err) {
       console.error("Action error:", err);
-      setError(err.message || "Nem sikerült módosítani a jelentkezést.");
+      setError(err.message || "Failed to update booking status.");
       setConfirmAction(null);
     } finally {
       setActionLoading(false);
@@ -89,7 +89,7 @@ export default function UserBookingsList({ userId }) {
     return (
       <div className="text-center py-12">
         <div className="text-stone-600 font-medium text-sm">
-          Foglalások és várólisták betöltése...
+          Loading bookings and waitlists...
         </div>
       </div>
     );
@@ -108,10 +108,10 @@ export default function UserBookingsList({ userId }) {
 
   if (!hasBookings && !hasWaitlist) {
     return (
-      <div className="text-center py-12 px-4">
-        <div className="w-14 h-14 rounded-2xl bg-stone-100 text-stone-400 mx-auto mb-4 flex items-center justify-center">
+      <div className="text-center py-14 px-4 bg-white rounded-2xl border border-stone-200/80 shadow-xs">
+        <div className="w-16 h-16 rounded-2xl bg-warm-terracotta/10 text-warm-terracotta mx-auto mb-4 flex items-center justify-center">
           <svg
-            className="w-7 h-7"
+            className="w-8 h-8"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -125,17 +125,17 @@ export default function UserBookingsList({ userId }) {
             />
           </svg>
         </div>
-        <h3 className="text-base font-bold text-stone-900 mb-1">
-          Még nincs aktív foglalásod
+        <h3 className="text-lg font-bold text-stone-900 mb-1.5">
+          No Active Bookings Yet
         </h3>
-        <p className="text-stone-500 text-sm mb-5 max-w-sm mx-auto">
-          Böngéssz az edzésnaptárunkban és jelentkezz fel a számodra szimpatikus órákra!
+        <p className="text-stone-600 text-sm mb-6 max-w-sm mx-auto leading-relaxed">
+          Browse our weekly schedule and reserve a spot in your favorite group classes!
         </p>
         <Link
           href="/calendar"
-          className="inline-flex items-center gap-2 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 transition-colors text-sm font-medium shadow-xs"
+          className="inline-flex items-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-6 py-3 rounded-xl transition-colors text-sm font-semibold shadow-sm"
         >
-          <span>Edzések böngészése</span>
+          <span>Explore Class Schedule</span>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -155,10 +155,10 @@ export default function UserBookingsList({ userId }) {
         </div>
         <div className="text-xs sm:text-sm leading-relaxed space-y-1">
           <h4 className="font-bold text-stone-900 text-sm">
-            Lemondási szabályzat (Cancellation Policy)
+            Cancellation Policy
           </h4>
           <p className="text-stone-600">
-            A lefoglalt edzéseket díjmentesen lemondhatod <strong>legkésőbb a kezdés előtt 2 órával</strong>. A kezdés előtti utolsó 2 órában a lemondási lehetőség automatikusan lezárul, biztosítva a várólistások bejutását és az edzők felkészülését.
+            You can cancel confirmed class bookings free of charge <strong>up to 2 hours before the start time</strong>. Within the final 2 hours, cancellations are locked to allow waitlisted members to fill open spots and ensure instructor preparedness.
           </p>
         </div>
       </div>
@@ -188,10 +188,10 @@ export default function UserBookingsList({ userId }) {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-stone-900">
-              Közelgő edzések ({upcomingBookings.length})
+              Upcoming Classes ({upcomingBookings.length})
             </h3>
             <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full">
-              Megerősített
+              Confirmed
             </span>
           </div>
 
@@ -202,7 +202,7 @@ export default function UserBookingsList({ userId }) {
               const instructor = session?.instructor;
               const instructorName = instructor
                 ? instructor.full_name || instructor.username
-                : "Nincs kijelölt edző";
+                : "Unassigned coach";
               const { date, time } = formatDateTime(session?.start_time);
               const cancelInfo = getCancellationInfo(session?.start_time);
 
@@ -222,11 +222,11 @@ export default function UserBookingsList({ userId }) {
                           {workout?.title}
                         </h4>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-                          Jelentkezve
+                          Confirmed
                         </span>
                       </div>
                       <p className="text-sm text-stone-600 mt-1 truncate">
-                        Oktató: <span className="font-medium text-stone-800">{instructorName}</span>
+                        Coach: <span className="font-medium text-stone-800">{instructorName}</span>
                       </p>
                       <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-stone-500">
                         <span className="inline-flex items-center gap-1.5 font-medium text-stone-700">
@@ -254,8 +254,8 @@ export default function UserBookingsList({ userId }) {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>
-                          Lemondási határidő: <strong className="text-stone-800">{cancelInfo.deadlineFormatted}</strong>
-                          <span className="text-stone-500 ml-1">(kezdés előtt 2 órával)</span>
+                          Cancellation cutoff: <strong className="text-stone-800">{cancelInfo.deadlineFormatted}</strong>
+                          <span className="text-stone-500 ml-1">(2 hours before class)</span>
                         </span>
                       </div>
                     ) : (
@@ -264,7 +264,7 @@ export default function UserBookingsList({ userId }) {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                         <span>
-                          Ez az edzés már nem mondható le (a 2 órás határidő lezárult: {cancelInfo.deadlineFormatted}).
+                          Cancellation is locked (deadline was {cancelInfo.deadlineFormatted}).
                         </span>
                       </div>
                     )}
@@ -277,18 +277,18 @@ export default function UserBookingsList({ userId }) {
                             setConfirmAction({
                               type: "cancelBooking",
                               sessionId: session.id,
-                              title: "Jelentkezés lemondása",
-                              message: `Biztosan le szeretnéd mondani a jelentkezésedet a(z) "${workout?.title}" órára (${date}, ${time})?\n\nA határidőig (${cancelInfo.deadlineFormatted}) a lemondás díjmentes.`,
-                              confirmLabel: "Igen, lemondom",
+                              title: "Cancel Booking",
+                              message: `Are you sure you want to cancel your booking for "${workout?.title}" (${date}, ${time})?\n\nCancellations before the deadline (${cancelInfo.deadlineFormatted}) are free of charge.`,
+                              confirmLabel: "Yes, Cancel Booking",
                             })
                           }
                           className="w-full sm:w-auto text-rose-600 hover:text-rose-700 hover:bg-rose-50 text-xs font-semibold px-3.5 py-2 rounded-xl border border-rose-200 transition-colors text-center"
                         >
-                          Jelentkezés lemondása
+                          Cancel Booking
                         </button>
                       ) : (
                         <span className="text-[11px] font-semibold text-stone-400 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200/60">
-                          Lemondás lezárva
+                          Cancellation Closed
                         </span>
                       )}
                     </div>
@@ -305,10 +305,10 @@ export default function UserBookingsList({ userId }) {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-stone-900">
-              Várólistás feliratkozások ({waitlist.length})
+              Waitlist Entries ({waitlist.length})
             </h3>
             <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full">
-              Várakozás felszabadulásra
+              Waiting for Open Spots
             </span>
           </div>
 
@@ -319,7 +319,7 @@ export default function UserBookingsList({ userId }) {
               const instructor = session?.instructor;
               const instructorName = instructor
                 ? instructor.full_name || instructor.username
-                : "Nincs kijelölt edző";
+                : "Unassigned coach";
               const { date, time } = formatDateTime(session?.start_time);
 
               return (
@@ -334,11 +334,11 @@ export default function UserBookingsList({ userId }) {
                           {workout?.title}
                         </h4>
                         <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-semibold">
-                          {entry.position}. a várólistán
+                          #{entry.position} on Waitlist
                         </span>
                       </div>
                       <p className="text-sm text-stone-600 mt-1">
-                        Oktató: <span className="font-medium text-stone-800">{instructorName}</span>
+                        Coach: <span className="font-medium text-stone-800">{instructorName}</span>
                       </p>
                       <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2.5 text-xs sm:text-sm text-stone-500">
                         <span className="font-medium text-stone-700">{date}</span>
@@ -353,15 +353,15 @@ export default function UserBookingsList({ userId }) {
                           setConfirmAction({
                             type: "leaveWaitlist",
                             sessionId: session.id,
-                            title: "Várólista elhagyása",
-                            message: `Biztosan leiratkozol a várólistáról a(z) "${workout?.title}" órára?`,
-                            confirmLabel: "Leiratkozás",
+                            title: "Leave Waitlist",
+                            message: `Are you sure you want to leave the waitlist for "${workout?.title}"?`,
+                            confirmLabel: "Leave Waitlist",
                             variant: "warning",
                           })
                         }
                         className="text-amber-800 hover:text-amber-900 text-sm font-semibold bg-amber-100/80 hover:bg-amber-100 px-3.5 py-1.5 rounded-xl transition-colors"
                       >
-                        Leiratkozás
+                        Leave Waitlist
                       </button>
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export default function UserBookingsList({ userId }) {
       {pastBookings.length > 0 && (
         <div className="pt-4 border-t border-stone-200/80">
           <h3 className="text-base font-bold text-stone-700 mb-4">
-            Korábbi edzések ({pastBookings.length})
+            Past Classes ({pastBookings.length})
           </h3>
           <div className="space-y-2.5 opacity-80">
             {pastBookings.map((booking) => {
@@ -385,7 +385,7 @@ export default function UserBookingsList({ userId }) {
               const instructor = session?.instructor;
               const instructorName = instructor
                 ? instructor.full_name || instructor.username
-                : "Nincs kijelölt edző";
+                : "Unassigned coach";
               const { date, time } = formatDateTime(session?.start_time);
 
               return (
@@ -406,7 +406,7 @@ export default function UserBookingsList({ userId }) {
                     </div>
                     <div className="shrink-0">
                       <span className="text-xs text-stone-500 bg-stone-200/70 px-2 py-0.5 rounded font-medium">
-                        Befejezve
+                        Completed
                       </span>
                     </div>
                   </div>

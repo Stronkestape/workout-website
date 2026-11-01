@@ -6,22 +6,25 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
       <div className="flex items-center justify-between sm:justify-start gap-2">
         <div className="flex items-center gap-1.5">
           <button
+            type="button"
             onClick={() => onNavigate("PREV")}
             className="p-2 sm:px-3 sm:py-1.5 bg-stone-800 text-white rounded-lg hover:bg-stone-700 transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-600"
-            aria-label="Előző időszak"
+            aria-label="Previous period"
           >
             <ChevronLeftIcon className="w-4 h-4" />
           </button>
           <button
+            type="button"
             onClick={() => onNavigate("TODAY")}
             className="px-3.5 py-1.5 bg-stone-200 text-stone-800 border border-stone-300 rounded-lg hover:bg-stone-300 transition-colors text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
           >
-            Ma
+            Today
           </button>
           <button
+            type="button"
             onClick={() => onNavigate("NEXT")}
             className="p-2 sm:px-3 sm:py-1.5 bg-stone-800 text-white rounded-lg hover:bg-stone-700 transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-600"
-            aria-label="Következő időszak"
+            aria-label="Next period"
           >
             <ChevronRightIcon className="w-4 h-4" />
           </button>
@@ -29,24 +32,26 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
 
         <div className="flex sm:hidden gap-1 bg-stone-200/90 p-1 rounded-lg border border-stone-300">
           <button
+            type="button"
             onClick={() => onView("week")}
             className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
               view === "week"
-                ? "bg-green-600 text-white shadow-xs"
+                ? "bg-warm-terracotta text-white shadow-xs"
                 : "text-stone-700 hover:bg-stone-300/80"
             }`}
           >
-            Hét
+            Week
           </button>
           <button
+            type="button"
             onClick={() => onView("month")}
             className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
               view === "month"
-                ? "bg-green-600 text-white shadow-xs"
+                ? "bg-warm-terracotta text-white shadow-xs"
                 : "text-stone-700 hover:bg-stone-300/80"
             }`}
           >
-            Hónap
+            Month
           </button>
         </div>
       </div>
@@ -57,24 +62,26 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
 
       <div className="hidden sm:flex gap-1 bg-stone-200/90 p-1 rounded-lg border border-stone-300">
         <button
+          type="button"
           onClick={() => onView("week")}
           className={`px-3.5 py-1.5 rounded-md text-sm font-semibold transition-colors ${
             view === "week"
-              ? "bg-green-600 text-white shadow-xs"
+              ? "bg-warm-terracotta text-white shadow-xs"
               : "text-stone-700 hover:bg-stone-300/80"
           }`}
         >
-          Hét
+          Week
         </button>
         <button
+          type="button"
           onClick={() => onView("month")}
           className={`px-3.5 py-1.5 rounded-md text-sm font-semibold transition-colors ${
             view === "month"
-              ? "bg-green-600 text-white shadow-xs"
+              ? "bg-warm-terracotta text-white shadow-xs"
               : "text-stone-700 hover:bg-stone-300/80"
           }`}
         >
-          Hónap
+          Month
         </button>
       </div>
     </div>

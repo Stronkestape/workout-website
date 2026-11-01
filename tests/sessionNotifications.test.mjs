@@ -174,3 +174,21 @@ test('notifySessionUpdated - builds and dispatches modification notification', a
   assert.equal(result.success, true);
   assert.equal(result.count, 3); // participant, coach, and admin
 });
+
+
+test('notifyParticipantRemoved - sends notification when participant is removed', async () => {
+  const { notifyParticipantRemoved } = await import('../src/lib/notifications/sessionNotificationService.js');
+  const result = await notifyParticipantRemoved({
+    participant: { email: 'member@test.com', full_name: 'Member Test' },
+    session: {
+      start_time: '2026-11-05T17:00:00.000Z',
+      end_time: '2026-11-05T18:00:00.000Z',
+      workout_classes: { title: 'Spinning' },
+    },
+    instructor: { full_name: 'Coach Test' },
+    removedBy: { full_name: 'Studio Admin' },
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(result.count, 1);
+});

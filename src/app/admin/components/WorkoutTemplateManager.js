@@ -11,7 +11,7 @@ import WorkoutTemplateForm from './WorkoutTemplateForm';
 import ConfirmModal from '@/components/ConfirmModal';
 import { useToast } from '@/context/ToastContext';
 
-export default function WorkoutTemplateManager() {
+export default function WorkoutTemplateManager({ currentUser }) {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);

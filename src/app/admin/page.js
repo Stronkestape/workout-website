@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { supabaseBrowser } from '@/lib/browser';
 import WorkoutTemplateManager from './components/WorkoutTemplateManager';
 import SessionManager from './components/SessionManager';
-import ManualBookingManager from './components/ManualBookingManager';
 import SessionDetailView from './components/SessionDetailView';
 
 export default function AdminDashboard() {
@@ -52,15 +51,12 @@ export default function AdminDashboard() {
   const isInstructor = adminUser?.profile?.user_tier === 'instructor';
 
   const tabs = [
-    ...(!isInstructor
-      ? [{ id: 'templates', label: 'Workout Templates' }]
-      : []),
+    { id: 'templates', label: 'Workout Templates' },
     {
       id: 'sessions',
       label: isInstructor ? 'My Sessions' : 'Manage Sessions',
     },
-    { id: 'manual-booking', label: 'Manual Booking' },
-    { id: 'session-details', label: 'Session Details' },
+    { id: 'session-details', label: 'Session Details & Bookings' },
   ];
 
   return (
@@ -129,14 +125,11 @@ export default function AdminDashboard() {
 
       {/* Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {activeTab === 'templates' && !isInstructor && (
-          <WorkoutTemplateManager />
+        {activeTab === 'templates' && (
+          <WorkoutTemplateManager currentUser={adminUser} />
         )}
         {activeTab === 'sessions' && (
           <SessionManager currentUser={adminUser} />
-        )}
-        {activeTab === 'manual-booking' && (
-          <ManualBookingManager currentUser={adminUser} />
         )}
         {activeTab === 'session-details' && (
           <SessionDetailView currentUser={adminUser} />

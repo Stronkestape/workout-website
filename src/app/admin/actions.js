@@ -5,6 +5,7 @@ import {
   isMeaningfulSessionChange,
   notifySessionDeleted,
   notifySessionUpdated,
+  notifyParticipantRemoved,
 } from '@/lib/notifications/sessionNotificationService';
 
 /**
@@ -13,7 +14,7 @@ import {
 export async function deleteSessionAction(sessionId) {
   try {
     if (!sessionId) {
-      return { success: false, error: 'Hiányzó edzés azonosító.' };
+      return { success: false, error: 'Missing session ID.' };
     }
 
     const supabase = await createSupabaseServerClient();
@@ -23,7 +24,7 @@ export async function deleteSessionAction(sessionId) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return { success: false, error: 'Bejelentkezés szükséges a művelethez.' };
+      return { success: false, error: 'Authentication required for this operation.' };
     }
 
     // Verify user role
@@ -34,7 +35,7 @@ export async function deleteSessionAction(sessionId) {
       .single();
 
     if (profileError || !userProfile || !['admin', 'instructor'].includes(userProfile.user_tier)) {
-      return { success: false, error: 'Nincs jogosultságod edzés törlésére.' };
+      return { success: false, error: 'Unauthorized to delete sessions.' };
     }
 
     // 1. Fetch session details and related data BEFORE deletion (due to ON DELETE CASCADE)
@@ -63,12 +64,12 @@ export async function deleteSessionAction(sessionId) {
       .single();
 
     if (fetchSessionError || !session) {
-      return { success: false, error: 'A megadott edzés nem található.' };
+      return { success: false, error: 'Specified session was not found.' };
     }
 
     // Instructors can only delete their own sessions
     if (userProfile.user_tier === 'instructor' && session.instructor_id !== user.id) {
-      return { success: false, error: 'Oktatóként csak a saját edzésedet törölheted.' };
+      return { success: false, error: 'Instructors can only delete their own sessions.' };
     }
 
     // 2. Fetch confirmed bookings & waitlist participants BEFORE deletion (due to ON DELETE CASCADE)
@@ -115,7 +116,7 @@ export async function deleteSessionAction(sessionId) {
 
     if (deleteError) {
       console.error('[deleteSessionAction:DB Error]', deleteError);
-      return { success: false, error: 'Hiba történt az edzés törlésekor: ' + deleteError.message };
+      return { success: false, error: 'Database error deleting session: ' + deleteError.message };
     }
 
     // 4. Database deletion succeeded -> Collect confirmed and waitlisted participants
@@ -124,7 +125,7 @@ export async function deleteSessionAction(sessionId) {
       ...(waitlistEntries || []).map((w) => w.user_profiles),
     ].filter((p) => p && p.email);
 
-    const workoutTitle = session.workout_classes?.title || 'Csoportos edzés';
+    const workoutTitle = session.workout_classes?.title || 'Group Workout';
 
     // 5. Await email notification with error protection (prevents serverless execution drop)
     try {
@@ -142,12 +143,12 @@ export async function deleteSessionAction(sessionId) {
 
     return {
       success: true,
-      message: 'Az edzés sikeresen törölve, az érintettek értesítése megtörtént.',
+      message: 'Session successfully deleted and participants have been notified.',
       participantCount: allParticipants.length,
     };
   } catch (err) {
     console.error('[deleteSessionAction:Unexpected Error]', err);
-    return { success: false, error: 'Váratlan hiba történt a törlés során.' };
+    return { success: false, error: 'Unexpected error occurred during deletion.' };
   }
 }
 
@@ -157,7 +158,7 @@ export async function deleteSessionAction(sessionId) {
 export async function updateSessionAction(sessionId, updates) {
   try {
     if (!sessionId || !updates || typeof updates !== 'object') {
-      return { success: false, error: 'Hiányzó adatok a módosításhoz.' };
+      return { success: false, error: 'Missing update parameters.' };
     }
 
     const supabase = await createSupabaseServerClient();
@@ -167,7 +168,7 @@ export async function updateSessionAction(sessionId, updates) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return { success: false, error: 'Bejelentkezés szükséges a művelethez.' };
+      return { success: false, error: 'Authentication required for this operation.' };
     }
 
     // Verify user role
@@ -178,7 +179,7 @@ export async function updateSessionAction(sessionId, updates) {
       .single();
 
     if (profileError || !userProfile || !['admin', 'instructor'].includes(userProfile.user_tier)) {
-      return { success: false, error: 'Nincs jogosultságod edzés módosítására.' };
+      return { success: false, error: 'Unauthorized to modify sessions.' };
     }
 
     // 1. Fetch current session data before update
@@ -207,12 +208,12 @@ export async function updateSessionAction(sessionId, updates) {
       .single();
 
     if (fetchSessionError || !oldSession) {
-      return { success: false, error: 'A megadott edzés nem található.' };
+      return { success: false, error: 'Specified session was not found.' };
     }
 
     // Instructors can only edit their own sessions
     if (userProfile.user_tier === 'instructor' && oldSession.instructor_id !== user.id) {
-      return { success: false, error: 'Oktatóként csak a saját edzésedet módosíthatod.' };
+      return { success: false, error: 'Instructors can only edit their own sessions.' };
     }
 
     // Authorization check: instructors cannot reassign the session to another coach
@@ -221,7 +222,7 @@ export async function updateSessionAction(sessionId, updates) {
       updates.instructor_id &&
       updates.instructor_id !== user.id
     ) {
-      return { success: false, error: 'Oktatóként nem oszthatsz ki edzést másik oktatónak.' };
+      return { success: false, error: 'Instructors cannot reassign sessions to another coach.' };
     }
 
     // 2. Parameter whitelisting to prevent mass assignment
@@ -237,11 +238,11 @@ export async function updateSessionAction(sessionId, updates) {
     const effectiveEndTime = new Date(safeUpdates.end_time || oldSession.end_time);
 
     if (isNaN(effectiveStartTime.getTime()) || isNaN(effectiveEndTime.getTime())) {
-      return { success: false, error: 'Érvénytelen dátum formátum.' };
+      return { success: false, error: 'Invalid date format.' };
     }
 
     if (effectiveEndTime.getTime() <= effectiveStartTime.getTime()) {
-      return { success: false, error: 'Az edzés befejezési idejének a kezdési idő után kell lennie.' };
+      return { success: false, error: 'Session end time must be after the start time.' };
     }
 
     // 4. Check if the changes are meaningful (date, time, instructor, active status)
@@ -308,12 +309,12 @@ export async function updateSessionAction(sessionId, updates) {
 
     if (updateError) {
       console.error('[updateSessionAction:DB Error]', updateError);
-      return { success: false, error: 'Hiba történt a módosítás mentésekor: ' + updateError.message };
+      return { success: false, error: 'Database error updating session: ' + updateError.message };
     }
 
     // 8. If meaningful changes occurred, await email notification with error protection
     if (isMeaningful) {
-      const workoutTitle = oldSession.workout_classes?.title || 'Csoportos edzés';
+      const workoutTitle = oldSession.workout_classes?.title || 'Group Workout';
 
       try {
         await notifySessionUpdated({
@@ -336,11 +337,126 @@ export async function updateSessionAction(sessionId, updates) {
       data: updatedSession,
       isMeaningfulChange: isMeaningful,
       message: isMeaningful
-        ? 'Az edzés módosult, az érintettek email értesítést kaptak.'
-        : 'Az edzés beállításai sikeresen frissítve lettek.',
+        ? 'Session modified, notifications sent to attendees.'
+        : 'Session updated successfully.',
     };
   } catch (err) {
     console.error('[updateSessionAction:Unexpected Error]', err);
-    return { success: false, error: 'Váratlan hiba történt a mentés során.' };
+    return { success: false, error: 'Unexpected error occurred during save.' };
+  }
+}
+
+/**
+ * Server Action to remove a participant from a session, delete their booking,
+ * and send them an email notification.
+ */
+export async function adminRemoveParticipantAction(bookingId) {
+  try {
+    if (!bookingId) {
+      return { success: false, error: 'Missing booking ID.' };
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: 'Authentication required for this operation.' };
+    }
+
+    // Verify user role
+    const { data: userProfile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('id, full_name, username, email, user_tier')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !userProfile || !['admin', 'instructor'].includes(userProfile.user_tier)) {
+      return { success: false, error: 'Unauthorized to remove participants.' };
+    }
+
+    // 1. Fetch booking details with session, workout title, instructor, and participant profile BEFORE deletion
+    const { data: booking, error: fetchBookingError } = await supabase
+      .from('bookings')
+      .select(`
+        id,
+        user_id,
+        session_id,
+        user_profiles (
+          id,
+          full_name,
+          username,
+          email
+        ),
+        class_sessions (
+          id,
+          start_time,
+          end_time,
+          instructor_id,
+          workout_classes (
+            id,
+            title
+          ),
+          instructor:instructor_id (
+            id,
+            full_name,
+            username,
+            email
+          )
+        )
+      `)
+      .eq('id', bookingId)
+      .single();
+
+    if (fetchBookingError || !booking) {
+      return { success: false, error: 'Booking not found.' };
+    }
+
+    // Instructors can only remove participants from their own sessions
+    if (
+      userProfile.user_tier === 'instructor' &&
+      booking.class_sessions?.instructor_id !== user.id
+    ) {
+      return { success: false, error: 'Instructors can only manage their own sessions.' };
+    }
+
+    // 2. Delete the booking
+    const { error: deleteError } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', bookingId);
+
+    if (deleteError) {
+      console.error('[adminRemoveParticipantAction:DB Error]', deleteError);
+      return { success: false, error: 'Database error removing booking: ' + deleteError.message };
+    }
+
+    // 3. Send email notification to removed participant
+    const participant = booking.user_profiles;
+    const session = booking.class_sessions;
+    const instructor = booking.class_sessions?.instructor;
+
+    if (participant && participant.email && session) {
+      try {
+        await notifyParticipantRemoved({
+          participant,
+          session,
+          instructor,
+          removedBy: userProfile,
+        });
+      } catch (notifyErr) {
+        console.error('[adminRemoveParticipantAction:Notification Warning]', notifyErr);
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Participant successfully removed and notification email sent.',
+    };
+  } catch (err) {
+    console.error('[adminRemoveParticipantAction:Unexpected Error]', err);
+    return { success: false, error: 'Unexpected error occurred while removing participant.' };
   }
 }
