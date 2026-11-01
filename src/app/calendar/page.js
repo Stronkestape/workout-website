@@ -1,22 +1,31 @@
 "use client";
 
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-
+import dynamic from "next/dynamic";
 import {
   format,
-  parse,
   startOfWeek,
   endOfWeek,
   addDays,
   addWeeks,
   subWeeks,
   isSameDay,
-  getDay,
   isBefore,
   isAfter,
 } from "date-fns";
-import { enUS, hu } from "date-fns/locale";
+
+const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[650px] w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
+        <span className="text-stone-500 font-medium text-sm">
+          Loading calendar view...
+        </span>
+      </div>
+    </div>
+  ),
+});
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import styles from "./Calendar.module.css";
@@ -43,16 +52,7 @@ import {
   SPOTS_ALMOST_FULL_THRESHOLD,
 } from "@/utils/constants";
 
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales: {
-    "en-US": enUS,
-    hu: hu,
-  },
-});
+
 
 function CalendarContent() {
   const searchParams = useSearchParams();
@@ -715,18 +715,12 @@ function CalendarContent() {
         {/* Desktop & Tablet Full Calendar Grid (>= 768px) */}
         <div className="hidden md:block">
           <div className={styles.calendarWrapper} key={view}>
-            <Calendar
-              localizer={localizer}
+            <DesktopCalendar
               events={filteredEvents}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: "100%" }}
-              culture="en-US"
               view={view}
               onView={handleViewChange}
               date={currentDate}
               onNavigate={handleNavigate}
-              views={["month", "week"]}
               components={{
                 toolbar: CalendarToolbar,
                 event: CalendarEvent,
@@ -737,7 +731,6 @@ function CalendarContent() {
               min={new Date(1970, 1, 1, CALENDAR_MIN_HOUR, 0)}
               max={new Date(1970, 1, 1, CALENDAR_MAX_HOUR, 0)}
               scrollToTime={new Date(1970, 1, 1, CALENDAR_SCROLL_TO_HOUR, 0)}
-              showMultiDayTimes
               onSelectEvent={handleSelectEvent}
             />
           </div>
