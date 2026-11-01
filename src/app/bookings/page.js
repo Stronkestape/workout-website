@@ -41,7 +41,7 @@ export default function BookingsPage() {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-stone-600 font-medium text-base">
-          Foglalások betöltése...
+          Loading bookings...
         </div>
       </div>
     );
@@ -58,23 +58,23 @@ export default function BookingsPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-warm-terracotta mb-1">
             <span className="w-2 h-2 rounded-full bg-warm-terracotta" aria-hidden="true" />
-            <span>Fiókom</span>
+            <span>My Account</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
             My Bookings
           </h1>
           <p className="text-sm sm:text-base text-stone-600 mt-1">
-            Tekintsd át az aktív edzésjelentkezéseidet, várólistás státuszaidat és előzményeidet.
+            Review your upcoming confirmed workouts, active waitlist positions, and past session history.
           </p>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/calendar"
-            className="inline-flex items-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta/90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm"
           >
             <svg
-              className="w-4 h-4"
+              className="w-4 h-4 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -87,21 +87,18 @@ export default function BookingsPage() {
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <span>Új edzés foglalása</span>
+            <span>Book New Class</span>
           </Link>
           <Link
             href="/profile"
-            className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 px-4 py-2.5 rounded-xl font-medium text-sm transition-colors"
+            className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-2xs"
           >
-            <span>Profile beállítások</span>
+            <span>Profile Settings</span>
           </Link>
         </div>
       </div>
 
-      {/* Bookings Card Container */}
-      <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-5 sm:p-7">
-        <UserBookingsList userId={user.id} />
-      </div>
+      <UserBookingsList userId={user.id} />
     </div>
   );
 }

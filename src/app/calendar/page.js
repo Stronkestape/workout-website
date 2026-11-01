@@ -16,8 +16,9 @@ import {
   isBefore,
   isAfter,
 } from "date-fns";
-import hu from "date-fns/locale/hu";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { enUS, hu } from "date-fns/locale";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import styles from "./Calendar.module.css";
 import { supabaseBrowser } from "@/lib/browser";
 import WorkoutCard from "@/components/WorkoutCard";
@@ -48,11 +49,13 @@ const localizer = dateFnsLocalizer({
   startOfWeek,
   getDay,
   locales: {
+    "en-US": enUS,
     hu: hu,
   },
 });
 
-export default function CalendarPage() {
+function CalendarContent() {
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -64,6 +67,17 @@ export default function CalendarPage() {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutCard, setShowWorkoutCard] = useState(false);
   const [selectedMobileDay, setSelectedMobileDay] = useState(null);
+
+  // Synchronize workout type filter with URL search param "?filter=..."
+  useEffect(() => {
+    const filterParam = searchParams.get("filter");
+    if (filterParam) {
+      const normalizedKey = normalizeWorkoutKey(filterParam);
+      if (WORKOUT_THEMES[normalizedKey] || normalizedKey === "default") {
+        setSelectedWorkoutType(normalizedKey);
+      }
+    }
+  }, [searchParams]);
 
   const getCurrentUser = async () => {
     const {
@@ -202,7 +216,7 @@ export default function CalendarPage() {
 
     // Check if the new date is within allowed range
     if (isBefore(dateToCheck, limits.min) || isAfter(dateToCheck, limits.max)) {
-      return; // Don't navigate if outside limits
+      return;
     }
 
     setCurrentDate(newDate);
@@ -305,7 +319,7 @@ export default function CalendarPage() {
             Workout Calendar
           </h2>
           <p className="text-sm text-stone-600 mt-1">
-            Válaszd ki a számodra megfelelő csoportos órát és foglald le a helyed
+            Browse group classes, filter by workout category, and book your spot.
           </p>
         </div>
 
@@ -314,29 +328,32 @@ export default function CalendarPage() {
           <div className="flex items-center justify-between gap-2 mb-2.5">
             <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-600">
               <FilterIcon className="w-3.5 h-3.5" />
-              <span>Mozgásforma szűrő és színkódok</span>
+              <span>Category Filter & Color Legend</span>
             </div>
             {selectedWorkoutType !== "all" && (
               <button
+                type="button"
                 onClick={() => setSelectedWorkoutType("all")}
-                className="text-xs text-green-700 hover:text-green-800 font-semibold underline focus-visible:outline-none"
+                className="text-xs text-warm-terracotta hover:underline font-semibold focus-visible:outline-none"
               >
-                Szűrő törlése
+                Clear Filter
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hidden">
+          {/* Desktop and Mobile: Flex wrap with ample vertical clearance so active rings are never clipped */}
+          <div className="flex flex-wrap items-center gap-2 py-1.5 px-0.5">
             <button
+              type="button"
               onClick={() => setSelectedWorkoutType("all")}
               aria-pressed={selectedWorkoutType === "all"}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
                 selectedWorkoutType === "all"
-                  ? "bg-stone-900 text-white border-stone-900 shadow-xs"
+                  ? "bg-stone-900 text-white border-stone-900 shadow-xs ring-2 ring-stone-900 ring-offset-1"
                   : "bg-stone-100 text-stone-800 hover:bg-stone-200 border-stone-300"
               }`}
             >
-              <span>Összes edzés</span>
+              <span>All Workouts</span>
               <span className="text-[10px] opacity-75">({events.length})</span>
             </button>
 
@@ -347,6 +364,7 @@ export default function CalendarPage() {
 
               return (
                 <button
+                  type="button"
                   key={theme.key}
                   onClick={() =>
                     setSelectedWorkoutType(isSelected ? "all" : theme.key)
@@ -354,7 +372,7 @@ export default function CalendarPage() {
                   aria-pressed={isSelected}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
                     isSelected
-                      ? "ring-2 ring-stone-900 shadow-xs font-bold"
+                      ? "ring-2 ring-stone-900 ring-offset-1 shadow-sm font-bold"
                       : "hover:opacity-95"
                   }`}
                   style={{
@@ -364,7 +382,7 @@ export default function CalendarPage() {
                       : `${theme.calendarBorder}60`,
                     color: theme.calendarText,
                   }}
-                  title={`Szűrés: ${displayLabel}`}
+                  title={`Filter by: ${displayLabel}`}
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -387,6 +405,7 @@ export default function CalendarPage() {
 
             {workoutCounts["default"] > 0 && (
               <button
+                type="button"
                 key="default"
                 onClick={() =>
                   setSelectedWorkoutType(
@@ -396,7 +415,7 @@ export default function CalendarPage() {
                 aria-pressed={selectedWorkoutType === "default"}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
                   selectedWorkoutType === "default"
-                    ? "ring-2 ring-stone-900 shadow-xs font-bold"
+                    ? "ring-2 ring-stone-900 ring-offset-1 shadow-sm font-bold"
                     : "hover:opacity-95"
                 }`}
                 style={{
@@ -407,7 +426,7 @@ export default function CalendarPage() {
                       : `${DEFAULT_THEME.calendarBorder}60`,
                   color: DEFAULT_THEME.calendarText,
                 }}
-                title={`Szűrés: ${DEFAULT_THEME.label}`}
+                title={`Filter by: ${DEFAULT_THEME.label}`}
               >
                 <span
                   className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -434,6 +453,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-1.5">
                 <button
+                  type="button"
                   onClick={handleMobilePrevWeek}
                   disabled={!canMobileGoPrev}
                   aria-label="Previous week"
@@ -446,12 +466,14 @@ export default function CalendarPage() {
                   <ChevronLeftIcon className="w-4 h-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={handleMobileToday}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-200 text-stone-800 hover:bg-stone-300 transition-colors"
                 >
-                  Ma
+                  Today
                 </button>
                 <button
+                  type="button"
                   onClick={handleMobileNextWeek}
                   disabled={!canMobileGoNext}
                   aria-label="Next week"
@@ -473,10 +495,11 @@ export default function CalendarPage() {
             {/* 7-Day Filter Strip */}
             <div className="grid grid-cols-8 gap-1">
               <button
+                type="button"
                 onClick={() => setSelectedMobileDay(null)}
                 className={`flex flex-col items-center justify-center py-2 rounded-lg text-xs font-semibold transition-colors ${
                   !selectedMobileDay
-                    ? "bg-green-600 text-white shadow-xs"
+                    ? "bg-warm-terracotta text-white shadow-xs"
                     : "bg-stone-100 text-stone-700 hover:bg-stone-200"
                 }`}
               >
@@ -495,15 +518,16 @@ export default function CalendarPage() {
 
                 return (
                   <button
+                    type="button"
                     key={day.toISOString()}
                     onClick={() =>
                       setSelectedMobileDay(isSelected ? null : day)
                     }
                     className={`flex flex-col items-center justify-center py-1.5 rounded-lg transition-colors relative ${
                       isSelected
-                        ? "bg-green-600 text-white shadow-xs"
+                        ? "bg-warm-terracotta text-white shadow-xs"
                         : isTodayDay
-                        ? "bg-green-100/70 text-green-900 border border-green-300"
+                        ? "bg-warm-terracotta/15 text-stone-900 border border-warm-terracotta/40 font-bold"
                         : "bg-stone-100 text-stone-700 hover:bg-stone-200"
                     }`}
                   >
@@ -516,7 +540,7 @@ export default function CalendarPage() {
                     {dayCount > 0 && (
                       <span
                         className={`w-1.5 h-1.5 rounded-full mt-1 ${
-                          isSelected ? "bg-white" : "bg-green-600"
+                          isSelected ? "bg-white" : "bg-warm-terracotta"
                         }`}
                       />
                     )}
@@ -543,7 +567,7 @@ export default function CalendarPage() {
                 >
                   <div
                     className={`px-4 py-2.5 border-b border-stone-200 flex items-center justify-between ${
-                      isTodayDay ? "bg-green-50/80" : "bg-stone-100"
+                      isTodayDay ? "bg-warm-terracotta/10" : "bg-stone-100"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -551,7 +575,7 @@ export default function CalendarPage() {
                         {format(day, "EEEE, MMM d")}
                       </span>
                       {isTodayDay && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-green-600 text-white rounded-full">
+                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-warm-terracotta text-white rounded-full">
                           Today
                         </span>
                       )}
@@ -564,7 +588,7 @@ export default function CalendarPage() {
 
                   {dayEvents.length === 0 ? (
                     <div className="p-6 text-center text-sm text-stone-500 font-medium">
-                      Erre a napra nincs elérhető edzés.
+                      No classes scheduled for this day.
                     </div>
                   ) : (
                     <div className="divide-y divide-stone-200">
@@ -586,6 +610,7 @@ export default function CalendarPage() {
 
                         return (
                           <button
+                            type="button"
                             key={event.id}
                             onClick={() => handleSelectEvent(event)}
                             className="w-full text-left p-3.5 hover:bg-stone-50 active:bg-stone-100 transition-colors flex items-center justify-between gap-3 border-l-4"
@@ -615,16 +640,16 @@ export default function CalendarPage() {
                                   {isBooked && (
                                     <span
                                       className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800 shrink-0 border border-green-300"
-                                      title="Lefoglalva"
-                                      aria-label="Lefoglalva"
+                                      title="Booked"
+                                      aria-label="Booked"
                                     >
                                       <span aria-hidden="true">✓</span>
-                                      <span className="sr-only">Lefoglalva</span>
+                                      <span className="sr-only">Booked</span>
                                     </span>
                                   )}
                                 </div>
                                 <p className="text-xs text-stone-600 truncate mt-0.5">
-                                  Oktató: {instructorName}
+                                  Instructor: {instructorName}
                                 </p>
                               </div>
                             </div>
@@ -657,8 +682,8 @@ export default function CalendarPage() {
               <div className="bg-white rounded-xl shadow-xs border border-stone-300 p-8 text-center">
                 <p className="text-stone-600 font-medium text-sm">
                   {selectedWorkoutType !== "all"
-                    ? "Nincs a kiválasztott mozgásformához edzés ezen a héten."
-                    : "Erre a hétre nincs edzés beütemezve."}
+                    ? "No classes found for the selected category this week."
+                    : "No classes scheduled for this week."}
                 </p>
               </div>
             )}
@@ -674,7 +699,7 @@ export default function CalendarPage() {
               startAccessor="start"
               endAccessor="end"
               style={{ height: "100%" }}
-              culture="hu"
+              culture="en-US"
               view={view}
               onView={handleViewChange}
               date={currentDate}
@@ -707,6 +732,27 @@ export default function CalendarPage() {
         />
       )}
     </>
+  );
+}
+
+export default function CalendarPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 sm:px-6 py-6">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 text-stone-900">
+            Workout Calendar
+          </h2>
+          <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-xs border border-stone-300">
+            <div className="text-base sm:text-lg text-stone-600 font-medium">
+              Loading calendar...
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <CalendarContent />
+    </Suspense>
   );
 }
 

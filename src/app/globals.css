@@ -9,6 +9,8 @@
   --color-gray-50: #e0dbd1;
   --color-gray-100: #d2ccc0;
   --color-gray-200: #bcb5a7;
+  --color-warm-terracotta: #c85a32;
+  --color-warm-terracotta-hover: #b44f2b;
 }
 
 @layer base {

@@ -43,7 +43,7 @@ export default function WorkoutCard({
 
   // Extract workout title and instructor from the event title
   const workoutTitle = workout.title?.split(" - ")[0] || "Workout Class";
-  const instructorName = workout.resource?.instructorName || "Nincs megadva";
+  const instructorName = workout.resource?.instructorName || "Not assigned";
 
   return (
     <div
@@ -60,13 +60,15 @@ export default function WorkoutCard({
             <h3 className="text-xl font-bold text-stone-900 mb-1 truncate">
               {workoutTitle}
             </h3>
-            <p className="text-stone-600 text-sm">Oktató: <strong className="text-stone-800">{instructorName}</strong></p>
+            <p className="text-stone-600 text-sm">
+              Instructor: <strong className="text-stone-800">{instructorName}</strong>
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg transition-colors leading-none"
-            aria-label="Ablak bezárása"
+            aria-label="Close dialog"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -79,7 +81,7 @@ export default function WorkoutCard({
           {/* Date and Time */}
           <div className="bg-stone-50 rounded-xl p-4 border border-stone-200/70">
             <div className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-1">
-              Időpont
+              Date & Time
             </div>
             <div className="font-bold text-stone-900">
               {formatDate(workout.start)}
@@ -91,7 +93,7 @@ export default function WorkoutCard({
 
           {/* Capacity Status */}
           <div className="flex items-center justify-between py-1">
-            <span className="text-sm font-semibold text-stone-700">Férőhelyek</span>
+            <span className="text-sm font-semibold text-stone-700">Capacity</span>
             <div className="text-right">
               <div
                 className={`font-bold text-sm ${
@@ -103,12 +105,12 @@ export default function WorkoutCard({
                 }`}
               >
                 {spotsLeft > SPOTS_FULL_THRESHOLD
-                  ? `${spotsLeft} szabad hely`
-                  : "Betelt"}
+                  ? `${spotsLeft} spots available`
+                  : "Full"}
               </div>
               <div className="text-xs text-stone-500 mt-0.5">
                 {workout.resource?.maxCapacity - spotsLeft}/
-                {workout.resource?.maxCapacity} foglalva
+                {workout.resource?.maxCapacity} booked
               </div>
             </div>
           </div>
@@ -132,7 +134,7 @@ export default function WorkoutCard({
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <span>Sikeresen feljelentkeztél erre az órára</span>
+                  <span>You are booked for this session</span>
                 </div>
               )}
               {isOnWaitlist && (
@@ -151,7 +153,7 @@ export default function WorkoutCard({
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <span>Várólistán vagy ({waitlistPosition}. pozíció)</span>
+                  <span>You are on the waitlist (Position #{waitlistPosition})</span>
                 </div>
               )}
             </div>
@@ -169,13 +171,13 @@ export default function WorkoutCard({
             {!user ? (
               <div className="text-center pt-2">
                 <p className="text-stone-600 text-sm mb-3">
-                  Jelentkezz be a foglaláshoz!
+                  Log in to book a spot in this class!
                 </p>
                 <Link
                   href="/login"
-                  className="w-full bg-warm-terracotta text-white py-2.5 px-4 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-semibold inline-block text-center shadow-xs text-sm"
+                  className="w-full bg-warm-terracotta text-white py-3 px-4 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-semibold inline-block text-center shadow-sm text-sm"
                 >
-                  Bejelentkezés
+                  Log In
                 </Link>
               </div>
             ) : isBooked ? (
@@ -199,10 +201,10 @@ export default function WorkoutCard({
                       </svg>
                       <div>
                         <span className="font-bold text-stone-800 block text-xs">
-                          Lemondási határidő: {cancelInfo.deadlineFormatted}
+                          Cancellation deadline: {cancelInfo.deadlineFormatted}
                         </span>
                         <span className="text-stone-500 text-[11px] leading-relaxed">
-                          A kezdés előtti 2 órán belül a lemondási lehetőség automatikusan lezárul.
+                          Free cancellation closes 2 hours before session start.
                         </span>
                       </div>
                     </div>
@@ -210,12 +212,12 @@ export default function WorkoutCard({
                       type="button"
                       onClick={handleCancelBooking}
                       disabled={loading}
-                      className="w-full bg-rose-600 text-white py-2.5 px-4 rounded-xl hover:bg-rose-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors font-semibold text-sm shadow-xs flex items-center justify-center gap-2"
+                      className="w-full bg-rose-600 text-white py-3 px-4 rounded-xl hover:bg-rose-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors font-semibold text-sm shadow-sm flex items-center justify-center gap-2"
                     >
                       {loading && (
                         <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
                       )}
-                      <span>{loading ? "Lemondás folyamatban..." : "Jelentkezés lemondása"}</span>
+                      <span>{loading ? "Cancelling booking..." : "Cancel Booking"}</span>
                     </button>
                   </>
                 ) : (
@@ -236,10 +238,10 @@ export default function WorkoutCard({
                     </svg>
                     <div>
                       <span className="font-bold block text-amber-950 mb-0.5">
-                        A lemondási határidő lezárult
+                        Cancellation window closed
                       </span>
                       <span className="text-amber-900 leading-relaxed text-[11px]">
-                        Ez az edzés a kezdés előtti 2 órán belül van ({cancelInfo.deadlineFormatted}), ezért már nem lemondható.
+                        This class starts in under 2 hours ({cancelInfo.deadlineFormatted}) and can no longer be cancelled.
                       </span>
                     </div>
                   </div>
@@ -250,22 +252,22 @@ export default function WorkoutCard({
                 type="button"
                 onClick={handleLeaveWaitlist}
                 disabled={loading}
-                className="w-full bg-amber-600 text-white py-2.5 px-4 rounded-xl hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors font-semibold text-sm shadow-xs flex items-center justify-center gap-2"
+                className="w-full bg-amber-600 text-white py-3 px-4 rounded-xl hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors font-semibold text-sm shadow-sm flex items-center justify-center gap-2"
               >
                 {loading && (
                   <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
                 )}
-                <span>{loading ? "Leiratkozás..." : "Várólista elhagyása"}</span>
+                <span>{loading ? "Leaving waitlist..." : "Leave Waitlist"}</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={handleBookWorkout}
                 disabled={loading}
-                className={`w-full py-2.5 px-4 rounded-xl font-semibold transition-colors disabled:bg-stone-300 disabled:cursor-not-allowed shadow-xs text-sm flex items-center justify-center gap-2 ${
+                className={`w-full py-3 px-4 rounded-xl font-semibold transition-all disabled:bg-stone-300 disabled:cursor-not-allowed shadow-sm text-sm flex items-center justify-center gap-2 ${
                   isFull
-                    ? "bg-amber-600 text-white hover:bg-amber-700"
-                    : "bg-warm-terracotta text-white hover:bg-warm-terracotta/90"
+                    ? "bg-amber-600 text-white hover:bg-amber-700 active:scale-[0.99]"
+                    : "bg-warm-terracotta text-white hover:bg-warm-terracotta/90 active:scale-[0.99]"
                 }`}
               >
                 {loading && (
@@ -274,11 +276,11 @@ export default function WorkoutCard({
                 <span>
                   {loading
                     ? isFull
-                      ? "Feliratkozás a várólistára..."
-                      : "Foglalás folyamatban..."
+                      ? "Joining waitlist..."
+                      : "Booking session..."
                     : isFull
-                    ? "Feliratkozás a várólistára"
-                    : "Jelentkezés az edzésre"}
+                    ? "Join Waitlist"
+                    : "Book Workout"}
                 </span>
               </button>
             )}

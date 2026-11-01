@@ -122,3 +122,27 @@ test("Migration 20261030000000 - enforces column-level email protection for anon
   );
   assert.match(migrationSql, /AT TIME ZONE 'Europe\/Budapest'/);
 });
+
+test("Migration 20261101000000 - enforces staff RLS policies on workout_classes for instructors and admins", () => {
+  const templateMigrationPath = path.resolve(
+    "supabase/migrations/20261101000000_instructor_workout_templates_rls.sql"
+  );
+  const templateMigrationSql = fs.readFileSync(templateMigrationPath, "utf8");
+
+  assert.match(
+    templateMigrationSql,
+    /GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public\.workout_classes TO authenticated;/
+  );
+  assert.match(
+    templateMigrationSql,
+    /CREATE POLICY "Staff can create workout templates"\s+ON public\.workout_classes\s+FOR INSERT\s+TO authenticated\s+WITH CHECK \(private\.is_admin\(\) OR private\.is_instructor\(\)\);/
+  );
+  assert.match(
+    templateMigrationSql,
+    /CREATE POLICY "Staff can update workout templates"\s+ON public\.workout_classes\s+FOR UPDATE\s+TO authenticated\s+USING \(private\.is_admin\(\) OR private\.is_instructor\(\)\)\s+WITH CHECK \(private\.is_admin\(\) OR private\.is_instructor\(\)\);/
+  );
+  assert.match(
+    templateMigrationSql,
+    /CREATE POLICY "Staff can delete workout templates"\s+ON public\.workout_classes\s+FOR DELETE\s+TO authenticated\s+USING \(private\.is_admin\(\) OR private\.is_instructor\(\)\);/
+  );
+});

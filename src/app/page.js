@@ -9,58 +9,58 @@ const WORKOUT_SECTIONS = [
   {
     image: "/images/walkenergy.jpg",
     title: "WALKenergie",
-    durationLabel: "60 perc",
-    intensityLabel: "Közepes – Magas intenzitás",
+    durationLabel: "60 min",
+    intensityLabel: "Moderate – High intensity",
     description:
-      "A WALKenergie mechanikus gyaloglógépen végzett zenés, csoportos fitnesz edzés, mely rengeteg pozitív tulajdonságával segít, hogy sokkal fittebbé, egészségesebbé és energikusabbá válhass! Az ütős zenékhez szenzációs programok társulnak! A lendületes, energikus mozdulatok egy perc nyugtot sem hagynak az izmaidnak, az egész testedet felpörgetik!",
+      "A group walking fitness workout performed on mechanical treadmills with energizing music, designed to boost your endurance, stamina, and energy. Dynamic rhythm-driven walking routines keep your entire body engaged and burning calories from start to finish.",
   },
   {
     image: "/images/cycle.jpg",
     title: "Spinning",
-    durationLabel: "60 perc",
-    intensityLabel: "Magas intenzitás",
+    durationLabel: "60 min",
+    intensityLabel: "High intensity",
     description:
-      "A Spinning edzés egy zenés, csoportos fitnesz program, amely a kerékpározás élményét hozza el a terembe. Az energikus zene és a motiváló edző segítségével a résztvevők egy virtuális kerékpáros kalandra indulnak, miközben erősítik a lábizmokat és javítják a kardió állóképességüket.",
+      "An indoor cycling fitness journey combining heart-pumping beats with motivating coaching. Climb steep virtual hills, accelerate through fast sprints, and strengthen your lower body while elevating your cardiovascular conditioning.",
   },
   {
     image: "/images/1.jpg",
     title: "Step Aerobik",
-    durationLabel: "60 perc",
-    intensityLabel: "Közepes intenzitás",
+    durationLabel: "60 min",
+    intensityLabel: "Moderate intensity",
     description:
-      "A Step Aerobik edzés egy dinamikus, zenés fitnesz program, amely lépcsőn végzett gyakorlatokat tartalmaz. A résztvevők energikus zenére lépnek fel és le a lépcsőn, miközben javítják állóképességüket és erősítik izmaikat. Az edzés során a koordináció és a ritmusérzék is fejlődik.",
+      "A dynamic, rhythm-driven step platform workout that enhances cardiovascular fitness and sculpts the lower body. Upbeat music and engaging choreographies improve coordination, balance, and agility.",
   },
   {
     image: "/images/3.jpg",
     title: "Alakformáló",
-    durationLabel: "60 perc",
-    intensityLabel: "Közepes intenzitás",
+    durationLabel: "60 min",
+    intensityLabel: "Moderate intensity",
     description:
-      "Az Alakformáló órák az aerobik alaplépéseire épülnek. Igyekszünk a legjobb zenékkel előállni, a hangulat a vendégeknek köszönhetően mindig fergeteges. Különböző fitnesz eszközöket hívunk segítségül a cél elérése érdekében, mint pl.: miniband vagy kézi súlyzó, vagy éppen saját testsúllyal dolgozunk. Ha szeretnél formálódni, állóképességet növelni, levezetni a stresszt vagy csak jól érezni magad, mi szeretettel várunk!",
+      "A comprehensive body sculpting class built on aerobic movements and functional conditioning. Utilizing resistance bands, dumbbells, and bodyweight exercises, this class tones muscles, improves stamina, and helps relieve daily stress in a supportive community.",
   },
   {
     image: "/images/4.jpg",
     title: "Tabata",
-    durationLabel: "60 perc",
-    intensityLabel: "Maximális intenzitás (HIIT)",
+    durationLabel: "60 min",
+    intensityLabel: "Maximum intensity (HIIT)",
     description:
-      "A Tabata nagy intenzitású intervallumos edzés (HIIT) – 4 perces körökre épül, azon belül 20 másodperces extrém terheléses és 10 másodperces pihenőidőszakok váltakoznak 8 sorozatra osztva, a 4. perc végén 1 perc pihenés, majd újabb kör kezdődik. A tabata elsődleges előnye a test aerob és anaerob kapacitásának növelése, amely felgyorsítja az anyagcserét, csökkenti a testzsírt, és az edzés után akár 48 órával is fokozza a kalóriaégetés ütemét.",
+      "High-intensity interval training (HIIT) structured around classic Tabata intervals: 20 seconds of all-out effort followed by 10 seconds of rest. Tabata boosts aerobic and anaerobic capacity, fires up metabolism, and sustains accelerated calorie burn for hours after the session.",
   },
   {
     image: "/images/5.jpg",
     title: "GYMSTICK",
-    durationLabel: "60 perc",
-    intensityLabel: "Közepes intenzitás",
+    durationLabel: "60 min",
+    intensityLabel: "Moderate intensity",
     description:
-      "A GYMSTICK™ egy üvegszálas bot két gumikötéllel, ami egy rendkívül hatékony sporteszköz. Segít az alakformálásban és a fogyásban, szálkásítja az izmokat, miközben kíméli az ízületeket – helyettesítheti a súlyzót, sérülésveszély nélkül.",
+      "A fiberglass resistance exercise bar with dual elastic bands engineered for smooth, joint-friendly strength and conditioning. It tones and shapes the entire body with minimal impact and maximum efficiency.",
   },
   {
     image: "/images/6.jpg",
     title: "Funkcionális edzés",
-    durationLabel: "60 perc",
-    intensityLabel: "Magas intenzitás",
+    durationLabel: "60 min",
+    intensityLabel: "High intensity",
     description:
-      "A funkcionális edzés célja, hogy erősebbé és hatékonyabbá tegyen a mindennapi életben is. Segít fejleszteni azokat a mozgásokat, amiket a mindennapokban használunk, mint például a hajlítás, tolás, emelés és nyújtás. Köredzés jelleggel keveri az eszközös, a torna és a saját testsúlyos gyakorlatokat, így a teljes testet erősíti, javítja a stabilitást, a koordinációt, az állóképességet és a robbanékonyságot.",
+      "Functional strength and movement training designed for real-world vitality. Circuit-based workouts combining free weights, bodyweight exercises, and agility drills to strengthen the core, improve mobility, and build balanced total-body power.",
   },
 ];
 
@@ -77,15 +77,15 @@ export default function HomePage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block text-xs font-semibold uppercase tracking-widest text-emerald-950 bg-emerald-200/80 border border-emerald-400/70 px-3.5 py-1.5 rounded-full mb-4">
-            Csoportos Óráink
+            Group Classes
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900">
-            Mozgásformáink
+            Our Workout Formats
           </h2>
           <p className="mt-4 text-base sm:text-lg text-stone-700 max-w-2xl mx-auto leading-relaxed">
-            Változatos, szakértő edzők által vezetett csoportos edzések — a
-            lendületes kardiótól a magas intenzitású intervallum és funkcionális
-            erőnléti órákig.
+            Diverse group classes led by certified, passionate coaches — from
+            dynamic cardio journeys to high-intensity interval conditioning and
+            functional strength.
           </p>
         </div>
       </section>
@@ -110,18 +110,18 @@ export default function HomePage() {
       <section className="py-16 sm:py-20 bg-stone-900 text-stone-100 border-t border-stone-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
-            Készen állsz a következő edzésedre?
+            Ready for your next workout?
           </h2>
           <p className="mt-4 text-stone-300 text-base sm:text-lg max-w-2xl mx-auto">
-            Tekintsd meg az aktuális heti órarendet, válaszd ki a számodra
-            ideális időpontot, és foglald le a helyed néhány kattintással.
+            Check out our weekly schedule, pick your ideal class time, and
+            reserve your spot in just a few clicks.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/calendar"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-colors shadow-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-colors shadow-sm"
             >
-              <span>Órarend és foglalás</span>
+              <span>View Schedule & Book</span>
               <ArrowRightIcon />
             </Link>
           </div>
@@ -137,7 +137,7 @@ function HeroSection() {
       <div className="absolute inset-0 w-full h-full">
         <Image
           src="/images/2.jpg"
-          alt="Mozgás Központ háttérkép"
+          alt="Mozgás Központ background"
           fill
           className="object-cover object-center opacity-50"
           priority
@@ -147,29 +147,29 @@ function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center text-white">
-        <span className="inline-block text-xs sm:text-sm font-semibold uppercase tracking-widest text-green-400 bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-1.5 rounded-full mb-6">
-          Mozgás Központ Fitness Stúdió
+        <span className="inline-block text-xs sm:text-sm font-semibold uppercase tracking-widest text-emerald-400 bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-1.5 rounded-full mb-6">
+          Mozgás Központ Fitness Studio
         </span>
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-          Központban a mozgás!
+          Movement at the Center
         </h1>
         <p className="text-base sm:text-xl text-stone-200 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Fedezd fel változatos csoportos óráinkat, és találd meg a céljaidhoz
-          legjobban illeszkedő edzésformát modern, motiváló környezetben.
+          Discover our energizing group classes and find the perfect workout for
+          your goals in a supportive, modern studio environment.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/calendar"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl text-base sm:text-lg font-semibold transition-all shadow-lg"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-8 py-4 rounded-xl text-base sm:text-lg font-semibold transition-all shadow-lg"
           >
-            <span>Órarend megtekintése</span>
+            <span>View Schedule</span>
             <ArrowRightIcon />
           </Link>
           <a
             href="#workouts"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-xl text-base sm:text-lg font-semibold transition-all backdrop-blur-sm"
           >
-            <span>Mozgásformák</span>
+            <span>Explore Classes</span>
           </a>
         </div>
       </div>
@@ -304,15 +304,15 @@ function WorkoutSection({
                 {description}
               </p>
 
-              {/* Action Link */}
+              {/* Action Link to filtered calendar */}
               <div className="pt-2">
                 <Link
-                  href="/calendar"
-                  className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-stone-900 hover:text-green-800 transition-colors group"
+                  href={`/calendar?filter=${encodeURIComponent(theme.key)}`}
+                  className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-stone-900 hover:text-warm-terracotta transition-colors group"
                 >
-                  <span>Időpontok foglalása</span>
-                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-stone-100 border border-stone-300 group-hover:bg-green-200 group-hover:border-green-400 group-hover:translate-x-1 transition-all">
-                    <ArrowRightIcon className="w-4 h-4" />
+                  <span>Book this class in Calendar</span>
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-stone-100 border border-stone-300 group-hover:bg-warm-terracotta/10 group-hover:border-warm-terracotta/40 group-hover:translate-x-1 transition-all">
+                    <ArrowRightIcon className="w-4 h-4 text-stone-800 group-hover:text-warm-terracotta transition-colors" />
                   </span>
                 </Link>
               </div>

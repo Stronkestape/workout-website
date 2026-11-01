@@ -445,3 +445,106 @@ A Mozgás Központ Csapata
 
   return sendEmail({ to: allRecipients, subject, html, text });
 }
+
+
+/**
+ * Notifies a user when their booking is cancelled/removed by studio management or instructor.
+ */
+export async function notifyParticipantRemoved({
+  participant,
+  session,
+  instructor = null,
+  removedBy = null,
+  appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://workout-website-pi.vercel.app',
+}) {
+  if (!participant?.email) {
+    return { success: true, count: 0, reason: 'Participant has no email address' };
+  }
+
+  const workoutTitle = session?.workout_classes?.title || session?.title || 'Group Workout';
+  const startDate = new Date(session.start_time);
+  const formattedDate = format(startDate, 'yyyy. MMMM d., EEEE', { locale: hu });
+  const formattedTime = `${format(startDate, 'HH:mm')} – ${format(new Date(session.end_time), 'HH:mm')}`;
+  const instructorDisplay = instructor?.full_name || instructor?.username || 'Coaching Staff';
+  const participantName = participant.full_name || participant.username || 'Valued Member';
+
+  const subject = `[Mozgás Központ] Foglalás törölve: ${workoutTitle} (${formattedDate})`;
+
+  const text = `Kedves ${participantName}!
+
+Értesítünk, hogy a stúdió adminisztrációja törölte a feljelentkezésedet a következő edzésről:
+
+Edzés: ${workoutTitle}
+Dátum: ${formattedDate}
+Időpont: ${formattedTime}
+Oktató: ${instructorDisplay}
+
+Ha ez tévedésből történt, vagy másik időpontot szeretnél választani, kérjük látogass el a weboldalunkra és válassz az órarendből:
+${appUrl}/calendar
+
+Üdvözlettel,
+A Mozgás Központ Csapata
+`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f3ef; color: #1c1917; margin: 0; padding: 24px; }
+    .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e7e5e4; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .header { background: #1c1917; color: #ffffff; padding: 24px; text-align: center; }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+    .badge { display: inline-block; background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-top: 8px; }
+    .content { padding: 28px; line-height: 1.6; }
+    .card { background: #fafaf9; border: 1px solid #e7e5e4; border-left: 4px solid #c85a32; border-radius: 8px; padding: 16px; margin: 20px 0; }
+    .card-item { margin-bottom: 8px; font-size: 14px; }
+    .card-item:last-child { margin-bottom: 0; }
+    .card-label { font-weight: 600; color: #57534e; }
+    .card-value { color: #1c1917; font-weight: 500; }
+    .btn { display: inline-block; background: #c85a32; color: #ffffff !important; padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; text-align: center; margin-top: 16px; }
+    .footer { padding: 20px 28px; background: #fafaf9; border-top: 1px solid #f5f5f4; font-size: 12px; color: #78716c; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Mozgás Központ Fitness Stúdió</h1>
+      <span class="badge">Foglalás Törölve</span>
+    </div>
+    <div class="content">
+      <p>Kedves <strong>${participantName}</strong>!</p>
+      <p>Értesítünk, hogy a feljelentkezésedet az edző / adminisztráció törölte a következő óráról:</p>
+      
+      <div class="card">
+        <div class="card-item"><span class="card-label">Edzés:</span> <span class="card-value" style="font-weight: 700; font-size: 15px;">${workoutTitle}</span></div>
+        <div class="card-item"><span class="card-label">Dátum:</span> <span class="card-value">${formattedDate}</span></div>
+        <div class="card-item"><span class="card-label">Időpont:</span> <span class="card-value">${formattedTime}</span></div>
+        <div class="card-item"><span class="card-label">Oktató:</span> <span class="card-value">${instructorDisplay}</span></div>
+      </div>
+
+      <p style="font-size: 14px; color: #57534e;">
+        A foglalásodat sikeresen töröltük a rendszerből. Ha új időpontot szeretnél foglalni, látogass el órarendünkhöz!
+      </p>
+
+      <div style="text-align: center;">
+        <a href="${appUrl}/calendar" class="btn">Órarend megtekintése</a>
+      </div>
+    </div>
+    <div class="footer">
+      Mozgás Központ • Ez egy automatikus értesítő levél, kérjük ne válaszolj rá.
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  return sendEmail({
+    to: { email: participant.email, name: participantName, role: 'participant' },
+    subject,
+    html,
+    text,
+  });
+}

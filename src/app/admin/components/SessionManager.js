@@ -52,8 +52,8 @@ export default function SessionManager({ currentUser }) {
       setTemplates(templatesResult.data || []);
     } catch (err) {
       console.error('Error loading data:', err);
-      setError('Nem sikerült betölteni az edzéseket.');
-      toast.error('Nem sikerült betölteni az edzéseket.');
+      setError('Failed to load class sessions.');
+      toast.error('Failed to load class sessions.');
     } finally {
       setLoading(false);
     }
@@ -81,18 +81,18 @@ export default function SessionManager({ currentUser }) {
         throw new Error(result.error);
       }
 
-      const sessionTitle = sessionToDelete.workout_classes?.title || 'Edzés';
+      const sessionTitle = sessionToDelete.workout_classes?.title || 'Session';
       setSessions(sessions.filter((s) => s.id !== sessionToDelete.id));
       setSessionToDelete(null);
       toast.success(
-        `A(z) "${sessionTitle}" edzésidőpont sikeresen törölve!`,
-        'Edzés törölve'
+        `Session "${sessionTitle}" successfully deleted!`,
+        'Session Deleted'
       );
     } catch (err) {
       console.error('Error deleting session:', err);
-      const errMsg = err.message || 'Nem sikerült az edzés törlése.';
+      const errMsg = err.message || 'Failed to delete session.';
       setError(errMsg);
-      toast.error(errMsg, 'Törlési hiba');
+      toast.error(errMsg, 'Deletion Error');
       setSessionToDelete(null);
     } finally {
       setDeleting(false);
@@ -150,7 +150,7 @@ export default function SessionManager({ currentUser }) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">
-          <div className="text-stone-600 font-medium">Edzések betöltése...</div>
+          <div className="text-stone-600 font-medium">Loading sessions...</div>
         </div>
       </div>
     );
@@ -161,60 +161,60 @@ export default function SessionManager({ currentUser }) {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-            {isInstructor ? 'Saját meghirdetett edzéseim' : 'Edzésidőpontok kezelése'}
+            {isInstructor ? 'My Scheduled Sessions' : 'Manage Class Sessions'}
           </h2>
           <p className="text-sm text-stone-600 mt-1">
             {isInstructor
-              ? 'Kezeld a saját óráidat, időpontjaidat és feliratkozóidat.'
-              : 'Ütemezz edzéseket a sablonokból, és rendelj hozzájuk oktatókat.'}
+              ? 'Manage your scheduled workouts, session times, and attendee lists.'
+              : 'Schedule sessions from templates and assign coaching staff.'}
           </p>
         </div>
         <button
           type="button"
           onClick={handleCreate}
-          className="w-full sm:w-auto justify-center bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm flex items-center gap-2 shrink-0 shadow-xs"
+          className="w-full sm:w-auto justify-center bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta-hover transition-colors font-medium text-sm flex items-center gap-2 shrink-0 shadow-xs"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>+ Új edzés ütemezése</span>
+          <span>+ Schedule New Session</span>
         </button>
       </div>
 
-      {/* Szűrő fülek */}
-      <div className="bg-white rounded-xl shadow-xs border border-stone-200/80 p-1 flex sm:inline-flex w-full sm:w-auto overflow-x-auto">
+      {/* Filter Tabs */}
+      <div className="bg-stone-100 rounded-xl shadow-xs border border-stone-200/80 p-1 flex sm:inline-flex w-full sm:w-auto overflow-x-auto">
         <button
           type="button"
           onClick={() => setFilter('all')}
-          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all whitespace-nowrap ${
             filter === 'all'
-              ? 'bg-warm-terracotta text-white shadow-xs'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-stone-900 text-white shadow-xs'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
           }`}
         >
-          Összes ({sessions.length})
+          All ({sessions.length})
         </button>
         <button
           type="button"
           onClick={() => setFilter('today')}
-          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all whitespace-nowrap ${
             filter === 'today'
-              ? 'bg-warm-terracotta text-white shadow-xs'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-stone-900 text-white shadow-xs'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
           }`}
         >
-          Mai nap
+          Today
         </button>
         <button
           type="button"
           onClick={() => setFilter('upcoming')}
-          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all whitespace-nowrap ${
             filter === 'upcoming'
-              ? 'bg-warm-terracotta text-white shadow-xs'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-stone-900 text-white shadow-xs'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
           }`}
         >
-          Közelgő edzések
+          Upcoming Sessions
         </button>
       </div>
 
@@ -230,7 +230,7 @@ export default function SessionManager({ currentUser }) {
       {templates.length === 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <p className="text-amber-800 text-sm font-medium">
-            Nincs elérhető sablon. Kérjük, hozz létre legalább egy edzéssablont a sablonok menüpontban az időpontok ütemezése előtt.
+            No workout templates available. Please create at least one workout template before scheduling sessions.
           </p>
         </div>
       )}
@@ -238,20 +238,20 @@ export default function SessionManager({ currentUser }) {
       {filteredSessions.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-12 text-center">
           <h3 className="text-xl font-bold text-stone-900 mb-2">
-            Nincsenek megjeleníthető edzések
+            No sessions to display
           </h3>
           <p className="text-stone-600 mb-6 text-sm max-w-sm mx-auto">
             {templates.length === 0
-              ? 'Először hozz létre egy sablont a kezdéshez.'
-              : 'Ütemezz be egy új edzésidőpontot a fenti gombra kattintva.'}
+              ? 'Create a workout template first to get started.'
+              : 'Schedule a new class session by clicking the button above.'}
           </p>
           {templates.length > 0 && (
             <button
               type="button"
               onClick={handleCreate}
-              className="inline-flex items-center gap-2 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
+              className="inline-flex items-center gap-2 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta-hover transition-colors font-medium text-sm shadow-xs"
             >
-              <span>+ Új edzés ütemezése</span>
+              <span>+ Schedule New Session</span>
             </button>
           )}
         </div>
@@ -260,7 +260,7 @@ export default function SessionManager({ currentUser }) {
           {filteredSessions.map((session) => {
             const instructorName = session.instructor
               ? session.instructor.full_name || session.instructor.username
-              : 'Nincs kijelölt oktató';
+              : 'Unassigned coach';
             const isPast = new Date(session.start_time) < new Date();
             const spotsLeft =
               session.workout_classes.max_capacity -
@@ -284,46 +284,46 @@ export default function SessionManager({ currentUser }) {
                         </h3>
                         {session.is_recurring && (
                           <span className="bg-stone-100 text-stone-700 text-xs px-2.5 py-0.5 rounded-md font-medium">
-                            Heti ismétlődő
+                            Weekly recurring
                           </span>
                         )}
                         {!session.is_active && (
                           <span className="bg-rose-100 text-rose-800 text-xs px-2.5 py-0.5 rounded-md font-medium">
-                            Inaktív
+                            Inactive
                           </span>
                         )}
                         {isPast && (
                           <span className="bg-stone-200 text-stone-600 text-xs px-2.5 py-0.5 rounded-md font-medium">
-                            Lezárult
+                            Past session
                           </span>
                         )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-stone-600 mt-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-stone-400 font-medium">Időpont:</span>
+                          <span className="text-stone-400 font-medium">Time:</span>
                           <span className="font-semibold text-stone-800">
                             {formatDate(session.start_time)} •{' '}
                             {formatTime(session.start_time)}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 truncate">
-                          <span className="text-stone-400 font-medium">Oktató:</span>
+                          <span className="text-stone-400 font-medium">Coach:</span>
                           <span className="font-semibold text-stone-800 truncate">
                             {instructorName}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-stone-400 font-medium">Férőhely:</span>
+                          <span className="text-stone-400 font-medium">Spots:</span>
                           <span className="font-semibold text-stone-800">
-                            {spotsLeft} szabad / {session.workout_classes.max_capacity}
+                            {spotsLeft} available / {session.workout_classes.max_capacity}
                           </span>
                         </div>
                       </div>
 
                       {session.current_bookings > 0 && (
                         <div className="mt-2 text-xs text-stone-500 font-medium">
-                          {session.current_bookings} regisztrált résztvevő
+                          {session.current_bookings} registered attendees
                         </div>
                       )}
                     </div>
@@ -334,14 +334,14 @@ export default function SessionManager({ currentUser }) {
                         onClick={() => handleEdit(session)}
                         className="flex-1 sm:flex-initial bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl transition-colors font-semibold text-xs text-center"
                       >
-                        Szerkesztés
+                        Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => setSessionToDelete(session)}
                         className="flex-1 sm:flex-initial bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl transition-colors font-semibold text-xs text-center"
                       >
-                        Törlés
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -364,17 +364,17 @@ export default function SessionManager({ currentUser }) {
 
       <ConfirmModal
         isOpen={!!sessionToDelete}
-        title="Edzésidőpont törlése"
+        title="Delete Class Session"
         message={
           sessionToDelete
-            ? `Biztosan törölni szeretnéd a(z) "${sessionToDelete.workout_classes.title}" órát (${formatDate(
+            ? `Are you sure you want to delete the "${sessionToDelete.workout_classes.title}" session on ${formatDate(
                 sessionToDelete.start_time
-              )}, ${formatTime(
+              )} at ${formatTime(
                 sessionToDelete.start_time
-              )})?\n\nEz a művelet lemondja a már meglévő foglalásokat és e-mailben értesíti a résztvevőket.`
+              )}?\n\nThis action will cancel existing bookings and notify registered participants via email.`
             : ''
         }
-        confirmLabel="Edzés törlése"
+        confirmLabel="Delete Session"
         loading={deleting}
         onConfirm={confirmDeleteSession}
         onCancel={() => setSessionToDelete(null)}
