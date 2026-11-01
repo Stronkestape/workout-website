@@ -30,7 +30,7 @@ export default async function RootLayout({ children }) {
           <main className="flex-1">{children}</main>
           <Footer />
         </ToastProvider>
-        <SpeedInsights />
+        <SpeedInsights sampleRate={1} />
       </body>
     </html>
   );
