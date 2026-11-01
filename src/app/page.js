@@ -1,9 +1,7 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getWorkoutTheme } from "@/utils/workoutThemes";
+import AnimatedWorkoutSection from "@/components/AnimatedWorkoutSection";
 
 const WORKOUT_SECTIONS = [
   {
@@ -186,141 +184,101 @@ function WorkoutSection({
   description,
   alignment = "left",
 }) {
-  const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      {
-        threshold: 0.15,
-        rootMargin: "0px 0px -60px 0px",
-      }
-    );
-
-    const currentRef = sectionRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, []);
-
   const isImageLeft = alignment === "left";
   const theme = getWorkoutTheme(title);
   const formattedIndex = String(index + 1).padStart(2, "0");
 
   return (
-    <section
-      ref={sectionRef}
-      className={`py-14 sm:py-20 lg:py-24 transition-colors ${
-        index % 2 === 0 ? "bg-stone-100" : "bg-stone-200"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <AnimatedWorkoutSection index={index}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* Image Column (~60% width on desktop via 7/12 columns, alternating left/right) */}
         <div
-          className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:translate-y-0 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          className={`lg:col-span-7 ${
+            isImageLeft ? "lg:order-1" : "lg:order-2"
           }`}
         >
-          {/* Image Column (~60% width on desktop via 7/12 columns, alternating left/right) */}
-          <div
-            className={`lg:col-span-7 ${
-              isImageLeft ? "lg:order-1" : "lg:order-2"
-            }`}
-          >
-            <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-lg border border-stone-300 bg-stone-200 group">
-              <Image
-                src={image}
-                alt={title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 1024px) 100vw, 60vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-              <div className="absolute top-4 left-4">
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border shadow-sm backdrop-blur-md ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}
-                >
-                  {theme.category}
-                </span>
-              </div>
+          <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-lg border border-stone-300 bg-stone-200 group">
+            <Image
+              src={image}
+              alt={title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 1024px) 100vw, 60vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+            <div className="absolute top-4 left-4">
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border shadow-sm backdrop-blur-md ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}
+              >
+                {theme.category}
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Content Column (~40% width on desktop via 5/12 columns) */}
-          <div
-            className={`lg:col-span-5 ${
-              isImageLeft ? "lg:order-2" : "lg:order-1"
-            }`}
-          >
-            <div className="space-y-5 bg-white border border-stone-300 rounded-2xl p-6 sm:p-8 shadow-sm">
-              {/* Index & Category Header */}
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-stone-600">
-                  {formattedIndex}
+        {/* Content Column (~40% width on desktop via 5/12 columns) */}
+        <div
+          className={`lg:col-span-5 ${
+            isImageLeft ? "lg:order-2" : "lg:order-1"
+          }`}
+        >
+          <div className="space-y-5 bg-white border border-stone-300 rounded-2xl p-6 sm:p-8 shadow-sm">
+            {/* Index & Category Header */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-stone-600">
+                {formattedIndex}
+              </span>
+              <span className="h-px w-8 bg-stone-400" />
+              <span
+                className={`text-xs font-semibold uppercase tracking-wider ${theme.accentText}`}
+              >
+                {theme.category}
+              </span>
+            </div>
+
+            {/* Workout Title */}
+            <div>
+              <h3 className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight">
+                {title}
+              </h3>
+              <div
+                className={`h-1 w-16 rounded-full mt-3 ${theme.accentBg}`}
+              />
+            </div>
+
+            {/* Metadata Pills (SVG icons, no emojis) */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-stone-800 bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-lg">
+                <ClockIcon className="w-4 h-4 text-stone-700 shrink-0" />
+                <span>{durationLabel}</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-stone-800 bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-lg">
+                <ActivityIcon className="w-4 h-4 text-stone-700 shrink-0" />
+                <span>{intensityLabel}</span>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p className="text-base sm:text-lg text-stone-800 leading-relaxed">
+              {description}
+            </p>
+
+            {/* Action Link to filtered calendar */}
+            <div className="pt-2">
+              <Link
+                href={`/calendar?filter=${encodeURIComponent(theme.key)}`}
+                className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-stone-900 hover:text-warm-terracotta transition-colors group"
+              >
+                <span>Book this class in Calendar</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-stone-100 border border-stone-300 group-hover:bg-warm-terracotta/10 group-hover:border-warm-terracotta/40 group-hover:translate-x-1 transition-all">
+                  <ArrowRightIcon className="w-4 h-4 text-stone-800 group-hover:text-warm-terracotta transition-colors" />
                 </span>
-                <span className="h-px w-8 bg-stone-400" />
-                <span
-                  className={`text-xs font-semibold uppercase tracking-wider ${theme.accentText}`}
-                >
-                  {theme.category}
-                </span>
-              </div>
-
-              {/* Workout Title */}
-              <div>
-                <h3 className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight">
-                  {title}
-                </h3>
-                <div
-                  className={`h-1 w-16 rounded-full mt-3 ${theme.accentBg}`}
-                />
-              </div>
-
-              {/* Metadata Pills (SVG icons, no emojis) */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-stone-800 bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-lg">
-                  <ClockIcon className="w-4 h-4 text-stone-700 shrink-0" />
-                  <span>{durationLabel}</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-stone-800 bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-lg">
-                  <ActivityIcon className="w-4 h-4 text-stone-700 shrink-0" />
-                  <span>{intensityLabel}</span>
-                </div>
-              </div>
-
-              {/* Description */}
-              <p className="text-base sm:text-lg text-stone-800 leading-relaxed">
-                {description}
-              </p>
-
-              {/* Action Link to filtered calendar */}
-              <div className="pt-2">
-                <Link
-                  href={`/calendar?filter=${encodeURIComponent(theme.key)}`}
-                  className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-stone-900 hover:text-warm-terracotta transition-colors group"
-                >
-                  <span>Book this class in Calendar</span>
-                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-stone-100 border border-stone-300 group-hover:bg-warm-terracotta/10 group-hover:border-warm-terracotta/40 group-hover:translate-x-1 transition-all">
-                    <ArrowRightIcon className="w-4 h-4 text-stone-800 group-hover:text-warm-terracotta transition-colors" />
-                  </span>
-                </Link>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </AnimatedWorkoutSection>
   );
 }
 

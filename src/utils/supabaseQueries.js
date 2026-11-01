@@ -38,9 +38,24 @@ export const fetchUserBookingStatus = async (userId, sessionId) => {
 };
 
 /**
- * Fetches all active class sessions with workout details and instructor info
+ * Fetches all active class sessions with workout details and instructor info.
+ * Leverages Vercel edge caching via /api/schedule with graceful direct fallback.
  */
 export const fetchClassSessions = async () => {
+  try {
+    if (typeof window !== 'undefined') {
+      const res = await fetch('/api/schedule');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          return { data, error: null };
+        }
+      }
+    }
+  } catch (apiErr) {
+    console.warn('Edge cached schedule fetch failed, falling back to direct query:', apiErr);
+  }
+
   const { data, error } = await supabaseBrowser
     .from('class_sessions')
     .select(`

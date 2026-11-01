@@ -1,20 +1,16 @@
 import "./globals.css";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { createSupabaseServerClient } from "@/lib/server";
+import { getSafeUser } from "@/lib/server";
 import { ToastProvider } from "@/context/ToastContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "700"], 
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "700"],
 });
 
 export const metadata = {
@@ -23,16 +19,12 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Uses getSafeUser: bypasses external WAN Supabase call for anonymous visitors (0ms overhead)
+  const { user } = await getSafeUser();
 
   return (
-    <html lang="hu">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col`}
-      >
+    <html lang="hu" className={geistSans.variable}>
+      <body className="font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col">
         <ToastProvider>
           <Navbar user={user} />
           <main className="flex-1">{children}</main>
