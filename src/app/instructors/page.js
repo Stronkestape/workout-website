@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/lib/server';
+import { createSupabasePublicClient } from '@/lib/publicSupabase';
+
+export const revalidate = 300; // 5-minute Edge ISR caching
 import { formatTime } from '@/utils/calendarHelpers';
 
 export const metadata = {
@@ -46,40 +48,44 @@ const DEFAULT_PROFILE = {
 };
 
 export default async function InstructorsPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
+  const nowIso = new Date().toISOString();
 
-  // 1. Fetch instructor profiles
-  const { data: rawInstructors, error: instructorsError } = await supabase
-    .from('user_profiles')
-    .select('id, username, full_name, user_tier')
-    .eq('user_tier', 'instructor')
-    .order('full_name', { ascending: true });
+  // Parallel database queries executed concurrently
+  const [instructorsResult, sessionsResult] = await Promise.all([
+    supabase
+      .from('user_profiles')
+      .select('id, username, full_name, user_tier')
+      .eq('user_tier', 'instructor')
+      .order('full_name', { ascending: true }),
+    supabase
+      .from('class_sessions')
+      .select(`
+        id,
+        instructor_id,
+        start_time,
+        workout_classes (
+          id,
+          title,
+          duration,
+          max_capacity
+        )
+      `)
+      .gte('start_time', nowIso)
+      .eq('is_active', true)
+      .order('start_time', { ascending: true })
+      .limit(30),
+  ]);
 
-  if (instructorsError) {
-    console.error('Error fetching instructors:', instructorsError);
+  if (instructorsResult.error) {
+    console.error('Error fetching instructors:', instructorsResult.error);
+  }
+  if (sessionsResult.error) {
+    console.error('Error fetching sessions:', sessionsResult.error);
   }
 
-  const instructors = rawInstructors || [];
-
-  // 2. Fetch upcoming sessions for these instructors
-  const nowIso = new Date().toISOString();
-  const { data: upcomingSessions } = await supabase
-    .from('class_sessions')
-    .select(`
-      id,
-      instructor_id,
-      start_time,
-      workout_classes (
-        id,
-        title,
-        duration,
-        max_capacity
-      )
-    `)
-    .gte('start_time', nowIso)
-    .eq('is_active', true)
-    .order('start_time', { ascending: true })
-    .limit(30);
+  const instructors = instructorsResult.data || [];
+  const upcomingSessions = sessionsResult.data || [];
 
   // Group upcoming sessions by instructor_id
   const sessionsByInstructor = {};
