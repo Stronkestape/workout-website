@@ -1,6 +1,29 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+/**
+ * Fast-path user retrieval that checks for the presence of Supabase auth cookies
+ * before initiating an external WAN network request to Supabase Auth.
+ */
+export async function getSafeUser() {
+  const cookieStore = await cookies();
+  const allCookies = cookieStore.getAll();
+  const hasToken = allCookies.some(
+    (c) => c.name.startsWith('sb-') && c.name.includes('-auth-token')
+  );
+
+  if (!hasToken) {
+    return { user: null, supabase: null };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return { user, supabase };
+}
+
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
 

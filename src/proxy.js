@@ -2,7 +2,29 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
+function hasSupabaseAuthCookie(request) {
+  return request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'));
+}
+
 export async function proxy(request) {
+  const pathname = request.nextUrl.pathname;
+  const hasAuthCookie = hasSupabaseAuthCookie(request);
+
+  // Fast-path: Unauthenticated requests on protected routes redirect immediately without WAN overhead
+  if (!hasAuthCookie) {
+    if (
+      pathname.startsWith('/profile') ||
+      pathname.startsWith('/bookings') ||
+      pathname.startsWith('/admin')
+    ) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    // Fast-path: Anonymous traffic on public routes (e.g. /, /calendar, /instructors) skips Supabase auth entirely (0ms overhead)
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({
     request,
   });
@@ -30,16 +52,22 @@ export async function proxy(request) {
     }
   );
 
-  // Refresh session if expired - required for Server Components
+  // Refresh and validate session only when auth cookies are present
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
-
-  // Redirect logged in users away from auth pages
+  // Redirect logged-in users away from auth pages
   if ((pathname.startsWith('/login') || pathname.startsWith('/register')) && user) {
     return NextResponse.redirect(new URL('/calendar', request.url));
+  }
+
+  // Protect /profile and /bookings
+  if (
+    (pathname.startsWith('/profile') || pathname.startsWith('/bookings')) &&
+    !user
+  ) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Protect /admin routes - check if user is admin or instructor
@@ -61,14 +89,6 @@ export async function proxy(request) {
     ) {
       return NextResponse.redirect(new URL('/', request.url));
     }
-  }
-
-  // Protect /profile and /bookings routes - must be logged in
-  if (
-    (pathname.startsWith('/profile') || pathname.startsWith('/bookings')) &&
-    !user
-  ) {
-    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return response;
