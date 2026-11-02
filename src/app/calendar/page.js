@@ -391,7 +391,7 @@ function CalendarContent() {
               }`}
             >
               <span>All Workouts</span>
-              <span className="text-[10px] opacity-75">({events.length})</span>
+              <span className="text-[10px] font-semibold">({events.length})</span>
             </button>
 
             {Object.values(WORKOUT_THEMES).map((theme) => {
@@ -432,7 +432,7 @@ function CalendarContent() {
                   />
                   <span>{displayLabel}</span>
                   {count > 0 && (
-                    <span className="text-[10px] font-bold opacity-75">
+                    <span className="text-[10px] font-bold font-semibold">
                       ({count})
                     </span>
                   )}
@@ -475,7 +475,7 @@ function CalendarContent() {
                   className="w-3.5 h-3.5 shrink-0 opacity-85"
                 />
                 <span>{DEFAULT_THEME.label}</span>
-                <span className="text-[10px] font-bold opacity-75">
+                <span className="text-[10px] font-bold font-semibold">
                   ({workoutCounts["default"]})
                 </span>
               </button>

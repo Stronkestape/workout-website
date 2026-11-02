@@ -160,6 +160,8 @@ export default function UserSearchSelect({
 
           <input
             ref={inputRef}
+            id="user-search-input"
+            name="user_search"
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

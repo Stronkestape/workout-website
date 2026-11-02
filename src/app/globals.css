@@ -9,8 +9,9 @@
   --color-gray-50: #e0dbd1;
   --color-gray-100: #d2ccc0;
   --color-gray-200: #bcb5a7;
-  --color-warm-terracotta: #b84c24;
-  --color-warm-terracotta-hover: #9e3d1a;
+  --color-warm-terracotta: #b0441d;
+  --color-warm-terracotta-hover: #963815;
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 @layer base {

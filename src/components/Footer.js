@@ -22,7 +22,7 @@ export default function Footer() {
               Prémium csoportos funkcionális edzések, Spinning és WALKenergie órák Újbudán. Szakképzett oktatói gárda, modern terem és inspiráló közösség.
             </p>
             <div className="pt-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800/80 border border-stone-700/60 text-xs font-medium text-warm-terracotta">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800/80 border border-stone-700/60 text-xs font-semibold text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" aria-hidden="true" />
                 <span>Nyitva a hét minden napján</span>
               </span>
@@ -48,7 +48,7 @@ export default function Footer() {
                 <span className="font-medium text-white">09:00 – 14:00</span>
               </li>
             </ul>
-            <p className="text-xs text-stone-500 leading-relaxed pt-1">
+            <p className="text-xs text-stone-400 leading-relaxed pt-1">
               A csoportos órák kezdete előtt 15 perccel javasolt az érkezés az öltözéshez és bejelentkezéshez.
             </p>
           </div>
@@ -176,20 +176,20 @@ export default function Footer() {
         </div>
 
         {/* Bottom Legal Copyright Bar */}
-        <div className="mt-8 pt-6 border-t border-stone-800/60 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-3">
+        <div className="mt-8 pt-6 border-t border-stone-800/60 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-3">
           <div>
             © {currentYear} Mozgás Központ Stúdió. Minden jog fenntartva.
           </div>
           <div className="flex items-center gap-4">
-            <span className="hover:text-stone-400 transition-colors cursor-pointer">
+            <span className="text-stone-400 hover:text-stone-200 transition-colors cursor-pointer">
               Házirend
             </span>
             <span>•</span>
-            <span className="hover:text-stone-400 transition-colors cursor-pointer">
+            <span className="text-stone-400 hover:text-stone-200 transition-colors cursor-pointer">
               Adatkezelési tájékoztató
             </span>
             <span>•</span>
-            <span className="hover:text-stone-400 transition-colors cursor-pointer">
+            <span className="text-stone-400 hover:text-stone-200 transition-colors cursor-pointer">
               ÁSZF
             </span>
           </div>

@@ -42,7 +42,7 @@ export default function CalendarEvent({ event }) {
           )}
         </div>
         {instructorName && instructorName !== "TBA" && (
-          <div className="text-[10px] opacity-75 truncate mt-0.5 font-medium">
+          <div className="text-[10px] truncate mt-0.5 font-semibold">
             {instructorName}
           </div>
         )}
