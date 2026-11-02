@@ -116,7 +116,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/calendar"
-              prefetch={true}
+              prefetch={false}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-colors shadow-sm"
             >
               <span>View Schedule & Book</span>
@@ -139,6 +139,7 @@ function HeroSection() {
           fill
           className="object-cover object-center opacity-50"
           priority
+          fetchPriority="high"
           quality={75}
           sizes="100vw"
         />
@@ -159,7 +160,7 @@ function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/calendar"
-            prefetch={true}
+            prefetch={false}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-8 py-4 rounded-xl text-base sm:text-lg font-semibold transition-all shadow-lg"
           >
             <span>View Schedule</span>
@@ -275,7 +276,7 @@ function WorkoutSection({
             <div className="pt-2">
               <Link
                 href={`/calendar?filter=${encodeURIComponent(theme.key)}`}
-                prefetch={true}
+                prefetch={false}
                 className="inline-flex items-center gap-2.5 text-sm sm:text-base font-semibold text-stone-900 hover:text-warm-terracotta transition-colors group"
               >
                 <span>Book this class in Calendar</span>

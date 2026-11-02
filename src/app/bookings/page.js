@@ -37,8 +37,7 @@ export default async function BookingsPage() {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <Link
-            href="/calendar"
+          <Link href="/calendar" prefetch={false}
             className="inline-flex items-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm"
           >
             <svg
@@ -57,8 +56,7 @@ export default async function BookingsPage() {
             </svg>
             <span>Book New Class</span>
           </Link>
-          <Link
-            href="/profile"
+          <Link href="/profile" prefetch={false}
             className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-2xs"
           >
             <span>Profile Settings</span>
