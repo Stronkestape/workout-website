@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 const WorkoutTemplateManager = dynamic(
   () => import('./components/WorkoutTemplateManager'),
   {
+    ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
         <div className="text-stone-500 font-medium text-sm">Sablonok betöltése...</div>
@@ -17,6 +18,7 @@ const WorkoutTemplateManager = dynamic(
 const SessionManager = dynamic(
   () => import('./components/SessionManager'),
   {
+    ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
         <div className="text-stone-500 font-medium text-sm">Edzések betöltése...</div>
@@ -28,6 +30,7 @@ const SessionManager = dynamic(
 const SessionDetailView = dynamic(
   () => import('./components/SessionDetailView'),
   {
+    ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
         <div className="text-stone-500 font-medium text-sm">Részletek betöltése...</div>
@@ -58,70 +61,64 @@ export default function AdminDashboardClient({ initialUser }) {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 sm:py-6">
             <div className="flex items-center justify-between sm:block">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {isInstructor ? 'Instructor Dashboard' : 'Admin Dashboard'}
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  {isInstructor ? 'Edzői Vezérlőpult' : 'Admin Vezérlőpult'}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                  Welcome back,{' '}
-                  {adminUser?.profile?.full_name ||
-                    adminUser?.profile?.username ||
-                    (isInstructor ? 'Coach' : 'Admin')}
+                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
+                  Bejelentkezve mint: <span className="font-semibold text-gray-700">{adminUser?.email}</span>
+                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 capitalize">
+                    {adminUser?.profile?.user_tier || 'admin'}
+                  </span>
                 </p>
               </div>
-              <span
-                className={`sm:hidden px-3 py-1 rounded-full text-xs font-medium shrink-0 ${
-                  isInstructor
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-purple-100 text-purple-800'
-                }`}
-              >
-                {isInstructor ? 'Instructor' : 'Admin'}
-              </span>
             </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  isInstructor
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-purple-100 text-purple-800'
-                }`}
-              >
-                {isInstructor ? 'Instructor' : 'Admin'}
+
+            {/* Quick stats or actions could go here */}
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="w-2 h-2 mr-1.5 bg-green-400 rounded-full animate-pulse" />
+                Rendszer aktív
               </span>
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hidden space-x-1 border-b border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex items-center gap-2 px-4 sm:px-6 py-3 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap
-                  border-b-2 -mb-px
-                  ${
-                    activeTab === tab.id
-                      ? 'border-blue-600 text-blue-600 bg-blue-50/50'
-                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }
-                `}
-              >
-                <span>{tab.label}</span>
-              </button>
-            ))}
+          {/* Navigation Tabs - responsive horizontal scroll on mobile */}
+          <div className="border-t border-gray-200 -mb-px flex space-x-2 sm:space-x-8 overflow-x-auto no-scrollbar">
+            {tabs
+              .filter((tab) => !(isInstructor && tab.id === 'templates'))
+              .map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`whitespace-nowrap py-3 px-3 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
+                      isActive
+                        ? 'border-warm-terracotta text-warm-terracotta'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
           </div>
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {activeTab === 'templates' && (
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Templates Tab */}
+        {!isInstructor && activeTab === 'templates' && (
           <WorkoutTemplateManager currentUser={adminUser} />
         )}
+
+        {/* Sessions Tab */}
         {activeTab === 'sessions' && (
           <SessionManager currentUser={adminUser} />
         )}
+
+        {/* Session Details Tab */}
         {activeTab === 'session-details' && (
           <SessionDetailView currentUser={adminUser} />
         )}

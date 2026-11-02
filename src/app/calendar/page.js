@@ -16,7 +16,7 @@ import {
 const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
   ssr: false,
   loading: () => (
-    <div className="h-[720px] w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
+    <div className="h-full w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
         <span className="text-stone-500 font-medium text-sm">
@@ -288,21 +288,6 @@ function CalendarContent() {
     await fetchEvents({ silent: true }); // Refresh calendar and selectedWorkout without full-page loading flash
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 py-6">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 text-stone-900">
-          Workout Calendar
-        </h2>
-        <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-xs border border-stone-300">
-          <div className="text-base sm:text-lg text-stone-600 font-medium">
-            Loading classes...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Mobile week calculation (Monday start)
   const mobileWeekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const mobileWeekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -483,6 +468,23 @@ function CalendarContent() {
 
         {/* Mobile Schedule View (< 768px) */}
         <div className="md:hidden space-y-4">
+          {loading ? (
+            <div className="space-y-4 animate-pulse">
+              <div className="bg-white rounded-xl border border-stone-300 h-28 p-4 flex flex-col justify-between">
+                <div className="h-5 bg-stone-200 rounded w-1/3" />
+                <div className="grid grid-cols-8 gap-1">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="h-10 bg-stone-100 rounded" />
+                  ))}
+                </div>
+              </div>
+              <div className="bg-white rounded-xl border border-stone-300 h-36 p-4 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
+              </div>
+              <div className="bg-white rounded-xl border border-stone-300 h-36 p-4" />
+            </div>
+          ) : (
+            <>
           {/* Week Navigation Card */}
           <div className="bg-white rounded-xl shadow-xs border border-stone-300 p-3.5">
             <div className="flex items-center justify-between gap-2 mb-3">
@@ -723,12 +725,24 @@ function CalendarContent() {
               </div>
             )}
           </div>
+        </>
+          )}
         </div>
 
         {/* Desktop & Tablet Full Calendar Grid (>= 768px) */}
         <div className="hidden md:block">
           <div className={styles.calendarWrapper} key={view}>
-            <DesktopCalendar
+            {loading ? (
+              <div className="h-full w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
+                  <span className="text-stone-500 font-medium text-sm">
+                    Loading classes...
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <DesktopCalendar
               events={filteredEvents}
               view={view}
               onView={handleViewChange}
@@ -746,6 +760,7 @@ function CalendarContent() {
               scrollToTime={new Date(1970, 1, 1, CALENDAR_SCROLL_TO_HOUR, 0)}
               onSelectEvent={handleSelectEvent}
             />
+            )}
           </div>
         </div>
       </div>
@@ -767,14 +782,32 @@ export default function CalendarPage() {
   return (
     <Suspense
       fallback={
-        <div className="container mx-auto px-4 sm:px-6 py-6">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 text-stone-900">
-            Workout Calendar
-          </h2>
-          <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-xs border border-stone-300">
-            <div className="text-base sm:text-lg text-stone-600 font-medium">
-              Loading calendar...
+        <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6">
+          <div className="mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+              Workout Calendar
+            </h2>
+            <p className="text-sm text-stone-600 mt-1">
+              Browse group classes, filter by workout category, and book your spot.
+            </p>
+          </div>
+          <div className="mb-4 bg-white rounded-xl shadow-xs border border-stone-300 p-3 sm:p-4 h-24 animate-pulse" />
+          <div className="hidden md:block">
+            <div className={styles.calendarWrapper}>
+              <div className="h-full w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
+                  <span className="text-stone-500 font-medium text-sm">
+                    Loading calendar view...
+                  </span>
+                </div>
+              </div>
             </div>
+          </div>
+          <div className="md:hidden space-y-4 animate-pulse">
+            <div className="bg-white rounded-xl border border-stone-300 h-28 p-4" />
+            <div className="bg-white rounded-xl border border-stone-300 h-36 p-4" />
+            <div className="bg-white rounded-xl border border-stone-300 h-36 p-4" />
           </div>
         </div>
       }
