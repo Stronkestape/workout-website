@@ -46,7 +46,7 @@ export default function SessionForm({
         class_id: session.class_id,
         start_time: formatDateTimeLocal(startDate),
         end_time: formatDateTimeLocal(endDate),
-        instructor_id: session.instructor_id || '',
+        instructor_id: (typeof session.instructor_id === 'string' && session.instructor_id) || session.instructor?.id || (typeof session.instructor_id === 'object' && session.instructor_id?.id) || '',
         is_active: session.is_active !== false,
         is_recurring: session.is_recurring !== false,
       });
@@ -184,6 +184,7 @@ export default function SessionForm({
             <select
               id="class_id"
               name="class_id"
+              autoComplete="off"
               value={formData.class_id}
               onChange={handleTemplateChange}
               className={`w-full px-4 py-2.5 bg-white border rounded-xl text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-warm-terracotta transition-colors ${
@@ -267,6 +268,7 @@ export default function SessionForm({
               <InstructorSelect
                 instructors={instructors}
                 selectedId={formData.instructor_id}
+                currentInstructor={session?.instructor}
                 onChange={handleChange}
                 disabled={loading || loadingInstructors}
                 error={fieldErrors.instructor_id}

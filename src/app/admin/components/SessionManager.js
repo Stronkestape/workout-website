@@ -182,7 +182,7 @@ export default function SessionManager({ currentUser }) {
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-stone-100 rounded-xl shadow-xs border border-stone-200/80 p-1 flex sm:inline-flex w-full sm:w-auto overflow-x-auto">
+      <div className="bg-stone-100 rounded-xl shadow-xs border border-stone-200/80 p-1 flex sm:inline-flex w-full sm:w-auto overflow-x-auto overflow-y-hidden scrollbar-hidden">
         <button
           type="button"
           onClick={() => setFilter('all')}

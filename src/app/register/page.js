@@ -12,7 +12,7 @@ export default function RegisterPage() {
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
-      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="flex items-center justify-center min-h-[75vh] py-8">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
           <form action={formAction} className="space-y-4">
             <FormField
