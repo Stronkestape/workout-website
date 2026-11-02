@@ -9,7 +9,7 @@ export function FormField({
   onChange,
   disabled,
   type = "text",
-  autoComplete,
+  autoComplete = "off",
   required,
 }) {
   return (
@@ -34,7 +34,7 @@ export function FormField({
             : "border-gray-300 focus:ring-blue-500"
         }`}
       />
-      {hint && <p className="text-xs text-gray-500 mt-1">{hint}</p>}
+      {hint && <p className="text-xs text-stone-600 mt-1 font-medium">{hint}</p>}
       {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
     </div>
   );

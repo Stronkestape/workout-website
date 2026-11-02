@@ -152,7 +152,7 @@ export default function Navbar({ user = null } = {}) {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2 min-w-[280px] justify-end">
             <Link href="/calendar" className={navLinkClass("/calendar")}>
               Calendar
             </Link>

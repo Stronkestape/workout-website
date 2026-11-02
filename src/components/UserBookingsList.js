@@ -125,9 +125,9 @@ export default function UserBookingsList({ userId }) {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-stone-900 mb-1.5">
+        <h2 className="text-lg font-bold text-stone-900 mb-1.5">
           No Active Bookings Yet
-        </h3>
+        </h2>
         <p className="text-stone-600 text-sm mb-6 max-w-sm mx-auto leading-relaxed">
           Browse our weekly schedule and reserve a spot in your favorite group classes!
         </p>
@@ -154,9 +154,9 @@ export default function UserBookingsList({ userId }) {
           </svg>
         </div>
         <div className="text-xs sm:text-sm leading-relaxed space-y-1">
-          <h4 className="font-bold text-stone-900 text-sm">
+          <h2 className="font-bold text-stone-900 text-sm">
             Cancellation Policy
-          </h4>
+          </h2>
           <p className="text-stone-600">
             You can cancel confirmed class bookings free of charge <strong>up to 2 hours before the start time</strong>. Within the final 2 hours, cancellations are locked to allow waitlisted members to fill open spots and ensure instructor preparedness.
           </p>
@@ -187,9 +187,9 @@ export default function UserBookingsList({ userId }) {
       {upcomingBookings.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-stone-900">
+            <h2 className="text-lg font-bold text-stone-900">
               Upcoming Classes ({upcomingBookings.length})
-            </h3>
+            </h2>
             <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full">
               Confirmed
             </span>
@@ -218,9 +218,9 @@ export default function UserBookingsList({ userId }) {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="font-bold text-stone-900 break-words text-base">
+                        <h3 className="font-bold text-stone-900 break-words text-base">
                           {workout?.title}
-                        </h4>
+                        </h3>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
                           Confirmed
                         </span>
@@ -304,9 +304,9 @@ export default function UserBookingsList({ userId }) {
       {hasWaitlist && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-stone-900">
+            <h2 className="text-lg font-bold text-stone-900">
               Waitlist Entries ({waitlist.length})
-            </h3>
+            </h2>
             <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full">
               Waiting for Open Spots
             </span>
@@ -330,9 +330,9 @@ export default function UserBookingsList({ userId }) {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-stone-900 text-base">
+                        <h3 className="font-bold text-stone-900 text-base">
                           {workout?.title}
-                        </h4>
+                        </h3>
                         <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-semibold">
                           #{entry.position} on Waitlist
                         </span>
@@ -375,10 +375,10 @@ export default function UserBookingsList({ userId }) {
       {/* Past Bookings */}
       {pastBookings.length > 0 && (
         <div className="pt-4 border-t border-stone-200/80">
-          <h3 className="text-base font-bold text-stone-700 mb-4">
+          <h2 className="text-base font-bold text-stone-700 mb-4">
             Past Classes ({pastBookings.length})
-          </h3>
-          <div className="space-y-2.5 opacity-80">
+          </h2>
+          <div className="space-y-2.5">
             {pastBookings.map((booking) => {
               const session = booking.class_sessions;
               const workout = session?.workout_classes;
@@ -395,10 +395,10 @@ export default function UserBookingsList({ userId }) {
                 >
                   <div className="flex justify-between items-center gap-3">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-stone-800 text-sm truncate">
+                      <h3 className="font-semibold text-stone-800 text-sm truncate">
                         {workout?.title}
-                      </h4>
-                      <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-stone-500">
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-stone-700 font-medium">
                         <span>{instructorName}</span>
                         <span>•</span>
                         <span>{date} {time}</span>

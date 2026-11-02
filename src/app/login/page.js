@@ -53,7 +53,7 @@ export default function LoginPage() {
       <h2 className="text-2xl font-bold mb-4 text-center">
         Login to Workout Booking
       </h2>
-      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="flex items-center justify-center min-h-[75vh] py-8">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md space-y-6">
           <form ref={formRef} action={formAction} className="space-y-4">
             <FormField
@@ -86,7 +86,9 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {state?.error && <FormMessage type="error" message={state.error} />}
+            <div className="min-h-[24px]">
+              {state?.error && <FormMessage type="error" message={state.error} />}
+            </div>
 
             <button
               type="submit"

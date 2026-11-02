@@ -101,7 +101,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex overflow-x-auto space-x-1 border-b border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hidden space-x-1 border-b border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0">
             {tabs.map((tab) => (
               <button
                 key={tab.id}

@@ -39,16 +39,23 @@ export default function BookingsPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="text-stone-600 font-medium text-base">
-          Loading bookings...
+      <div className="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8 min-h-[85vh]">
+        <div className="mb-6 sm:mb-8 border-b border-stone-200/80 pb-6 animate-pulse">
+          <div className="h-3 w-20 bg-stone-300 rounded-full mb-2" />
+          <div className="h-8 w-44 bg-stone-300 rounded-xl mb-2" />
+          <div className="h-4 w-72 bg-stone-200 rounded-lg" />
+        </div>
+        <div className="space-y-4 animate-pulse">
+          <div className="h-36 bg-stone-200/70 rounded-2xl border border-stone-300" />
+          <div className="h-36 bg-stone-200/70 rounded-2xl border border-stone-300" />
+          <div className="h-36 bg-stone-200/70 rounded-2xl border border-stone-300" />
         </div>
       </div>
     );
   }
 
   if (!user) {
-    return null;
+    return <div className="min-h-[85vh]" />;
   }
 
   return (

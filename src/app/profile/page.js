@@ -44,8 +44,8 @@ export default async function ProfilePage() {
       <div className="mb-6 sm:mb-8 pb-6 border-b border-stone-200/80">
         <div className="flex items-start sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-warm-terracotta mb-1">
-              <span className="w-2 h-2 rounded-full bg-warm-terracotta" aria-hidden="true" />
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#8c3010] mb-1">
+              <span className="w-2 h-2 rounded-full bg-[#8c3010]" aria-hidden="true" />
               <span>My Account</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">

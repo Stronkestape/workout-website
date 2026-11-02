@@ -25,6 +25,7 @@ export default function ProfileForm({ profile, onUpdate }) {
         disabled={isPending}
         hint="3–20 characters: lowercase letters, numbers, underscores, and dots"
         required
+        autoComplete="username"
       />
 
       <FormField
@@ -37,6 +38,7 @@ export default function ProfileForm({ profile, onUpdate }) {
         disabled={isPending}
         hint="Changing your email requires verification"
         required
+        autoComplete="email"
       />
 
       <FormField
@@ -46,6 +48,7 @@ export default function ProfileForm({ profile, onUpdate }) {
         defaultValue={state?.values?.fullName ?? (profile.full_name || '')}
         error={state?.fieldErrors?.fullName}
         disabled={isPending}
+        autoComplete="name"
       />
 
       {state?.error && <FormMessage type="error" message={state.error} />}
