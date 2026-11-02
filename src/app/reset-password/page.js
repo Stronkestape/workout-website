@@ -69,7 +69,6 @@ export default function ResetPasswordPage() {
               />
               <Link
                 href="/forgot-password"
-                prefetch={false}
                 className="inline-block w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
               >
                 Request a New Reset Link

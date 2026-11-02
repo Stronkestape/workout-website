@@ -1,17 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import {
   fetchAllSessions,
   fetchWorkoutTemplates,
 } from '@/utils/adminQueries';
 import { deleteSessionAction } from '../actions';
+import SessionForm from './SessionForm';
+import ConfirmModal from '@/components/ConfirmModal';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 import { useToast } from '@/context/ToastContext';
-
-const SessionForm = dynamic(() => import('./SessionForm'), { ssr: false });
-const ConfirmModal = dynamic(() => import('@/components/ConfirmModal'), { ssr: false });
 
 export default function SessionManager({ currentUser }) {
   const isInstructor = currentUser?.profile?.user_tier === 'instructor';

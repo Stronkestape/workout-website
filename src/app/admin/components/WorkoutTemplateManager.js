@@ -1,17 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import {
   fetchWorkoutTemplates,
   createWorkoutTemplate,
   updateWorkoutTemplate,
   deleteWorkoutTemplate,
 } from '@/utils/adminQueries';
+import WorkoutTemplateForm from './WorkoutTemplateForm';
+import ConfirmModal from '@/components/ConfirmModal';
 import { useToast } from '@/context/ToastContext';
-
-const WorkoutTemplateForm = dynamic(() => import('./WorkoutTemplateForm'), { ssr: false });
-const ConfirmModal = dynamic(() => import('@/components/ConfirmModal'), { ssr: false });
 
 export default function WorkoutTemplateManager({ currentUser }) {
   const [templates, setTemplates] = useState([]);

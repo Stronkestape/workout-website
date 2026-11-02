@@ -12,7 +12,6 @@ export default function Footer() {
           <div className="space-y-4">
             <Link
               href="/"
-              prefetch={false}
               aria-label="Mozgás Központ – Kezdőlap"
               className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-white hover:text-warm-terracotta transition-colors"
             >

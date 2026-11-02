@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic';
 const WorkoutTemplateManager = dynamic(
   () => import('./components/WorkoutTemplateManager'),
   {
-    ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
         <div className="text-stone-500 font-medium text-sm">Sablonok betöltése...</div>
@@ -18,7 +17,6 @@ const WorkoutTemplateManager = dynamic(
 const SessionManager = dynamic(
   () => import('./components/SessionManager'),
   {
-    ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
         <div className="text-stone-500 font-medium text-sm">Edzések betöltése...</div>
@@ -30,7 +28,6 @@ const SessionManager = dynamic(
 const SessionDetailView = dynamic(
   () => import('./components/SessionDetailView'),
   {
-    ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
         <div className="text-stone-500 font-medium text-sm">Részletek betöltése...</div>

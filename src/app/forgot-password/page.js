@@ -46,7 +46,7 @@ function ForgotPasswordForm() {
 
       <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
         Remembered your password?{' '}
-        <Link href="/login" prefetch={false} className="text-blue-600 hover:underline font-medium">
+        <Link href="/login" className="text-blue-600 hover:underline font-medium">
           Back to Login
         </Link>
       </div>

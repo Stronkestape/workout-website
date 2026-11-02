@@ -1,0 +1,118 @@
+/* Calendar.module.css */
+
+.calendarWrapper {
+  height: 720px;
+  background-color: #f2efe9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+/* Fix for border alignment */
+.calendarWrapper :global(.rbc-row-bg) {
+  right: 0;
+}
+
+/* Hide scrollbars while maintaining synchronized layout */
+.calendarWrapper :global(.rbc-time-content),
+.calendarWrapper :global(.rbc-time-view) {
+  overflow-y: scroll !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* WebKit/Blink scrollbar hiding */
+.calendarWrapper :global(.rbc-time-content::-webkit-scrollbar),
+.calendarWrapper :global(.rbc-time-view::-webkit-scrollbar) {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Fix header alignment - remove margin/border that compensates for scrollbar */
+.calendarWrapper :global(.rbc-time-header) {
+  margin-right: 0 !important;
+  border-right: 0 !important;
+}
+
+/* Force all day columns to have equal flex distribution */
+.calendarWrapper :global(.rbc-time-header-cell),
+.calendarWrapper :global(.rbc-day-bg),
+.calendarWrapper :global(.rbc-day-slot) {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure parent containers use flexbox properly */
+.calendarWrapper :global(.rbc-row-bg),
+.calendarWrapper :global(.rbc-time-content > .rbc-day-slot),
+.calendarWrapper :global(.rbc-row) {
+  display: flex !important;
+  box-sizing: border-box !important;
+}
+
+/* Force border-box on all calendar elements to include borders in width calculation */
+.calendarWrapper :global(.rbc-time-view *) {
+  box-sizing: border-box !important;
+}
+
+/* Adjust the header cell alignment */
+.calendarWrapper :global(.rbc-header) {
+  border-bottom: 1px solid #d2ccc0;
+  padding: 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+/* EVENTS - styled dynamically via eventPropGetter, with smooth hover */
+.calendarWrapper :global(.rbc-event) {
+  border-radius: 6px !important;
+  padding: 3px 5px !important;
+  font-size: 11px !important;
+  min-height: 24px !important;
+  display: block !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.calendarWrapper :global(.rbc-event:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+}
+
+.calendarWrapper :global(.rbc-event-content) {
+  color: inherit !important;
+  height: 100%;
+}
+
+.calendarWrapper :global(.rbc-event-allday) {
+  background-color: #d2ccc0 !important;
+  color: #1c1917 !important;
+}
+
+/* BASE CALENDAR */
+.calendarWrapper :global(.rbc-calendar) {
+  color: #1c1917;
+}
+
+.calendarWrapper :global(.rbc-time-view .rbc-time-content) {
+  border-top: 1px solid #d2ccc0;
+  overflow-y: scroll;
+}
+
+/* TIMESLOTS */
+.calendarWrapper :global(.rbc-time-slot) {
+  flex: 1 0 40px !important;
+}
+
+@media (max-width: 768px) {
+  .calendarWrapper :global(.rbc-time-slot) {
+    flex: 1 0 30px !important;
+  }
+}

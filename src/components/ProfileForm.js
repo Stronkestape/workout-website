@@ -4,18 +4,15 @@ import { useActionState, useEffect } from 'react';
 import { updateProfileAction } from '@/app/profile/actions';
 import { FormField } from '@/components/FormField';
 import { FormMessage } from '@/components/FormMessage';
-import { useAuth } from '@/context/AuthContext';
 
 export default function ProfileForm({ profile, onUpdate }) {
   const [state, formAction, isPending] = useActionState(updateProfileAction, null);
-  const { refreshProfile } = useAuth();
 
   useEffect(() => {
     if (state?.updatedAt) {
-      refreshProfile();
       onUpdate?.();
     }
-  }, [state?.updatedAt, refreshProfile, onUpdate]);
+  }, [state?.updatedAt, onUpdate]);
 
   return (
     <form action={formAction} className="space-y-4">
