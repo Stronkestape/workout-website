@@ -1,20 +1,11 @@
 /* Calendar.module.css */
 
 .calendarWrapper {
-  height: 600px;
+  height: 720px;
   background-color: #f2efe9;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border-radius: 0.75rem;
   padding: 1rem;
-  opacity: 0;
-  animation: fadeIn 0.3s ease-in forwards;
-  animation-delay: 0.1s;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
 }
 
 /* Fix for border alignment */

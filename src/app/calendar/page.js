@@ -16,7 +16,7 @@ import {
 const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
   ssr: false,
   loading: () => (
-    <div className="h-[960px] w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
+    <div className="h-[720px] w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
         <span className="text-stone-500 font-medium text-sm">
@@ -30,9 +30,7 @@ import { useState, useEffect, useCallback, useMemo, useRef, Suspense, startTrans
 import { useSearchParams } from "next/navigation";
 import styles from "./Calendar.module.css";
 import { supabaseBrowser } from "@/lib/browser";
-const WorkoutCard = dynamic(() => import("@/components/WorkoutCard"), {
-  ssr: false,
-});
+import WorkoutCard from "@/components/WorkoutCard";
 import CalendarToolbar from "@/components/CalendarToolbar";
 import CalendarEvent from "@/components/CalendarEvent";
 import WorkoutIcon from "@/components/WorkoutIcon";
