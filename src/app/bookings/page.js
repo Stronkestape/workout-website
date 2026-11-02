@@ -1,65 +1,26 @@
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
-import { supabaseBrowser } from '@/lib/browser';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { getSafeUser, createSupabaseServerClient } from '@/lib/server';
+import { fetchUserBookingsServer } from '@/utils/supabaseServerQueries';
 import UserBookingsList from '@/components/UserBookingsList';
 
-export default function BookingsPage() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+export const metadata = {
+  title: 'My Bookings | Mozgás Központ',
+  description: 'Tekintsd meg és kezeld az aktív órafoglalásaidat és várólistás helyeidet.',
+};
 
-  const checkUser = useCallback(async () => {
-    try {
-      setLoading(true);
-      const {
-        data: { user: authUser },
-        error,
-      } = await supabaseBrowser.auth.getUser();
-
-      if (error || !authUser) {
-        router.push('/login');
-        return;
-      }
-
-      setUser(authUser);
-    } catch (err) {
-      console.error('Error verifying user session:', err);
-      router.push('/login');
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
-
-  useEffect(() => {
-    checkUser();
-  }, [checkUser]);
-
-  if (loading) {
-    return (
-      <div className="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8 min-h-[85vh]">
-        <div className="mb-6 sm:mb-8 border-b border-stone-200/80 pb-6 animate-pulse">
-          <div className="h-3 w-20 bg-stone-300 rounded-full mb-2" />
-          <div className="h-8 w-44 bg-stone-300 rounded-xl mb-2" />
-          <div className="h-4 w-72 bg-stone-200 rounded-lg" />
-        </div>
-        <div className="space-y-4 animate-pulse">
-          <div className="h-36 bg-stone-200/70 rounded-2xl border border-stone-300" />
-          <div className="h-36 bg-stone-200/70 rounded-2xl border border-stone-300" />
-          <div className="h-36 bg-stone-200/70 rounded-2xl border border-stone-300" />
-        </div>
-      </div>
-    );
-  }
+export default async function BookingsPage() {
+  const { user, supabase: authSupabase } = await getSafeUser();
 
   if (!user) {
-    return <div className="min-h-[85vh]" />;
+    redirect('/login');
   }
 
+  const supabase = authSupabase || (await createSupabaseServerClient());
+  const { bookings, waitlist } = await fetchUserBookingsServer(supabase, user.id);
+
   return (
-    <div className="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+    <div className="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8 min-h-[85vh]">
       {/* Header with Title and Action to Calendar */}
       <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-stone-200/80 pb-6">
         <div>
@@ -105,7 +66,11 @@ export default function BookingsPage() {
         </div>
       </div>
 
-      <UserBookingsList userId={user.id} />
+      <UserBookingsList
+        userId={user.id}
+        initialBookings={bookings}
+        initialWaitlist={waitlist}
+      />
     </div>
   );
 }

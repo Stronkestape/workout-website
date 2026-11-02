@@ -10,10 +10,15 @@ import {
 } from "@/utils/supabaseQueries";
 import ConfirmModal from "@/components/ConfirmModal";
 
-export default function UserBookingsList({ userId }) {
-  const [bookings, setBookings] = useState([]);
-  const [waitlist, setWaitlist] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function UserBookingsList({
+  userId,
+  initialBookings = null,
+  initialWaitlist = null,
+}) {
+  const hasInitialData = Array.isArray(initialBookings) && Array.isArray(initialWaitlist);
+  const [bookings, setBookings] = useState(initialBookings || []);
+  const [waitlist, setWaitlist] = useState(initialWaitlist || []);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [confirmAction, setConfirmAction] = useState(null);
@@ -50,8 +55,10 @@ export default function UserBookingsList({ userId }) {
 
   useEffect(() => {
     if (!userId) return;
-    fetchBookingsData();
-  }, [userId, fetchBookingsData]);
+    if (!hasInitialData) {
+      fetchBookingsData();
+    }
+  }, [userId, hasInitialData, fetchBookingsData]);
 
   const executeConfirmedAction = async () => {
     if (!confirmAction) return;
