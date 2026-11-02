@@ -1,6 +1,7 @@
 import { addMonths, subMonths, addWeeks, subWeeks } from "date-fns";
 import {
   BOOKING_CANCEL_HOURS,
+  BOOKING_CUTOFF_MINUTES,
   CALENDAR_MONTHS_BACK,
   CALENDAR_MONTHS_FORWARD,
   CALENDAR_WEEKS_BACK,
@@ -51,6 +52,14 @@ export const getDateLimits = (view, today) => {
     };
   }
   return { min: today, max: today };
+};
+
+export const canBookWorkout = (startTime, now = new Date()) => {
+  if (!startTime) return false;
+  const workoutTime = new Date(startTime);
+  if (Number.isNaN(workoutTime.getTime())) return false;
+  const msUntilStart = workoutTime.getTime() - now.getTime();
+  return msUntilStart >= BOOKING_CUTOFF_MINUTES * 60 * 1000;
 };
 
 export const canCancelBooking = (startTime, now = new Date()) => {

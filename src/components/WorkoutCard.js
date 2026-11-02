@@ -5,6 +5,7 @@ import {
   formatTime,
   formatDate,
   getCancellationInfo,
+  canBookWorkout,
 } from "@/utils/calendarHelpers";
 import {
   SPOTS_ALMOST_FULL_THRESHOLD,
@@ -40,6 +41,7 @@ export default function WorkoutCard({
   const isBooked = !!userBooking;
   const cancelInfo = getCancellationInfo(workout.start);
   const canCancel = isBooked && cancelInfo.canCancel;
+  const canBook = canBookWorkout(workout.start);
 
   // Extract workout title and instructor from the event title
   const workoutTitle = workout.title?.split(" - ")[0] || "Workout Class";
@@ -259,6 +261,40 @@ export default function WorkoutCard({
                 )}
                 <span>{loading ? "Leaving waitlist..." : "Leave Waitlist"}</span>
               </button>
+            ) : !canBook ? (
+              <div className="space-y-3">
+                <div className="p-3.5 bg-stone-100 rounded-xl border border-stone-200 text-xs text-stone-700 flex items-start gap-2.5">
+                  <svg
+                    className="w-4 h-4 text-stone-500 shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <div>
+                    <span className="font-bold block text-stone-800 mb-0.5">
+                      Booking closed
+                    </span>
+                    <span className="text-stone-600 leading-relaxed text-[11px]">
+                      Reservations and waitlist close 30 minutes before class start.
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  disabled
+                  className="w-full py-3 px-4 rounded-xl font-semibold bg-stone-200 text-stone-500 cursor-not-allowed shadow-none text-sm flex items-center justify-center gap-2"
+                >
+                  <span>Booking Closed</span>
+                </button>
+              </div>
             ) : (
               <button
                 type="button"

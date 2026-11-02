@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { ToastProvider } from "@/context/ToastContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import ReactDOM from "react-dom";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,9 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  ReactDOM.preconnect("https://upsqxuyhmecrcrbbpyhu.supabase.co");
+  ReactDOM.prefetchDNS("https://upsqxuyhmecrcrbbpyhu.supabase.co");
+
   return (
     <html lang="hu" className={geistSans.variable}>
       <body className="font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col">

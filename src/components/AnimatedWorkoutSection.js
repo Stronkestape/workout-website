@@ -35,7 +35,7 @@ export default function AnimatedWorkoutSection({ children, index }) {
   return (
     <section
       ref={sectionRef}
-      className={`py-14 sm:py-20 lg:py-24 transition-colors ${
+      className={`py-14 sm:py-20 lg:py-24 transition-colors cv-auto ${
         index % 2 === 0 ? 'bg-stone-100' : 'bg-stone-200'
       }`}
     >
