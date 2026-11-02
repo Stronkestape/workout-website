@@ -4,7 +4,7 @@ import { getWorkoutTheme } from "@/utils/workoutThemes";
 
 const WORKOUT_SECTIONS = [
   {
-    image: "/images/walkenergy.jpg",
+    image: "/images/walkenergy.webp",
     title: "WALKenergie",
     durationLabel: "60 min",
     intensityLabel: "Moderate – High intensity",
@@ -12,7 +12,7 @@ const WORKOUT_SECTIONS = [
       "A group walking fitness workout performed on mechanical treadmills with energizing music, designed to boost your endurance, stamina, and energy. Dynamic rhythm-driven walking routines keep your entire body engaged and burning calories from start to finish.",
   },
   {
-    image: "/images/cycle.jpg",
+    image: "/images/cycle.webp",
     title: "Spinning",
     durationLabel: "60 min",
     intensityLabel: "High intensity",
@@ -20,7 +20,7 @@ const WORKOUT_SECTIONS = [
       "An indoor cycling fitness journey combining heart-pumping beats with motivating coaching. Climb steep virtual hills, accelerate through fast sprints, and strengthen your lower body while elevating your cardiovascular conditioning.",
   },
   {
-    image: "/images/1.jpg",
+    image: "/images/1.webp",
     title: "Step Aerobik",
     durationLabel: "60 min",
     intensityLabel: "Moderate intensity",
@@ -28,7 +28,7 @@ const WORKOUT_SECTIONS = [
       "A dynamic, rhythm-driven step platform workout that enhances cardiovascular fitness and sculpts the lower body. Upbeat music and engaging choreographies improve coordination, balance, and agility.",
   },
   {
-    image: "/images/3.jpg",
+    image: "/images/3.webp",
     title: "Alakformáló",
     durationLabel: "60 min",
     intensityLabel: "Moderate intensity",
@@ -36,7 +36,7 @@ const WORKOUT_SECTIONS = [
       "A comprehensive body sculpting class built on aerobic movements and functional conditioning. Utilizing resistance bands, dumbbells, and bodyweight exercises, this class tones muscles, improves stamina, and helps relieve daily stress in a supportive community.",
   },
   {
-    image: "/images/4.jpg",
+    image: "/images/4.webp",
     title: "Tabata",
     durationLabel: "60 min",
     intensityLabel: "Maximum intensity (HIIT)",
@@ -44,7 +44,7 @@ const WORKOUT_SECTIONS = [
       "High-intensity interval training (HIIT) structured around classic Tabata intervals: 20 seconds of all-out effort followed by 10 seconds of rest. Tabata boosts aerobic and anaerobic capacity, fires up metabolism, and sustains accelerated calorie burn for hours after the session.",
   },
   {
-    image: "/images/5.jpg",
+    image: "/images/5.webp",
     title: "GYMSTICK",
     durationLabel: "60 min",
     intensityLabel: "Moderate intensity",
@@ -52,7 +52,7 @@ const WORKOUT_SECTIONS = [
       "A fiberglass resistance exercise bar with dual elastic bands engineered for smooth, joint-friendly strength and conditioning. It tones and shapes the entire body with minimal impact and maximum efficiency.",
   },
   {
-    image: "/images/6.jpg",
+    image: "/images/6.webp",
     title: "Funkcionális edzés",
     durationLabel: "60 min",
     intensityLabel: "High intensity",
@@ -134,7 +134,7 @@ function HeroSection() {
     <section className="relative min-h-[82vh] w-full flex items-center overflow-hidden bg-stone-950">
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/images/2.jpg"
+          src="/images/2.webp"
           alt="Mozgás Központ background"
           fill
           className="object-cover object-center opacity-50"
