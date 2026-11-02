@@ -9,7 +9,7 @@ import ReactDOM from "react-dom";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   weight: ["400", "500", "700"],
 });
 
@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="hu" className={geistSans.variable}>
-      <body className="font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col">
+      <body className={`${geistSans.className} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col`}>
         <ToastProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
