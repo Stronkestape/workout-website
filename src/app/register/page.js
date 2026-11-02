@@ -62,6 +62,7 @@ export default function RegisterPage() {
                         ? `?email=${encodeURIComponent(state.values.email)}`
                         : ''
                     }`}
+                    prefetch={false}
                     className="text-blue-600 hover:text-blue-800 font-semibold underline"
                   >
                     Send password reset email
@@ -69,6 +70,7 @@ export default function RegisterPage() {
                   <span className="text-amber-400">•</span>
                   <Link
                     href="/login"
+                    prefetch={false}
                     className="text-blue-600 hover:text-blue-800 font-semibold underline"
                   >
                     Go to Login
@@ -90,7 +92,7 @@ export default function RegisterPage() {
 
             <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
               Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline font-medium">
+              <Link href="/login" prefetch={false} className="text-blue-600 hover:underline font-medium">
                 Log in
               </Link>
             </div>

@@ -79,6 +79,7 @@ export default function LoginPage() {
               <div className="flex justify-end mt-1">
                 <Link
                   href="/forgot-password"
+                  prefetch={false}
                   className="text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
                 >
                   Forgot your password?
@@ -142,6 +143,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{' '}
             <Link
               href="/register"
+              prefetch={false}
               className="text-blue-600 hover:underline font-medium"
             >
               Create an account

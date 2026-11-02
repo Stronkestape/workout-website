@@ -177,6 +177,7 @@ export default function WorkoutCard({
                 </p>
                 <Link
                   href="/login"
+                  prefetch={false}
                   className="w-full bg-warm-terracotta text-white py-3 px-4 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-semibold inline-block text-center shadow-sm text-sm"
                 >
                   Log In

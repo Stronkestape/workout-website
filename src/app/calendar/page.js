@@ -28,7 +28,6 @@ const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
 });
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense, startTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import styles from "./Calendar.module.css";
 import { supabaseBrowser } from "@/lib/browser";
 import WorkoutCard from "@/components/WorkoutCard";
 import CalendarToolbar from "@/components/CalendarToolbar";
@@ -252,7 +251,9 @@ function CalendarContent() {
       return;
     }
 
-    setCurrentDate(newDate);
+    startTransition(() => {
+      setCurrentDate(newDate);
+    });
   };
 
   const handleViewChange = (newView) => {
@@ -290,13 +291,43 @@ function CalendarContent() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 py-6">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 text-stone-900">
-          Workout Calendar
-        </h2>
-        <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-xs border border-stone-300">
-          <div className="text-base sm:text-lg text-stone-600 font-medium">
-            Loading classes...
+      <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        {/* Page Title & Context Skeleton */}
+        <div className="mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+            Workout Calendar
+          </h2>
+          <p className="text-sm text-stone-600 mt-1">
+            Browse group classes, filter by workout category, and book your spot.
+          </p>
+        </div>
+
+        {/* Filter Bar Skeleton */}
+        <div className="mb-4 bg-white rounded-xl shadow-xs border border-stone-300 p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-600">
+              <FilterIcon className="w-3.5 h-3.5" />
+              <span>Category Filter & Color Legend</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 py-1.5 px-0.5 animate-pulse">
+            <div className="h-8 w-24 bg-stone-200 rounded-lg" />
+            <div className="h-8 w-28 bg-stone-200 rounded-lg" />
+            <div className="h-8 w-24 bg-stone-200 rounded-lg" />
+            <div className="h-8 w-26 bg-stone-200 rounded-lg" />
+            <div className="h-8 w-24 bg-stone-200 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Calendar Grid Skeleton (720px) */}
+        <div className="calendarWrapper">
+          <div className="h-full w-full bg-stone-200/50 rounded-2xl animate-pulse flex items-center justify-center border border-stone-300">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-warm-terracotta border-t-transparent animate-spin" />
+              <span className="text-stone-500 font-medium text-sm">
+                Loading classes...
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -727,7 +758,7 @@ function CalendarContent() {
 
         {/* Desktop & Tablet Full Calendar Grid (>= 768px) */}
         <div className="hidden md:block">
-          <div className={styles.calendarWrapper} key={view}>
+          <div className="calendarWrapper" key={view}>
             <DesktopCalendar
               events={filteredEvents}
               view={view}

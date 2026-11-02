@@ -1,124 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { supabaseBrowser } from "../lib/browser";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
-export default function Navbar({ user = null } = {}) {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!user);
-  const [username, setUsername] = useState(null);
-  const [userTier, setUserTier] = useState(null);
+export default function Navbar() {
+  const { username, userTier, isAuthenticated, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const currentUserIdRef = useRef(null);
-  const userTierRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    userTierRef.current = userTier;
-  }, [userTier]);
-
-  // 1. Fetch user profile with local storage cache for instant 0ms display
-  const fetchUserProfile = useCallback(async (userId) => {
-    try {
-      const cached = sessionStorage.getItem(`user_profile_${userId}`);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed.username) setUsername(parsed.username);
-        if (parsed.user_tier) {
-          setUserTier(parsed.user_tier);
-          userTierRef.current = parsed.user_tier;
-        }
-      }
-    } catch {
-      // Ignore storage errors in private browsing
-    }
-
-    const { data } = await supabaseBrowser
-      .from("user_profiles")
-      .select("username, user_tier")
-      .eq("id", userId)
-      .single();
-
-    if (data) {
-      setUsername(data.username);
-      setUserTier(data.user_tier);
-      userTierRef.current = data.user_tier;
-      try {
-        sessionStorage.setItem(`user_profile_${userId}`, JSON.stringify(data));
-      } catch {
-        // Ignore storage errors
-      }
-    }
-  }, []);
-
-  // 2. Synchronize session from client cookie storage
-  const syncSession = useCallback(async () => {
-    const {
-      data: { session },
-    } = await supabaseBrowser.auth.getSession();
-
-    if (session?.user) {
-      setIsLoggedIn(true);
-      if (currentUserIdRef.current !== session.user.id || !userTierRef.current) {
-        currentUserIdRef.current = session.user.id;
-        await fetchUserProfile(session.user.id);
-      }
-    } else {
-      currentUserIdRef.current = null;
-      setIsLoggedIn(false);
-      setUsername(null);
-      setUserTier(null);
-      userTierRef.current = null;
-    }
-  }, [fetchUserProfile]);
-
-  // 3. Mount lifecycle & auth event subscription
-  useEffect(() => {
-    syncSession();
-
-    const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_OUT" || !session) {
-          currentUserIdRef.current = null;
-          setIsLoggedIn(false);
-          setUsername(null);
-          setUserTier(null);
-          userTierRef.current = null;
-          try {
-            sessionStorage.clear();
-          } catch {}
-        } else if (session?.user) {
-          setIsLoggedIn(true);
-          currentUserIdRef.current = session.user.id;
-          fetchUserProfile(session.user.id);
-        }
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, [syncSession, fetchUserProfile]);
-
-  // 4. Route transition listener: Catches Server Action redirects (e.g. /login -> /calendar)
+  // Close mobile menu on route transitions
   useEffect(() => {
     setMobileMenuOpen(false);
-    syncSession();
-  }, [pathname, syncSession]);
+  }, [pathname]);
 
-  // 5. Logout handler
   const handleLogout = async () => {
-    await supabaseBrowser.auth.signOut();
-    currentUserIdRef.current = null;
-    setIsLoggedIn(false);
-    setUsername(null);
-    setUserTier(null);
-    userTierRef.current = null;
-    try {
-      sessionStorage.clear();
-    } catch {}
+    await signOut();
     setMobileMenuOpen(false);
     router.push("/");
     router.refresh();
@@ -144,6 +43,7 @@ export default function Navbar({ user = null } = {}) {
         <div className="flex justify-between items-center h-16">
           <Link
             href="/"
+            prefetch={false}
             aria-label="Mozgás Központ – Go to homepage"
             className="inline-flex items-center gap-2 text-lg sm:text-xl font-bold tracking-tight text-white hover:text-warm-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm-terracotta rounded-lg py-1 transition-colors truncate"
           >
@@ -161,14 +61,16 @@ export default function Navbar({ user = null } = {}) {
               Instructors
             </Link>
 
-            {isLoggedIn && (
+            {isAuthenticated && (
               <Link href="/bookings" prefetch={false} className={navLinkClass("/bookings")}>
                 My Bookings
               </Link>
             )}
 
-            {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-              <Link href="/admin" prefetch={false}
+            {isAuthenticated && ["admin", "instructor"].includes(userTier) && (
+              <Link
+                href="/admin"
+                prefetch={false}
                 className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5 ${
                   pathname.startsWith("/admin")
                     ? userTier === "admin"
@@ -197,7 +99,7 @@ export default function Navbar({ user = null } = {}) {
               </Link>
             )}
 
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <>
                 <Link href="/profile" prefetch={false} className={navLinkClass("/profile")}>
                   Profile
@@ -216,7 +118,9 @@ export default function Navbar({ user = null } = {}) {
                 <Link href="/login" prefetch={false} className={navLinkClass("/login")}>
                   Log In
                 </Link>
-                <Link href="/register" prefetch={false}
+                <Link
+                  href="/register"
+                  prefetch={false}
                   className="px-4 py-2 bg-warm-terracotta text-white rounded-lg hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
                 >
                   Register
@@ -270,7 +174,7 @@ export default function Navbar({ user = null } = {}) {
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-5 pt-3 border-t border-stone-800 space-y-3">
-            {isLoggedIn && (
+            {isAuthenticated && (
               <div className="flex items-center justify-between px-4 py-3 bg-stone-800/70 rounded-xl border border-stone-700/60">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-9 h-9 rounded-full bg-warm-terracotta flex items-center justify-center text-white font-bold text-sm shrink-0">
@@ -310,22 +214,24 @@ export default function Navbar({ user = null } = {}) {
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
-              {isLoggedIn && (
+              {isAuthenticated && (
                 <Link href="/bookings" prefetch={false} className={mobileNavLinkClass("/bookings")}>
                   <span>My Bookings</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
 
-              {isLoggedIn && (
+              {isAuthenticated && (
                 <Link href="/profile" prefetch={false} className={mobileNavLinkClass("/profile")}>
                   <span>Profile</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
 
-              {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-                <Link href="/admin" prefetch={false}
+              {isAuthenticated && ["admin", "instructor"].includes(userTier) && (
+                <Link
+                  href="/admin"
+                  prefetch={false}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
                     pathname.startsWith("/admin")
                       ? "bg-purple-600/25 text-purple-300 border border-purple-500/40"
@@ -333,9 +239,7 @@ export default function Navbar({ user = null } = {}) {
                   }`}
                 >
                   <span>
-                    {userTier === "admin"
-                      ? "Admin Dashboard"
-                      : "Coach Panel"}
+                    {userTier === "admin" ? "Admin Dashboard" : "Coach Panel"}
                   </span>
                   <ChevronRightIcon className="w-4 h-4 text-purple-400" />
                 </Link>
@@ -343,7 +247,7 @@ export default function Navbar({ user = null } = {}) {
             </div>
 
             <div className="pt-2 border-t border-stone-800">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
                   className="w-full py-2.5 px-4 bg-red-600/15 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-600 hover:text-white transition-colors font-medium text-sm text-center"
@@ -352,12 +256,16 @@ export default function Navbar({ user = null } = {}) {
                 </button>
               ) : (
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Link href="/login" prefetch={false}
+                  <Link
+                    href="/login"
+                    prefetch={false}
                     className="py-2.5 px-4 bg-stone-800 text-stone-200 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors font-medium text-sm text-center"
                   >
                     Log In
                   </Link>
-                  <Link href="/register" prefetch={false}
+                  <Link
+                    href="/register"
+                    prefetch={false}
                     className="py-2.5 px-4 bg-warm-terracotta text-white rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm text-center shadow-xs"
                   >
                     Register

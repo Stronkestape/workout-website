@@ -96,6 +96,7 @@ export default async function ProfilePage() {
               </p>
               <Link
                 href="/admin"
+                prefetch={false}
                 className="inline-flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm shadow-xs"
               >
                 <span>Open Admin Dashboard</span>
@@ -117,6 +118,7 @@ export default async function ProfilePage() {
               <div className="mt-4">
                 <Link
                   href="/admin"
+                  prefetch={false}
                   className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors font-medium text-sm shadow-xs"
                 >
                   <span>Open Coach Dashboard</span>
@@ -204,6 +206,7 @@ export default async function ProfilePage() {
             </p>
             <Link
               href="/bookings"
+              prefetch={false}
               className="w-full inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white font-semibold text-sm py-2.5 px-4 rounded-xl transition-colors shadow-xs"
             >
               <span>View My Bookings</span>

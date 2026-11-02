@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import {
   fetchAllSessions,
   getSessionBookings,
@@ -9,9 +10,10 @@ import {
 } from '@/utils/adminQueries';
 import { adminRemoveParticipantAction } from '../actions';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
-import ConfirmModal from '@/components/ConfirmModal';
 import { useToast } from '@/context/ToastContext';
 import UserSearchSelect from './UserSearchSelect';
+
+const ConfirmModal = dynamic(() => import('@/components/ConfirmModal'), { ssr: false });
 
 export default function SessionDetailView({ currentUser }) {
   const isInstructor = currentUser?.profile?.user_tier === 'instructor';
