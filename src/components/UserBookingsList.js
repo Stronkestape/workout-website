@@ -138,8 +138,7 @@ export default function UserBookingsList({
         <p className="text-stone-600 text-sm mb-6 max-w-sm mx-auto leading-relaxed">
           Browse our weekly schedule and reserve a spot in your favorite group classes!
         </p>
-        <Link
-          href="/calendar"
+        <Link href="/calendar" prefetch={false}
           className="inline-flex items-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-6 py-3 rounded-xl transition-colors text-sm font-semibold shadow-sm"
         >
           <span>Explore Class Schedule</span>

@@ -94,19 +94,19 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/calendar" className="text-stone-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
+                <Link href="/calendar" prefetch={false} className="text-stone-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   <span className="text-warm-terracotta" aria-hidden="true">›</span>
                   <span>Órarend & Foglalás</span>
                 </Link>
               </li>
               <li>
-                <Link href="/bookings" className="text-stone-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
+                <Link href="/bookings" prefetch={false} className="text-stone-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   <span className="text-warm-terracotta" aria-hidden="true">›</span>
                   <span>Saját foglalásaim</span>
                 </Link>
               </li>
               <li>
-                <Link href="/instructors" className="text-stone-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
+                <Link href="/instructors" prefetch={false} className="text-stone-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   <span className="text-warm-terracotta" aria-hidden="true">›</span>
                   <span>Edzőink & Oktatóink</span>
                 </Link>

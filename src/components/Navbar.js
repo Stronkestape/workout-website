@@ -153,23 +153,22 @@ export default function Navbar({ user = null } = {}) {
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-2 min-w-[280px] justify-end">
-            <Link href="/calendar" className={navLinkClass("/calendar")}>
+            <Link href="/calendar" prefetch={false} className={navLinkClass("/calendar")}>
               Calendar
             </Link>
 
-            <Link href="/instructors" className={navLinkClass("/instructors")}>
+            <Link href="/instructors" prefetch={false} className={navLinkClass("/instructors")}>
               Instructors
             </Link>
 
             {isLoggedIn && (
-              <Link href="/bookings" className={navLinkClass("/bookings")}>
+              <Link href="/bookings" prefetch={false} className={navLinkClass("/bookings")}>
                 My Bookings
               </Link>
             )}
 
             {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-              <Link
-                href="/admin"
+              <Link href="/admin" prefetch={false}
                 className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5 ${
                   pathname.startsWith("/admin")
                     ? userTier === "admin"
@@ -200,7 +199,7 @@ export default function Navbar({ user = null } = {}) {
 
             {isLoggedIn ? (
               <>
-                <Link href="/profile" className={navLinkClass("/profile")}>
+                <Link href="/profile" prefetch={false} className={navLinkClass("/profile")}>
                   Profile
                 </Link>
                 <div className="h-4 w-px bg-stone-700 mx-2" />
@@ -214,11 +213,10 @@ export default function Navbar({ user = null } = {}) {
             ) : (
               <>
                 <div className="h-4 w-px bg-stone-700 mx-2" />
-                <Link href="/login" className={navLinkClass("/login")}>
+                <Link href="/login" prefetch={false} className={navLinkClass("/login")}>
                   Log In
                 </Link>
-                <Link
-                  href="/register"
+                <Link href="/register" prefetch={false}
                   className="px-4 py-2 bg-warm-terracotta text-white rounded-lg hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
                 >
                   Register
@@ -302,33 +300,32 @@ export default function Navbar({ user = null } = {}) {
             )}
 
             <div className="space-y-1">
-              <Link href="/calendar" className={mobileNavLinkClass("/calendar")}>
+              <Link href="/calendar" prefetch={false} className={mobileNavLinkClass("/calendar")}>
                 <span>Workout Calendar</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
-              <Link href="/instructors" className={mobileNavLinkClass("/instructors")}>
+              <Link href="/instructors" prefetch={false} className={mobileNavLinkClass("/instructors")}>
                 <span>Instructors</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
               {isLoggedIn && (
-                <Link href="/bookings" className={mobileNavLinkClass("/bookings")}>
+                <Link href="/bookings" prefetch={false} className={mobileNavLinkClass("/bookings")}>
                   <span>My Bookings</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
 
               {isLoggedIn && (
-                <Link href="/profile" className={mobileNavLinkClass("/profile")}>
+                <Link href="/profile" prefetch={false} className={mobileNavLinkClass("/profile")}>
                   <span>Profile</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
 
               {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-                <Link
-                  href="/admin"
+                <Link href="/admin" prefetch={false}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
                     pathname.startsWith("/admin")
                       ? "bg-purple-600/25 text-purple-300 border border-purple-500/40"
@@ -355,14 +352,12 @@ export default function Navbar({ user = null } = {}) {
                 </button>
               ) : (
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Link
-                    href="/login"
+                  <Link href="/login" prefetch={false}
                     className="py-2.5 px-4 bg-stone-800 text-stone-200 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors font-medium text-sm text-center"
                   >
                     Log In
                   </Link>
-                  <Link
-                    href="/register"
+                  <Link href="/register" prefetch={false}
                     className="py-2.5 px-4 bg-warm-terracotta text-white rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm text-center shadow-xs"
                   >
                     Register

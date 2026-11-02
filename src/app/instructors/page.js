@@ -234,8 +234,7 @@ export default async function InstructorsPage() {
                     </div>
                   )}
 
-                  <Link
-                    href="/calendar"
+                  <Link href="/calendar" prefetch={false}
                     className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-medium transition-colors shadow-xs"
                   >
                     <span>Időpontok az órarendben</span>

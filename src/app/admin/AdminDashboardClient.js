@@ -1,9 +1,40 @@
 'use client';
 
 import { useState } from 'react';
-import WorkoutTemplateManager from './components/WorkoutTemplateManager';
-import SessionManager from './components/SessionManager';
-import SessionDetailView from './components/SessionDetailView';
+import dynamic from 'next/dynamic';
+
+const WorkoutTemplateManager = dynamic(
+  () => import('./components/WorkoutTemplateManager'),
+  {
+    loading: () => (
+      <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
+        <div className="text-stone-500 font-medium text-sm">Sablonok betöltése...</div>
+      </div>
+    ),
+  }
+);
+
+const SessionManager = dynamic(
+  () => import('./components/SessionManager'),
+  {
+    loading: () => (
+      <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
+        <div className="text-stone-500 font-medium text-sm">Edzések betöltése...</div>
+      </div>
+    ),
+  }
+);
+
+const SessionDetailView = dynamic(
+  () => import('./components/SessionDetailView'),
+  {
+    loading: () => (
+      <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
+        <div className="text-stone-500 font-medium text-sm">Részletek betöltése...</div>
+      </div>
+    ),
+  }
+);
 
 export default function AdminDashboardClient({ initialUser }) {
   const isInstructor = initialUser?.profile?.user_tier === 'instructor';
