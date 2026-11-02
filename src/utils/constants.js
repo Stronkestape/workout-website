@@ -34,6 +34,7 @@ export const PASSWORD_MIN_LENGTH = 6;
 export const FULL_NAME_MAX_LENGTH = 100;
 
 export const BOOKING_CANCEL_HOURS = 2;
+export const BOOKING_CUTOFF_MINUTES = 30;
 export const CALENDAR_MONTHS_BACK = 1;
 export const CALENDAR_MONTHS_FORWARD = 1;
 export const CALENDAR_WEEKS_BACK = 1;

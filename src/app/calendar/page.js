@@ -26,11 +26,13 @@ const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
     </div>
   ),
 });
-import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Suspense, startTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import styles from "./Calendar.module.css";
 import { supabaseBrowser } from "@/lib/browser";
-import WorkoutCard from "@/components/WorkoutCard";
+const WorkoutCard = dynamic(() => import("@/components/WorkoutCard"), {
+  ssr: false,
+});
 import CalendarToolbar from "@/components/CalendarToolbar";
 import CalendarEvent from "@/components/CalendarEvent";
 import WorkoutIcon from "@/components/WorkoutIcon";
@@ -58,6 +60,11 @@ function CalendarContent() {
   const searchParams = useSearchParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Scroll to top instantly on mount so users navigating from scrolled pages land at the calendar top
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("week");
   const [user, setUser] = useState(null);
@@ -72,6 +79,12 @@ function CalendarContent() {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutCard, setShowWorkoutCard] = useState(false);
   const [selectedMobileDay, setSelectedMobileDay] = useState(null);
+
+  const handleWorkoutTypeSelect = (type) => {
+    startTransition(() => {
+      setSelectedWorkoutType(type);
+    });
+  };
 
   // Synchronize workout type filter with URL search param "?filter=..."
   useEffect(() => {
@@ -245,7 +258,9 @@ function CalendarContent() {
   };
 
   const handleViewChange = (newView) => {
-    setView(newView);
+    startTransition(() => {
+      setView(newView);
+    });
 
     // Reset to today when changing views to ensure we're within limits
     const limits = getDateLimits(newView, today);
@@ -355,7 +370,7 @@ function CalendarContent() {
             {selectedWorkoutType !== "all" && (
               <button
                 type="button"
-                onClick={() => setSelectedWorkoutType("all")}
+                onClick={() => handleWorkoutTypeSelect("all")}
                 className="text-xs text-warm-terracotta hover:underline font-semibold focus-visible:outline-none"
               >
                 Clear Filter
@@ -367,7 +382,7 @@ function CalendarContent() {
           <div className="flex flex-wrap items-center gap-2 py-1.5 px-0.5">
             <button
               type="button"
-              onClick={() => setSelectedWorkoutType("all")}
+              onClick={() => handleWorkoutTypeSelect("all")}
               aria-pressed={selectedWorkoutType === "all"}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
                 selectedWorkoutType === "all"
@@ -389,7 +404,7 @@ function CalendarContent() {
                   type="button"
                   key={theme.key}
                   onClick={() =>
-                    setSelectedWorkoutType(isSelected ? "all" : theme.key)
+                    handleWorkoutTypeSelect(isSelected ? "all" : theme.key)
                   }
                   aria-pressed={isSelected}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
@@ -430,7 +445,7 @@ function CalendarContent() {
                 type="button"
                 key="default"
                 onClick={() =>
-                  setSelectedWorkoutType(
+                  handleWorkoutTypeSelect(
                     selectedWorkoutType === "default" ? "all" : "default"
                   )
                 }

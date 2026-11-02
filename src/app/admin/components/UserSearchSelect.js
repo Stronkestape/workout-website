@@ -6,7 +6,7 @@ import { searchUsers } from '@/utils/adminQueries';
 export default function UserSearchSelect({
   onUserSelect,
   excludeUserIds = [],
-  placeholder = 'Keresés felhasználónév vagy teljes név alapján...',
+  placeholder = 'Search by username or full name...',
   disabled = false,
   resetKey = 0,
 }) {
@@ -54,6 +54,12 @@ export default function UserSearchSelect({
     async (value) => {
       try {
         setLoading(true);
+        if (value.includes('@')) {
+          setSearchResults([]);
+          setLoading(false);
+          setIsOpen(false);
+          return;
+        }
         const { data, error } = await searchUsers(value.trim());
 
         if (error) throw error;
@@ -126,7 +132,7 @@ export default function UserSearchSelect({
                   @{selectedUser.username}
                 </span>
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-800">
-                  Kiválasztva
+                  Selected
                 </span>
               </div>
               {selectedUser.full_name && (
@@ -142,7 +148,7 @@ export default function UserSearchSelect({
             disabled={disabled}
             className="px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-200/80 hover:bg-stone-300 rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
           >
-            Módosítás
+            Change
           </button>
         </div>
       ) : (
@@ -176,7 +182,7 @@ export default function UserSearchSelect({
                 setIsOpen(false);
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
-              aria-label="Keresés törlése"
+              aria-label="Clear search"
             >
               <CloseIcon className="w-4 h-4" />
             </button>
@@ -233,7 +239,7 @@ export default function UserSearchSelect({
                       {/* Excluded Badge */}
                       {isExcluded && (
                         <span className="text-xs text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full font-medium shrink-0">
-                          Már jelentkezett
+                          Already booked
                         </span>
                       )}
                     </button>
@@ -245,7 +251,7 @@ export default function UserSearchSelect({
             searchTerm.trim().length >= 2 &&
             !loading && (
               <div className="p-4 text-center text-sm text-stone-500 font-medium">
-                Nem található felhasználó a megadott keresési kifejezésre.
+                No users found matching your search.
               </div>
             )
           )}
@@ -255,7 +261,7 @@ export default function UserSearchSelect({
       {/* Helper text */}
       {!disabled && !selectedUser && searchTerm.length > 0 && searchTerm.length < 2 && (
         <p className="text-xs text-stone-500 mt-1.5 ml-1">
-          Írj be legalább 2 karaktert a kereséshez
+          Type at least 2 characters to search
         </p>
       )}
     </div>

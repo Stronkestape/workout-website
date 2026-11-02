@@ -8,7 +8,7 @@ import { sanitizeSearchTerm } from './validators';
  */
 export const searchUsers = async (searchTerm) => {
   const cleanTerm = sanitizeSearchTerm(searchTerm);
-  if (cleanTerm.length < 2) {
+  if (cleanTerm.length < 2 || cleanTerm.includes("@")) {
     return { data: [], error: null };
   }
 

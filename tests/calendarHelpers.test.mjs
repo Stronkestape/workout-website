@@ -1,11 +1,44 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  canBookWorkout,
   canCancelBooking,
   getCancellationInfo,
   getDateLimits,
   formatDateTime,
 } from "../src/utils/calendarHelpers.js";
+
+test("canBookWorkout - strictly enforces the 30-minute booking cutoff window", () => {
+  const referenceNow = new Date("2026-11-01T10:00:00.000Z");
+
+  // 31 minutes in the future -> allowed
+  assert.equal(
+    canBookWorkout("2026-11-01T10:31:00.000Z", referenceNow),
+    true
+  );
+
+  // Exactly 30 minutes in the future -> allowed
+  assert.equal(
+    canBookWorkout("2026-11-01T10:30:00.000Z", referenceNow),
+    true
+  );
+
+  // 29 minutes in the future -> rejected (less than 30-min cutoff)
+  assert.equal(
+    canBookWorkout("2026-11-01T10:29:00.000Z", referenceNow),
+    false
+  );
+
+  // Ongoing / started / in the past -> rejected
+  assert.equal(
+    canBookWorkout("2026-11-01T09:45:00.000Z", referenceNow),
+    false
+  );
+
+  // Missing or invalid input -> rejected safely
+  assert.equal(canBookWorkout(null, referenceNow), false);
+  assert.equal(canBookWorkout("invalid-date", referenceNow), false);
+});
 
 test("canCancelBooking - strictly enforces the 2-hour cancellation cutoff window", () => {
   const referenceNow = new Date("2026-11-01T10:00:00.000Z");
