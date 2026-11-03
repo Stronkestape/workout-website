@@ -9,6 +9,42 @@ import {
 
 const APP_TIME_ZONE = "Europe/Budapest";
 
+const gymWallClockFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: APP_TIME_ZONE,
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: false,
+});
+
+/**
+ * Converts a UTC/ISO Date into a Date whose local wall-clock getters (.getHours(), .getDate(), etc.)
+ * match Europe/Budapest time on any runtime (Vercel UTC server or CET/CEST browser).
+ */
+export const toGymLocalTime = (dateInput) => {
+  const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  if (Number.isNaN(d.getTime())) return new Date();
+  const parts = gymWallClockFormatter.formatToParts(d);
+  const map = {};
+  for (const part of parts) {
+    if (part.type !== "literal") {
+      map[part.type] = parseInt(part.value, 10);
+    }
+  }
+  const hour = map.hour === 24 ? 0 : map.hour || 0;
+  return new Date(
+    map.year,
+    (map.month || 1) - 1,
+    map.day || 1,
+    hour,
+    map.minute || 0,
+    map.second || 0
+  );
+};
+
 const addMonthsNative = (date, months) => {
   const d = new Date(date);
   d.setMonth(d.getMonth() + months);

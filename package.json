@@ -10,6 +10,12 @@
     "lint": "eslint",
     "test": "node --test tests/calendarHelpers.test.mjs tests/validators.test.mjs tests/workoutValidation.test.mjs tests/databaseIntegrity.test.mjs tests/sessionNotifications.test.mjs"
   },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.109.0",

@@ -21,7 +21,13 @@ export async function proxy(request) {
     ) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-    // Fast-path: Anonymous traffic on public routes (e.g. /, /calendar, /instructors) skips Supabase auth entirely (0ms overhead)
+    // Fast-path: Anonymous traffic on public routes skips Supabase auth entirely (0ms overhead)
+    return NextResponse.next();
+  }
+
+  // Only perform a Supabase Auth check in proxy when an authenticated cookie holder visits /login or /register
+  // Protected routes (/bookings, /profile, /admin) verify auth in parallel with their DB queries inside Server Components.
+  if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
     return NextResponse.next();
   }
 
@@ -52,43 +58,12 @@ export async function proxy(request) {
     }
   );
 
-  // Refresh and validate session only when auth cookies are present
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect logged-in users away from auth pages
-  if ((pathname.startsWith('/login') || pathname.startsWith('/register')) && user) {
+  if (user) {
     return NextResponse.redirect(new URL('/calendar', request.url));
-  }
-
-  // Protect /profile and /bookings
-  if (
-    (pathname.startsWith('/profile') || pathname.startsWith('/bookings')) &&
-    !user
-  ) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  // Protect /admin routes - check if user is admin or instructor
-  if (pathname.startsWith('/admin')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    const { data: profile, error } = await supabase
-      .from('user_profiles')
-      .select('user_tier')
-      .eq('id', user.id)
-      .single();
-
-    if (
-      error ||
-      !profile ||
-      !['admin', 'instructor'].includes(profile.user_tier)
-    ) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
   }
 
   return response;

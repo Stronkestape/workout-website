@@ -302,9 +302,9 @@ export default function SessionDetailView({
                       }`}
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-bold text-sm text-stone-900 truncate">
+                        <div className="font-bold text-sm text-stone-900 truncate">
                           {session.workout_classes.title}
-                        </h4>
+                        </div>
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-semibold shrink-0 ml-2 ${
                             sessionSpotsLeft <= 0

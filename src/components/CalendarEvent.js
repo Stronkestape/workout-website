@@ -33,11 +33,11 @@ export default function CalendarEvent({ event }) {
           {isBooked && (
             <span
               className="inline-flex items-center px-1 py-[1px] rounded text-[9px] font-bold bg-green-600 text-white shrink-0 shadow-2xs"
-              title="Lefoglalva"
-              aria-label="Lefoglalva"
+              title="Booked"
+              aria-label="Booked"
             >
               <span aria-hidden="true">✓</span>
-              <span className="sr-only">Lefoglalva</span>
+              <span className="sr-only">Booked</span>
             </span>
           )}
         </div>

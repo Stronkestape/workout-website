@@ -11,7 +11,11 @@ import {
   isAfter,
 } from "date-fns";
 import WorkoutIcon from "@/components/WorkoutIcon";
-import { formatTime, getDateLimits } from "@/utils/calendarHelpers";
+import {
+  formatTime,
+  getDateLimits,
+  toGymLocalTime,
+} from "@/utils/calendarHelpers";
 import { getWorkoutTheme } from "@/utils/workoutThemes";
 import {
   SPOTS_FULL_THRESHOLD,
@@ -30,17 +34,21 @@ export default function MobileScheduleView({
 }) {
   const [selectedMobileDay, setSelectedMobileDay] = useState(null);
 
-  // Mobile week calculation (Monday start)
-  const mobileWeekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-  const mobileWeekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+  const gymCurrentDate = toGymLocalTime(currentDate);
+  const gymToday = toGymLocalTime(today);
+  gymToday.setHours(0, 0, 0, 0);
+
+  // Mobile week calculation (Monday start in Europe/Budapest wall-clock time)
+  const mobileWeekStart = startOfWeek(gymCurrentDate, { weekStartsOn: 1 });
+  const mobileWeekEnd = endOfWeek(gymCurrentDate, { weekStartsOn: 1 });
   const mobileWeekDays = Array.from({ length: 7 }, (_, i) =>
     addDays(mobileWeekStart, i)
   );
 
-  const weekLimits = getDateLimits("week", today);
-  const prevWeekDate = subWeeks(currentDate, 1);
+  const weekLimits = getDateLimits("week", gymToday);
+  const prevWeekDate = subWeeks(gymCurrentDate, 1);
   prevWeekDate.setHours(0, 0, 0, 0);
-  const nextWeekDate = addWeeks(currentDate, 1);
+  const nextWeekDate = addWeeks(gymCurrentDate, 1);
   nextWeekDate.setHours(0, 0, 0, 0);
   const canMobileGoPrev = !isBefore(prevWeekDate, weekLimits.min);
   const canMobileGoNext = !isAfter(nextWeekDate, weekLimits.max);
@@ -48,29 +56,31 @@ export default function MobileScheduleView({
   const handleMobilePrevWeek = () => {
     if (canMobileGoPrev) {
       setSelectedMobileDay(null);
-      onNavigate(subWeeks(currentDate, 1), "week");
+      onNavigate(subWeeks(gymCurrentDate, 1), "week");
     }
   };
 
   const handleMobileNextWeek = () => {
     if (canMobileGoNext) {
       setSelectedMobileDay(null);
-      onNavigate(addWeeks(currentDate, 1), "week");
+      onNavigate(addWeeks(gymCurrentDate, 1), "week");
     }
   };
 
   const handleMobileToday = () => {
     setSelectedMobileDay(null);
-    onNavigate(new Date(today), "week");
+    onNavigate(new Date(gymToday), "week");
   };
 
-  const isCurrentWeek = today >= mobileWeekStart && today <= mobileWeekEnd;
+  const isCurrentWeek =
+    gymToday >= mobileWeekStart && gymToday <= mobileWeekEnd;
 
   const mobileWeekEvents = filteredEvents
     .filter((e) => {
-      if (e.start < mobileWeekStart || e.start > mobileWeekEnd) return false;
+      const gymStart = toGymLocalTime(e.start);
+      if (gymStart < mobileWeekStart || gymStart > mobileWeekEnd) return false;
       if (!selectedMobileDay && isCurrentWeek) {
-        return isSameDay(e.start, today) || isAfter(e.start, today);
+        return isSameDay(gymStart, gymToday) || isAfter(gymStart, gymToday);
       }
       return true;
     })
@@ -79,7 +89,9 @@ export default function MobileScheduleView({
   const visibleMobileDays = selectedMobileDay
     ? mobileWeekDays.filter((d) => isSameDay(d, selectedMobileDay))
     : isCurrentWeek
-    ? mobileWeekDays.filter((d) => isSameDay(d, today) || isAfter(d, today))
+    ? mobileWeekDays.filter(
+        (d) => isSameDay(d, gymToday) || isAfter(d, gymToday)
+      )
     : mobileWeekDays;
 
   if (loading) {
@@ -155,9 +167,9 @@ export default function MobileScheduleView({
           {mobileWeekDays.map((day) => {
             const isSelected =
               selectedMobileDay && isSameDay(day, selectedMobileDay);
-            const isTodayDay = isSameDay(day, today);
+            const isTodayDay = isSameDay(day, gymToday);
             const dayCount = mobileWeekEvents.filter((e) =>
-              isSameDay(e.start, day)
+              isSameDay(toGymLocalTime(e.start), day)
             ).length;
 
             return (
@@ -196,11 +208,11 @@ export default function MobileScheduleView({
       <div className="space-y-4">
         {visibleMobileDays.map((day) => {
           const dayEvents = mobileWeekEvents.filter((e) =>
-            isSameDay(e.start, day)
+            isSameDay(toGymLocalTime(e.start), day)
           );
           if (dayEvents.length === 0 && !selectedMobileDay) return null;
 
-          const isTodayDay = isSameDay(day, today);
+          const isTodayDay = isSameDay(day, gymToday);
 
           return (
             <div
@@ -276,9 +288,9 @@ export default function MobileScheduleView({
                                 title={displayTitle}
                                 className="w-4 h-4 shrink-0 opacity-80"
                               />
-                              <h4 className="font-bold text-sm text-stone-900 truncate">
+                              <h3 className="font-bold text-sm text-stone-900 truncate">
                                 {displayTitle}
-                              </h4>
+                              </h3>
                               {isBooked && (
                                 <span
                                   className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800 shrink-0 border border-green-300"

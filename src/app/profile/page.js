@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/lib/server';
+import { getCookieUserId, createSupabaseServerClient } from '@/lib/server';
 import ProfileForm from '@/components/ProfileForm';
 import PasswordChangeForm from '@/components/PasswordChangeForm';
 
@@ -10,20 +11,25 @@ export const metadata = {
 };
 
 export default async function ProfilePage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const cookieUserId = getCookieUserId(cookieStore);
 
-  if (!user) {
+  if (!cookieUserId) {
     redirect('/login');
   }
 
-  const { data: profile, error } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const [authRes, profileRes] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.from('user_profiles').select('*').eq('id', cookieUserId).single(),
+  ]);
+
+  const user = authRes.data?.user;
+  if (!user || user.id !== cookieUserId) {
+    redirect('/login');
+  }
+
+  const { data: profile, error } = profileRes;
 
   if (error || !profile) {
     return (

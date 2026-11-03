@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import styles from "./Calendar.module.css";
 import CalendarToolbar from "@/components/CalendarToolbar";
 import CalendarEvent from "@/components/CalendarEvent";
+import DesktopCalendar from "@/components/DesktopCalendar";
 import {
   CALENDAR_MIN_HOUR,
   CALENDAR_MAX_HOUR,
@@ -15,32 +15,16 @@ import {
 import { useCalendarSchedule } from "./hooks/useCalendarSchedule";
 import CategoryFilterBar from "./components/CategoryFilterBar";
 import MobileScheduleView from "./components/MobileScheduleView";
-import {
-  DesktopCalendarSkeleton,
-  CalendarPageSkeleton,
-} from "./components/CalendarSkeleton";
-
-const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
-  ssr: false,
-  loading: () => <DesktopCalendarSkeleton label="Loading calendar view..." />,
-});
+import { DesktopCalendarSkeleton } from "./components/CalendarSkeleton";
 
 const WorkoutCard = dynamic(() => import("@/components/WorkoutCard"), {
   ssr: false,
 });
 
-function CalendarContent({ initialSessions, serverNow }) {
-  const [isMobileClient, setIsMobileClient] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    setIsMobileClient(mediaQuery.matches);
-
-    const handleChange = (e) => setIsMobileClient(e.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
-
+export default function CalendarClient({
+  initialSessions = null,
+  serverNow = null,
+}) {
   const {
     loading,
     currentDate,
@@ -95,7 +79,7 @@ function CalendarContent({ initialSessions, serverNow }) {
         {/* Desktop & Tablet Full Calendar Grid (>= 768px) */}
         <div className="hidden md:block">
           <div className={styles.calendarWrapper} key={view}>
-            {loading || isMobileClient ? (
+            {loading ? (
               <DesktopCalendarSkeleton label="Loading classes..." />
             ) : (
               <DesktopCalendar
@@ -131,21 +115,5 @@ function CalendarContent({ initialSessions, serverNow }) {
         />
       )}
     </>
-  );
-}
-
-export default function CalendarClient({
-  initialSessions = null,
-  serverNow = null,
-}) {
-  return (
-    <Suspense
-      fallback={<CalendarPageSkeleton wrapperClassName={styles.calendarWrapper} />}
-    >
-      <CalendarContent
-        initialSessions={initialSessions}
-        serverNow={serverNow}
-      />
-    </Suspense>
   );
 }

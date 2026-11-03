@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { formatDateTime, getCancellationInfo } from "@/utils/calendarHelpers";
-import {
-  fetchUserBookings,
-  cancelBooking,
-  leaveWaitlist,
-} from "@/utils/supabaseQueries";
-import ConfirmModal from "@/components/ConfirmModal";
+
+const ConfirmModal = dynamic(() => import("@/components/ConfirmModal"), {
+  ssr: false,
+});
 
 export default function UserBookingsList({
   userId,
@@ -35,6 +34,7 @@ export default function UserBookingsList({
     try {
       setLoading(true);
 
+      const { fetchUserBookings } = await import("@/utils/supabaseQueries");
       const {
         bookings: bookingsData,
         waitlist: waitlistData,
@@ -74,6 +74,10 @@ export default function UserBookingsList({
     try {
       setActionLoading(true);
       setError("");
+
+      const { cancelBooking, leaveWaitlist } = await import(
+        "@/utils/supabaseQueries"
+      );
 
       if (confirmAction.type === "cancelBooking") {
         const { error: cancelErr } = await cancelBooking(
@@ -439,16 +443,18 @@ export default function UserBookingsList({
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={!!confirmAction}
-        title={confirmAction?.title}
-        message={confirmAction?.message}
-        confirmLabel={confirmAction?.confirmLabel}
-        variant={confirmAction?.variant || "danger"}
-        loading={actionLoading}
-        onConfirm={executeConfirmedAction}
-        onCancel={() => setConfirmAction(null)}
-      />
+      {confirmAction && (
+        <ConfirmModal
+          isOpen={!!confirmAction}
+          title={confirmAction?.title}
+          message={confirmAction?.message}
+          confirmLabel={confirmAction?.confirmLabel}
+          variant={confirmAction?.variant || "danger"}
+          loading={actionLoading}
+          onConfirm={executeConfirmedAction}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 }

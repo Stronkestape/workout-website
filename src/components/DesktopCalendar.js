@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo, useCallback } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
+import { toGymLocalTime } from "@/utils/calendarHelpers";
 
 const localizer = dateFnsLocalizer({
   format,
@@ -57,23 +58,48 @@ export default function DesktopCalendar({
     return () => observer.disconnect();
   }, []);
 
-  const mergedComponents = {
-    header: CalendarHeader,
-    ...components,
-  };
+  const gymEvents = useMemo(
+    () =>
+      (events || []).map((ev) => ({
+        ...ev,
+        start: toGymLocalTime(ev.start),
+        end: toGymLocalTime(ev.end),
+        originalEvent: ev,
+      })),
+    [events]
+  );
+
+  const gymDate = useMemo(() => toGymLocalTime(date), [date]);
+  const getGymNow = useCallback(() => gymDate, [gymDate]);
+
+  const handleSelectGymEvent = useCallback(
+    (ev) => {
+      onSelectEvent?.(ev.originalEvent || ev);
+    },
+    [onSelectEvent]
+  );
+
+  const mergedComponents = useMemo(
+    () => ({
+      header: CalendarHeader,
+      ...components,
+    }),
+    [components]
+  );
 
   return (
     <div ref={containerRef} className="h-full w-full">
       <Calendar
         localizer={localizer}
-        events={events}
+        events={gymEvents}
         startAccessor="start"
         endAccessor="end"
         style={{ height: "100%" }}
         culture="en-US"
         view={view}
         onView={onView}
-        date={date}
+        date={gymDate}
+        getNow={getGymNow}
         onNavigate={onNavigate}
         views={["month", "week"]}
         components={mergedComponents}
@@ -84,7 +110,7 @@ export default function DesktopCalendar({
         max={max}
         scrollToTime={scrollToTime}
         showMultiDayTimes
-        onSelectEvent={onSelectEvent}
+        onSelectEvent={handleSelectGymEvent}
       />
     </div>
   );

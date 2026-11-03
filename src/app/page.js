@@ -3,6 +3,12 @@ import Link from "next/link";
 import { getWorkoutTheme } from "@/utils/workoutThemes";
 import AnimatedWorkoutSection from "@/components/AnimatedWorkoutSection";
 
+export const metadata = {
+  title: "Mozgás Központ | Group Fitness & Workout Studio in Budapest",
+  description:
+    "Discover energizing group fitness classes in Budapest — WALKenergie, Spinning, Step Aerobics, Body Sculpting, Tabata, GYMSTICK, and Functional Training.",
+};
+
 const WORKOUT_SECTIONS = [
   {
     image: "/images/walkenergy.webp",
@@ -212,9 +218,9 @@ function WorkoutSection({
               src={image}
               alt={title}
               fill
-              quality={75}
+              quality={60}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 58vw, 750px"
+              sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 50vw, 640px"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
           </div>

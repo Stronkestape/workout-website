@@ -6,6 +6,7 @@ import {
   getCancellationInfo,
   getDateLimits,
   formatDateTime,
+  toGymLocalTime,
 } from "../src/utils/calendarHelpers.js";
 
 test("canBookWorkout - strictly enforces the 30-minute booking cutoff window", () => {
@@ -116,4 +117,14 @@ test("formatDateTime - returns formatted date and time strings", () => {
   assert.equal(typeof result.time, "string");
   assert.ok(result.date.length > 0);
   assert.ok(result.time.length > 0);
+});
+
+test("toGymLocalTime - projects UTC timestamps to Europe/Budapest wall-clock hours", () => {
+  // 2026-11-15T17:30:00.000Z is 18:30 in Europe/Budapest (CET = UTC+1)
+  const gymDate = toGymLocalTime("2026-11-15T17:30:00.000Z");
+  assert.equal(gymDate.getFullYear(), 2026);
+  assert.equal(gymDate.getMonth(), 10); // November (0-indexed)
+  assert.equal(gymDate.getDate(), 15);
+  assert.equal(gymDate.getHours(), 18);
+  assert.equal(gymDate.getMinutes(), 30);
 });

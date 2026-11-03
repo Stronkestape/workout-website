@@ -6,13 +6,11 @@ import {
   useRef,
   startTransition,
 } from "react";
-import { useSearchParams } from "next/navigation";
 import { isBefore, isAfter } from "date-fns";
-import { getDateLimits } from "@/utils/calendarHelpers";
+import { getDateLimits, toGymLocalTime } from "@/utils/calendarHelpers";
 import {
   fetchClassSessions,
   fetchUserBookedSessionIds,
-  getSupabaseBrowser,
   hasSupabaseAuthCookie,
 } from "@/utils/supabaseQueries";
 import {
@@ -61,7 +59,6 @@ export function useCalendarSchedule({
   serverNow = null,
 } = {}) {
   const hasInitialSessions = Array.isArray(initialSessions);
-  const searchParams = useSearchParams();
 
   const [events, setEvents] = useState(() =>
     hasInitialSessions
@@ -70,7 +67,7 @@ export function useCalendarSchedule({
   );
   const [loading, setLoading] = useState(() => !hasInitialSessions);
   const [currentDate, setCurrentDate] = useState(() =>
-    serverNow ? new Date(serverNow) : new Date()
+    toGymLocalTime(serverNow ? new Date(serverNow) : new Date())
   );
   const [view, setView] = useState("week");
   const [user, setUser] = useState(null);
@@ -80,22 +77,25 @@ export function useCalendarSchedule({
     userRef.current = user;
   }, [user]);
 
-  const [selectedWorkoutType, setSelectedWorkoutType] = useState(() => {
-    const filterParam = searchParams?.get("filter");
-    if (filterParam) {
-      const normalizedKey = normalizeWorkoutKey(filterParam);
-      if (WORKOUT_THEMES[normalizedKey] || normalizedKey === "default") {
-        return normalizedKey;
-      }
-    }
-    return "all";
-  });
+  const [selectedWorkoutType, setSelectedWorkoutType] = useState("all");
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutCard, setShowWorkoutCard] = useState(false);
 
-  // Scroll to top instantly on mount so users navigating from scrolled pages land at the calendar top
+  // Scroll to top instantly on mount and read optional "?filter=..." query parameter without triggering Next.js CSR bailout
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const filterParam = params.get("filter");
+      if (filterParam) {
+        const normalizedKey = normalizeWorkoutKey(filterParam);
+        if (WORKOUT_THEMES[normalizedKey] || normalizedKey === "default") {
+          setSelectedWorkoutType(normalizedKey);
+        }
+      }
+    } catch {
+      // Ignore URL parsing errors
+    }
   }, []);
 
   const handleWorkoutTypeSelect = useCallback((type) => {
@@ -103,17 +103,6 @@ export function useCalendarSchedule({
       setSelectedWorkoutType(type);
     });
   }, []);
-
-  // Synchronize workout type filter with URL search param "?filter=..."
-  useEffect(() => {
-    const filterParam = searchParams.get("filter");
-    if (filterParam) {
-      const normalizedKey = normalizeWorkoutKey(filterParam);
-      if (WORKOUT_THEMES[normalizedKey] || normalizedKey === "default") {
-        setSelectedWorkoutType(normalizedKey);
-      }
-    }
-  }, [searchParams]);
 
   const fetchEvents = useCallback(
     async ({
@@ -165,10 +154,9 @@ export function useCalendarSchedule({
     []
   );
 
-  // Hydrate user bookings only when an auth cookie exists (or fetch schedule if not server-prefetched)
+  // Hydrate user bookings only when an auth cookie exists (zero @supabase/supabase-js download on initial load)
   useEffect(() => {
     let isMounted = true;
-    let authSubscription = null;
 
     const handleSignOut = () => {
       if (!isMounted) return;
@@ -186,7 +174,7 @@ export function useCalendarSchedule({
     async function initCalendar() {
       const hasCookie = hasSupabaseAuthCookie();
 
-      // Fast path: schedule already server-rendered AND visitor is logged out -> 0 network requests, 0 Supabase SDK download
+      // Fast path: schedule already server-rendered AND visitor is logged out -> 0 network requests
       if (hasInitialSessions && !hasCookie) {
         return;
       }
@@ -196,27 +184,20 @@ export function useCalendarSchedule({
         return;
       }
 
-      const supabaseBrowser = await getSupabaseBrowser();
-      if (!isMounted) return;
-
-      const {
-        data: { session },
-      } = await supabaseBrowser.auth.getSession();
-      if (!isMounted) return;
-
-      const initialUser = session?.user || null;
-      setUser(initialUser);
-
       if (hasInitialSessions) {
-        // Schedule is already rendered; only overlay user's booked session badges if logged in
-        if (initialUser?.id) {
-          const bookingsResult = await fetchUserBookedSessionIds(
-            initialUser.id
-          );
-          if (isMounted && bookingsResult.data) {
-            const bookedSet = new Set(
-              bookingsResult.data.map((b) => b.session_id)
-            );
+        try {
+          const res = await fetch("/api/auth/me?includeBookings=1", {
+            cache: "no-store",
+          });
+          if (!isMounted || !res.ok) return;
+          const data = await res.json();
+          if (!isMounted) return;
+
+          const initialUser = data?.user || null;
+          setUser(initialUser);
+
+          if (initialUser && Array.isArray(data?.bookedSessionIds)) {
+            const bookedSet = new Set(data.bookedSessionIds);
             setEvents((prevEvents) =>
               prevEvents.map((ev) => ({
                 ...ev,
@@ -227,20 +208,32 @@ export function useCalendarSchedule({
               }))
             );
           }
+        } catch {
+          // Ignore network error during background booking badge hydration
         }
       } else {
-        await fetchEvents({ currentUser: initialUser });
-      }
-
-      const { data: authListener } = supabaseBrowser.auth.onAuthStateChange(
-        (_event, nextSession) => {
+        try {
+          const [sessionsResult, authRes] = await Promise.all([
+            fetchClassSessions(),
+            fetch("/api/auth/me?includeBookings=1", { cache: "no-store" }).then(
+              (r) => (r.ok ? r.json() : null)
+            ),
+          ]);
           if (!isMounted) return;
-          const updatedUser = nextSession?.user || null;
-          setUser(updatedUser);
-          fetchEvents({ silent: true, currentUser: updatedUser });
+          const initialUser = authRes?.user || null;
+          setUser(initialUser);
+          const bookedSet = new Set(authRes?.bookedSessionIds || []);
+          const calendarEvents = transformSessionsToEvents(
+            sessionsResult.data || [],
+            bookedSet
+          );
+          setEvents(calendarEvents);
+        } catch (err) {
+          console.error("Error initializing calendar:", err);
+        } finally {
+          if (isMounted) setLoading(false);
         }
-      );
-      authSubscription = authListener?.subscription || null;
+      }
     }
 
     initCalendar();
@@ -248,7 +241,6 @@ export function useCalendarSchedule({
     return () => {
       isMounted = false;
       window.removeEventListener("app:auth-signed-out", handleSignOut);
-      authSubscription?.unsubscribe();
     };
   }, [hasInitialSessions, fetchEvents]);
 
@@ -289,7 +281,7 @@ export function useCalendarSchedule({
   }, []);
 
   const today = useMemo(() => {
-    const d = serverNow ? new Date(serverNow) : new Date();
+    const d = toGymLocalTime(serverNow ? new Date(serverNow) : new Date());
     d.setHours(0, 0, 0, 0);
     return d;
   }, [serverNow]);

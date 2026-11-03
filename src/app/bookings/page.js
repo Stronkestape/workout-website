@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { getSafeUser, createSupabaseServerClient } from '@/lib/server';
+import { getCookieUserId, createSupabaseServerClient } from '@/lib/server';
 import { fetchUserBookingsServer } from '@/utils/supabaseServerQueries';
 import UserBookingsList from '@/components/UserBookingsList';
 
@@ -10,14 +11,24 @@ export const metadata = {
 };
 
 export default async function BookingsPage() {
-  const { user, supabase: authSupabase } = await getSafeUser();
+  const cookieStore = await cookies();
+  const cookieUserId = getCookieUserId(cookieStore);
 
-  if (!user) {
+  if (!cookieUserId) {
     redirect('/login');
   }
 
-  const supabase = authSupabase || (await createSupabaseServerClient());
-  const { bookings, waitlist } = await fetchUserBookingsServer(supabase, user.id);
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const [authRes, { bookings, waitlist }] = await Promise.all([
+    supabase.auth.getUser(),
+    fetchUserBookingsServer(supabase, cookieUserId),
+  ]);
+
+  const user = authRes.data?.user;
+  if (!user || user.id !== cookieUserId) {
+    redirect('/login');
+  }
+
   const serverNow = new Date().toISOString();
 
   return (

@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function AnimatedWorkoutSection({ children, index = 0 }) {
   const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(index === 0);
 
   useEffect(() => {
+    if (index === 0) return;
     const el = sectionRef.current;
     if (!el) return;
 
@@ -29,7 +30,7 @@ export default function AnimatedWorkoutSection({ children, index = 0 }) {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [index]);
 
   const isSlideFromLeft = index % 2 === 0;
 
