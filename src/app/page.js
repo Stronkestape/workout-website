@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getWorkoutTheme } from "@/utils/workoutThemes";
+import AnimatedWorkoutSection from "@/components/AnimatedWorkoutSection";
 
 const WORKOUT_SECTIONS = [
   {
@@ -193,12 +194,13 @@ function WorkoutSection({
 
   return (
     <section
-      className={`py-14 sm:py-20 lg:py-24 transition-colors ${
+      className={`py-14 sm:py-20 lg:py-24 transition-colors overflow-hidden ${
         index % 2 === 0 ? "bg-stone-100" : "bg-stone-200"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <AnimatedWorkoutSection index={index}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         {/* Image Column (~60% width on desktop via 7/12 columns, alternating left/right) */}
         <div
           className={`lg:col-span-7 ${
@@ -288,8 +290,9 @@ function WorkoutSection({
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </AnimatedWorkoutSection>
+  </div>
+</section>
   );
 }
 
