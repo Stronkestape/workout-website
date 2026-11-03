@@ -11,7 +11,7 @@ import {
   isAfter,
 } from "date-fns";
 import WorkoutIcon from "@/components/WorkoutIcon";
-import { getDateLimits } from "@/utils/calendarHelpers";
+import { formatTime, getDateLimits } from "@/utils/calendarHelpers";
 import { getWorkoutTheme } from "@/utils/workoutThemes";
 import {
   SPOTS_FULL_THRESHOLD,
@@ -61,7 +61,7 @@ export default function MobileScheduleView({
 
   const handleMobileToday = () => {
     setSelectedMobileDay(null);
-    onNavigate(new Date(), "week");
+    onNavigate(new Date(today), "week");
   };
 
   const isCurrentWeek = today >= mobileWeekStart && today <= mobileWeekEnd;
@@ -155,7 +155,7 @@ export default function MobileScheduleView({
           {mobileWeekDays.map((day) => {
             const isSelected =
               selectedMobileDay && isSameDay(day, selectedMobileDay);
-            const isTodayDay = isSameDay(day, new Date());
+            const isTodayDay = isSameDay(day, today);
             const dayCount = mobileWeekEvents.filter((e) =>
               isSameDay(e.start, day)
             ).length;
@@ -163,7 +163,7 @@ export default function MobileScheduleView({
             return (
               <button
                 type="button"
-                key={day.toISOString()}
+                key={format(day, "yyyy-MM-dd")}
                 onClick={() => setSelectedMobileDay(isSelected ? null : day)}
                 className={`flex flex-col items-center justify-center py-1.5 rounded-lg transition-colors relative ${
                   isSelected
@@ -200,11 +200,11 @@ export default function MobileScheduleView({
           );
           if (dayEvents.length === 0 && !selectedMobileDay) return null;
 
-          const isTodayDay = isSameDay(day, new Date());
+          const isTodayDay = isSameDay(day, today);
 
           return (
             <div
-              key={day.toISOString()}
+              key={format(day, "yyyy-MM-dd")}
               className="bg-white rounded-xl shadow-xs border border-stone-300 overflow-hidden"
             >
               <div
@@ -259,13 +259,13 @@ export default function MobileScheduleView({
                         style={{ borderLeftColor: theme.calendarBorder }}
                       >
                         <div className="flex items-start gap-3 min-w-0 flex-1">
-                          {/* Time Pill */}
+                          {/* Time Pill (pinned to Europe/Budapest for SSR hydration parity) */}
                           <div className="bg-stone-200/90 text-stone-900 rounded-lg px-2.5 py-1.5 text-center shrink-0 min-w-[64px] border border-stone-300/80">
                             <div className="text-xs font-bold leading-tight">
-                              {format(event.start, "HH:mm")}
+                              {formatTime(event.start)}
                             </div>
                             <div className="text-[10px] text-stone-600 leading-tight mt-0.5">
-                              {format(event.end, "HH:mm")}
+                              {formatTime(event.end)}
                             </div>
                           </div>
 

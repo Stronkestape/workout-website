@@ -4,17 +4,14 @@ import { useEffect, useRef } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
-import { enUS, hu } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 const localizer = dateFnsLocalizer({
   format,
   parse,
   startOfWeek,
   getDay,
-  locales: {
-    "en-US": enUS,
-    hu: hu,
-  },
+  locales: { "en-US": enUS },
 });
 
 function CalendarHeader({ label }) {

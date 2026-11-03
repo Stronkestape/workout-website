@@ -141,7 +141,7 @@ function HeroSection() {
           className="object-cover object-center opacity-50"
           priority
           fetchPriority="high"
-          quality={75}
+          quality={60}
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/65 to-stone-950/90" />

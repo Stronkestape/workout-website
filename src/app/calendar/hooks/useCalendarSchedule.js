@@ -8,11 +8,12 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import { isBefore, isAfter } from "date-fns";
-import { supabaseBrowser } from "@/lib/browser";
 import { getDateLimits } from "@/utils/calendarHelpers";
 import {
   fetchClassSessions,
   fetchUserBookedSessionIds,
+  getSupabaseBrowser,
+  hasSupabaseAuthCookie,
 } from "@/utils/supabaseQueries";
 import {
   getWorkoutTheme,
@@ -20,11 +21,57 @@ import {
   normalizeWorkoutKey,
 } from "@/utils/workoutThemes";
 
-export function useCalendarSchedule() {
+/**
+ * Transforms raw Supabase session rows into react-big-calendar event objects.
+ */
+function transformSessionsToEvents(
+  sessions = [],
+  userBookedSessions = new Set()
+) {
+  return (sessions || []).map((session) => {
+    const spotsLeft = Math.max(
+      0,
+      session.workout_classes.max_capacity - (session.current_bookings || 0)
+    );
+
+    const instructorName = session.instructor
+      ? session.instructor.full_name || session.instructor.username
+      : "TBA";
+
+    return {
+      id: session.id,
+      title: `${session.workout_classes.title} - ${instructorName}`,
+      start: new Date(session.start_time),
+      end: new Date(session.end_time),
+      resource: {
+        workoutTitle: session.workout_classes.title,
+        instructorId: session.instructor_id,
+        instructorName,
+        spotsLeft,
+        maxCapacity: session.workout_classes.max_capacity,
+        currentBookings: session.current_bookings || 0,
+        isBooked: userBookedSessions.has(session.id),
+      },
+    };
+  });
+}
+
+export function useCalendarSchedule({
+  initialSessions = null,
+  serverNow = null,
+} = {}) {
+  const hasInitialSessions = Array.isArray(initialSessions);
   const searchParams = useSearchParams();
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const [events, setEvents] = useState(() =>
+    hasInitialSessions
+      ? transformSessionsToEvents(initialSessions, new Set())
+      : []
+  );
+  const [loading, setLoading] = useState(() => !hasInitialSessions);
+  const [currentDate, setCurrentDate] = useState(() =>
+    serverNow ? new Date(serverNow) : new Date()
+  );
   const [view, setView] = useState("week");
   const [user, setUser] = useState(null);
   const userRef = useRef(user);
@@ -33,7 +80,16 @@ export function useCalendarSchedule() {
     userRef.current = user;
   }, [user]);
 
-  const [selectedWorkoutType, setSelectedWorkoutType] = useState("all");
+  const [selectedWorkoutType, setSelectedWorkoutType] = useState(() => {
+    const filterParam = searchParams?.get("filter");
+    if (filterParam) {
+      const normalizedKey = normalizeWorkoutKey(filterParam);
+      if (WORKOUT_THEMES[normalizedKey] || normalizedKey === "default") {
+        return normalizedKey;
+      }
+    }
+    return "all";
+  });
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutCard, setShowWorkoutCard] = useState(false);
 
@@ -87,34 +143,10 @@ export function useCalendarSchedule() {
           (bookingsResult.data || []).map((b) => b.session_id)
         );
 
-        // Transform data for react-big-calendar
-        const calendarEvents = data.map((session) => {
-          const spotsLeft = Math.max(
-            0,
-            session.workout_classes.max_capacity -
-              (session.current_bookings || 0)
-          );
-
-          const instructorName = session.instructor
-            ? session.instructor.full_name || session.instructor.username
-            : "TBA";
-
-          return {
-            id: session.id,
-            title: `${session.workout_classes.title} - ${instructorName}`,
-            start: new Date(session.start_time),
-            end: new Date(session.end_time),
-            resource: {
-              workoutTitle: session.workout_classes.title,
-              instructorId: session.instructor_id,
-              instructorName,
-              spotsLeft,
-              maxCapacity: session.workout_classes.max_capacity,
-              currentBookings: session.current_bookings || 0,
-              isBooked: userBookedSessions.has(session.id),
-            },
-          };
-        });
+        const calendarEvents = transformSessionsToEvents(
+          data,
+          userBookedSessions
+        );
 
         setEvents(calendarEvents);
         setSelectedWorkout((prev) =>
@@ -133,37 +165,78 @@ export function useCalendarSchedule() {
     []
   );
 
-  // Initialize session and fetch events in parallel once on mount (no double-fetching)
+  // Hydrate user bookings only when an auth cookie exists (or fetch schedule if not server-prefetched)
   useEffect(() => {
     let isMounted = true;
+    let authSubscription = null;
 
     async function initCalendar() {
+      const hasCookie = hasSupabaseAuthCookie();
+
+      // Fast path: schedule already server-rendered AND visitor is logged out -> 0 network requests, 0 Supabase SDK download
+      if (hasInitialSessions && !hasCookie) {
+        return;
+      }
+
+      if (!hasCookie) {
+        await fetchEvents({ currentUser: null });
+        return;
+      }
+
+      const supabaseBrowser = await getSupabaseBrowser();
+      if (!isMounted) return;
+
       const {
         data: { session },
       } = await supabaseBrowser.auth.getSession();
+      if (!isMounted) return;
+
       const initialUser = session?.user || null;
-      if (isMounted) {
-        setUser(initialUser);
+      setUser(initialUser);
+
+      if (hasInitialSessions) {
+        // Schedule is already rendered; only overlay user's booked session badges if logged in
+        if (initialUser?.id) {
+          const bookingsResult = await fetchUserBookedSessionIds(
+            initialUser.id
+          );
+          if (isMounted && bookingsResult.data) {
+            const bookedSet = new Set(
+              bookingsResult.data.map((b) => b.session_id)
+            );
+            setEvents((prevEvents) =>
+              prevEvents.map((ev) => ({
+                ...ev,
+                resource: {
+                  ...ev.resource,
+                  isBooked: bookedSet.has(ev.id),
+                },
+              }))
+            );
+          }
+        }
+      } else {
         await fetchEvents({ currentUser: initialUser });
       }
+
+      const { data: authListener } = supabaseBrowser.auth.onAuthStateChange(
+        (_event, nextSession) => {
+          if (!isMounted) return;
+          const updatedUser = nextSession?.user || null;
+          setUser(updatedUser);
+          fetchEvents({ silent: true, currentUser: updatedUser });
+        }
+      );
+      authSubscription = authListener?.subscription || null;
     }
 
     initCalendar();
 
-    const { data: authListener } = supabaseBrowser.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!isMounted) return;
-        const updatedUser = session?.user || null;
-        setUser(updatedUser);
-        fetchEvents({ silent: true, currentUser: updatedUser });
-      }
-    );
-
     return () => {
       isMounted = false;
-      authListener?.subscription?.unsubscribe();
+      authSubscription?.unsubscribe();
     };
-  }, [fetchEvents]);
+  }, [hasInitialSessions, fetchEvents]);
 
   // Filtered events based on selected workout type
   const filteredEvents = useMemo(() => {
@@ -201,8 +274,11 @@ export function useCalendarSchedule() {
     };
   }, []);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = useMemo(() => {
+    const d = serverNow ? new Date(serverNow) : new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, [serverNow]);
 
   const handleNavigate = (newDate, newView) => {
     const limits = getDateLimits(newView || view, today);
@@ -222,7 +298,7 @@ export function useCalendarSchedule() {
     });
 
     const limits = getDateLimits(newView, today);
-    const todayForView = new Date();
+    const todayForView = new Date(today);
 
     if (
       isBefore(todayForView, limits.min) ||

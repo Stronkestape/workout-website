@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { supabaseBrowser } from "../lib/browser";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  getSupabaseBrowser,
+  hasSupabaseAuthCookie,
+} from "@/utils/supabaseQueries";
 
 export default function Navbar({ user = null } = {}) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
@@ -12,6 +15,7 @@ export default function Navbar({ user = null } = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentUserIdRef = useRef(null);
   const userTierRef = useRef(null);
+  const authSubscriptionRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -35,6 +39,7 @@ export default function Navbar({ user = null } = {}) {
       // Ignore storage errors in private browsing
     }
 
+    const supabaseBrowser = await getSupabaseBrowser();
     const { data } = await supabaseBrowser
       .from("user_profiles")
       .select("username, user_tier")
@@ -53,30 +58,12 @@ export default function Navbar({ user = null } = {}) {
     }
   }, []);
 
-  // 2. Synchronize session from client cookie storage
-  const syncSession = useCallback(async () => {
-    const {
-      data: { session },
-    } = await supabaseBrowser.auth.getSession();
+  // 2. Lazily subscribe to auth state changes only when an auth session/cookie exists
+  const ensureAuthListener = useCallback(async () => {
+    if (authSubscriptionRef.current) return;
 
-    if (session?.user) {
-      setIsLoggedIn(true);
-      if (currentUserIdRef.current !== session.user.id || !userTierRef.current) {
-        currentUserIdRef.current = session.user.id;
-        await fetchUserProfile(session.user.id);
-      }
-    } else {
-      currentUserIdRef.current = null;
-      setIsLoggedIn(false);
-      setUsername(null);
-      setUserTier(null);
-      userTierRef.current = null;
-    }
-  }, [fetchUserProfile]);
-
-  // 3. Mount lifecycle & auth event subscription
-  useEffect(() => {
-    syncSession();
+    const supabaseBrowser = await getSupabaseBrowser();
+    if (authSubscriptionRef.current) return;
 
     const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
       async (event, session) => {
@@ -97,19 +84,60 @@ export default function Navbar({ user = null } = {}) {
       }
     );
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, [syncSession, fetchUserProfile]);
+    authSubscriptionRef.current = listener.subscription;
+  }, [fetchUserProfile]);
 
-  // 4. Route transition listener: Catches Server Action redirects (e.g. /login -> /calendar)
+  // 3. Synchronize session from client cookie storage (skips SDK download for anonymous visitors)
+  const syncSession = useCallback(async () => {
+    if (!hasSupabaseAuthCookie() && !user && pathname !== "/reset-password") {
+      if (currentUserIdRef.current !== null || isLoggedIn) {
+        currentUserIdRef.current = null;
+        setIsLoggedIn(false);
+        setUsername(null);
+        setUserTier(null);
+        userTierRef.current = null;
+      }
+      return;
+    }
+
+    await ensureAuthListener();
+    const supabaseBrowser = await getSupabaseBrowser();
+    const {
+      data: { session },
+    } = await supabaseBrowser.auth.getSession();
+
+    if (session?.user) {
+      setIsLoggedIn(true);
+      if (currentUserIdRef.current !== session.user.id || !userTierRef.current) {
+        currentUserIdRef.current = session.user.id;
+        await fetchUserProfile(session.user.id);
+      }
+    } else {
+      currentUserIdRef.current = null;
+      setIsLoggedIn(false);
+      setUsername(null);
+      setUserTier(null);
+      userTierRef.current = null;
+    }
+  }, [user, pathname, isLoggedIn, ensureAuthListener, fetchUserProfile]);
+
+  // 4. Cleanup auth subscription on unmount
+  useEffect(() => {
+    return () => {
+      authSubscriptionRef.current?.unsubscribe();
+      authSubscriptionRef.current = null;
+    };
+  }, []);
+
+  // 5. Route transition listener: Catches initial mount & Server Action redirects (e.g. /login -> /calendar)
   useEffect(() => {
     setMobileMenuOpen(false);
     syncSession();
   }, [pathname, syncSession]);
 
-  // 5. Logout handler
+  // 6. Logout handler
   const handleLogout = async () => {
+    const supabaseBrowser = await getSupabaseBrowser();
     await supabaseBrowser.auth.signOut();
     currentUserIdRef.current = null;
     setIsLoggedIn(false);
@@ -147,28 +175,45 @@ export default function Navbar({ user = null } = {}) {
             aria-label="Mozgás Központ – Go to homepage"
             className="inline-flex items-center gap-2 text-lg sm:text-xl font-bold tracking-tight text-white hover:text-warm-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm-terracotta rounded-lg py-1 transition-colors truncate"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-warm-terracotta shrink-0" aria-hidden="true" />
+            <span
+              className="w-2.5 h-2.5 rounded-full bg-warm-terracotta shrink-0"
+              aria-hidden="true"
+            />
             <span>Mozgás Központ</span>
           </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-2 min-w-[360px] justify-end shrink-0">
-            <Link href="/calendar" prefetch={false} className={navLinkClass("/calendar")}>
+            <Link
+              href="/calendar"
+              prefetch={false}
+              className={navLinkClass("/calendar")}
+            >
               Calendar
             </Link>
 
-            <Link href="/instructors" prefetch={false} className={navLinkClass("/instructors")}>
+            <Link
+              href="/instructors"
+              prefetch={false}
+              className={navLinkClass("/instructors")}
+            >
               Instructors
             </Link>
 
             {isLoggedIn && (
-              <Link href="/bookings" prefetch={false} className={navLinkClass("/bookings")}>
+              <Link
+                href="/bookings"
+                prefetch={false}
+                className={navLinkClass("/bookings")}
+              >
                 My Bookings
               </Link>
             )}
 
             {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-              <Link href="/admin" prefetch={false}
+              <Link
+                href="/admin"
+                prefetch={false}
                 className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5 ${
                   pathname.startsWith("/admin")
                     ? userTier === "admin"
@@ -199,7 +244,11 @@ export default function Navbar({ user = null } = {}) {
 
             {isLoggedIn ? (
               <>
-                <Link href="/profile" prefetch={false} className={navLinkClass("/profile")}>
+                <Link
+                  href="/profile"
+                  prefetch={false}
+                  className={navLinkClass("/profile")}
+                >
                   Profile
                 </Link>
                 <div className="h-4 w-px bg-stone-700 mx-2" />
@@ -213,10 +262,16 @@ export default function Navbar({ user = null } = {}) {
             ) : (
               <>
                 <div className="h-4 w-px bg-stone-700 mx-2" />
-                <Link href="/login" prefetch={false} className={navLinkClass("/login")}>
+                <Link
+                  href="/login"
+                  prefetch={false}
+                  className={navLinkClass("/login")}
+                >
                   Log In
                 </Link>
-                <Link href="/register" prefetch={false}
+                <Link
+                  href="/register"
+                  prefetch={false}
                   className="px-4 py-2 bg-warm-terracotta text-white rounded-lg hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
                 >
                   Register
@@ -300,32 +355,50 @@ export default function Navbar({ user = null } = {}) {
             )}
 
             <div className="space-y-1">
-              <Link href="/calendar" prefetch={false} className={mobileNavLinkClass("/calendar")}>
+              <Link
+                href="/calendar"
+                prefetch={false}
+                className={mobileNavLinkClass("/calendar")}
+              >
                 <span>Workout Calendar</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
-              <Link href="/instructors" prefetch={false} className={mobileNavLinkClass("/instructors")}>
+              <Link
+                href="/instructors"
+                prefetch={false}
+                className={mobileNavLinkClass("/instructors")}
+              >
                 <span>Instructors</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
               {isLoggedIn && (
-                <Link href="/bookings" prefetch={false} className={mobileNavLinkClass("/bookings")}>
+                <Link
+                  href="/bookings"
+                  prefetch={false}
+                  className={mobileNavLinkClass("/bookings")}
+                >
                   <span>My Bookings</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
 
               {isLoggedIn && (
-                <Link href="/profile" prefetch={false} className={mobileNavLinkClass("/profile")}>
+                <Link
+                  href="/profile"
+                  prefetch={false}
+                  className={mobileNavLinkClass("/profile")}
+                >
                   <span>Profile</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
 
               {isLoggedIn && ["admin", "instructor"].includes(userTier) && (
-                <Link href="/admin" prefetch={false}
+                <Link
+                  href="/admin"
+                  prefetch={false}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
                     pathname.startsWith("/admin")
                       ? "bg-purple-600/25 text-purple-300 border border-purple-500/40"
@@ -352,12 +425,16 @@ export default function Navbar({ user = null } = {}) {
                 </button>
               ) : (
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Link href="/login" prefetch={false}
+                  <Link
+                    href="/login"
+                    prefetch={false}
                     className="py-2.5 px-4 bg-stone-800 text-stone-200 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors font-medium text-sm text-center"
                   >
                     Log In
                   </Link>
-                  <Link href="/register" prefetch={false}
+                  <Link
+                    href="/register"
+                    prefetch={false}
                     className="py-2.5 px-4 bg-warm-terracotta text-white rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm text-center shadow-xs"
                   >
                     Register
