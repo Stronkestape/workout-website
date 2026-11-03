@@ -322,12 +322,22 @@ function CalendarContent() {
     handleNavigate(new Date(), "week");
   };
 
+  const isCurrentWeek = today >= mobileWeekStart && today <= mobileWeekEnd;
+
   const mobileWeekEvents = filteredEvents
-    .filter((e) => e.start >= mobileWeekStart && e.start <= mobileWeekEnd)
+    .filter((e) => {
+      if (e.start < mobileWeekStart || e.start > mobileWeekEnd) return false;
+      if (!selectedMobileDay && isCurrentWeek) {
+        return isSameDay(e.start, today) || isAfter(e.start, today);
+      }
+      return true;
+    })
     .sort((a, b) => a.start - b.start);
 
   const visibleMobileDays = selectedMobileDay
     ? mobileWeekDays.filter((d) => isSameDay(d, selectedMobileDay))
+    : isCurrentWeek
+    ? mobileWeekDays.filter((d) => isSameDay(d, today) || isAfter(d, today))
     : mobileWeekDays;
 
   return (
@@ -374,7 +384,6 @@ function CalendarContent() {
               }`}
             >
               <span>All Workouts</span>
-              <span className="text-[10px] font-semibold">({events.length})</span>
             </button>
 
             {Object.values(WORKOUT_THEMES).map((theme) => {
@@ -414,11 +423,6 @@ function CalendarContent() {
                     className="w-3.5 h-3.5 shrink-0 opacity-85"
                   />
                   <span>{displayLabel}</span>
-                  {count > 0 && (
-                    <span className="text-[10px] font-bold font-semibold">
-                      ({count})
-                    </span>
-                  )}
                 </button>
               );
             })}
@@ -458,9 +462,6 @@ function CalendarContent() {
                   className="w-3.5 h-3.5 shrink-0 opacity-85"
                 />
                 <span>{DEFAULT_THEME.label}</span>
-                <span className="text-[10px] font-bold font-semibold">
-                  ({workoutCounts["default"]})
-                </span>
               </button>
             )}
           </div>

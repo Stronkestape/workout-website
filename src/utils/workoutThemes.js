@@ -151,7 +151,12 @@ const THEME_MATCHERS = [
   },
   {
     key: 'funkcionalis edzes',
-    matches: (norm) => norm.includes('funkcional'),
+    matches: (norm) =>
+      norm.includes('funkcional') ||
+      norm.includes('function') ||
+      norm.includes('funkci') ||
+      norm.includes('cross') ||
+      norm.includes('koredzes'),
   },
 ];
 
