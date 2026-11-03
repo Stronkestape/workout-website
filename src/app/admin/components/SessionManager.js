@@ -1,22 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import {
   fetchAllSessions,
   fetchWorkoutTemplates,
 } from '@/utils/adminQueries';
 import { deleteSessionAction } from '../actions';
-import SessionForm from './SessionForm';
-import ConfirmModal from '@/components/ConfirmModal';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 import { useToast } from '@/context/ToastContext';
 import { filterSessionsByPeriod } from '../utils/sessionFilters';
 
-export default function SessionManager({ currentUser }) {
+const SessionForm = dynamic(() => import('./SessionForm'), { ssr: false });
+const ConfirmModal = dynamic(() => import('@/components/ConfirmModal'), {
+  ssr: false,
+});
+
+export default function SessionManager({
+  currentUser,
+  initialSessions = null,
+  initialTemplates = null,
+  serverNow = null,
+}) {
   const isInstructor = currentUser?.profile?.user_tier === 'instructor';
-  const [sessions, setSessions] = useState([]);
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const hasInitialData =
+    Array.isArray(initialSessions) && Array.isArray(initialTemplates);
+  const [sessions, setSessions] = useState(initialSessions || []);
+  const [templates, setTemplates] = useState(initialTemplates || []);
+  const [loading, setLoading] = useState(!hasInitialData);
+  const hasInitialDataRef = useRef(hasInitialData);
   const [deleting, setDeleting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
@@ -25,7 +37,16 @@ export default function SessionManager({ currentUser }) {
   const [filter, setFilter] = useState('all');
   const toast = useToast();
 
+  const referenceDate = useMemo(
+    () => (serverNow ? new Date(serverNow) : new Date()),
+    [serverNow]
+  );
+
   useEffect(() => {
+    if (hasInitialDataRef.current) {
+      hasInitialDataRef.current = false;
+      return;
+    }
     if (currentUser?.id) {
       loadData();
     }
@@ -106,7 +127,11 @@ export default function SessionManager({ currentUser }) {
     setEditingSession(null);
   };
 
-  const filteredSessions = filterSessionsByPeriod(sessions, filter);
+  const filteredSessions = filterSessionsByPeriod(
+    sessions,
+    filter,
+    referenceDate
+  );
 
   if (loading) {
     return (
@@ -223,7 +248,7 @@ export default function SessionManager({ currentUser }) {
             const instructorName = session.instructor
               ? session.instructor.full_name || session.instructor.username
               : 'Unassigned coach';
-            const isPast = new Date(session.start_time) < new Date();
+            const isPast = new Date(session.start_time) < referenceDate;
             const spotsLeft =
               session.workout_classes.max_capacity -
               (session.current_bookings || 0);
@@ -324,23 +349,25 @@ export default function SessionManager({ currentUser }) {
         />
       )}
 
-      <ConfirmModal
-        isOpen={!!sessionToDelete}
-        title="Delete Class Session"
-        message={
-          sessionToDelete
-            ? `Are you sure you want to delete the "${sessionToDelete.workout_classes.title}" session on ${formatDate(
-                sessionToDelete.start_time
-              )} at ${formatTime(
-                sessionToDelete.start_time
-              )}?\n\nThis action will cancel existing bookings and notify registered participants via email.`
-            : ''
-        }
-        confirmLabel="Delete Session"
-        loading={deleting}
-        onConfirm={confirmDeleteSession}
-        onCancel={() => setSessionToDelete(null)}
-      />
+      {!!sessionToDelete && (
+        <ConfirmModal
+          isOpen={!!sessionToDelete}
+          title="Delete Class Session"
+          message={
+            sessionToDelete
+              ? `Are you sure you want to delete the "${sessionToDelete.workout_classes.title}" session on ${formatDate(
+                  sessionToDelete.start_time
+                )} at ${formatTime(
+                  sessionToDelete.start_time
+                )}?\n\nThis action will cancel existing bookings and notify registered participants via email.`
+              : ''
+          }
+          confirmLabel="Delete Session"
+          loading={deleting}
+          onConfirm={confirmDeleteSession}
+          onCancel={() => setSessionToDelete(null)}
+        />
+      )}
     </div>
   );
 }

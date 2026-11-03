@@ -15,7 +15,6 @@ export default function Navbar({ user = null } = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentUserIdRef = useRef(null);
   const userTierRef = useRef(null);
-  const authSubscriptionRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -23,73 +22,11 @@ export default function Navbar({ user = null } = {}) {
     userTierRef.current = userTier;
   }, [userTier]);
 
-  // 1. Fetch user profile with local storage cache for instant 0ms display
-  const fetchUserProfile = useCallback(async (userId) => {
-    try {
-      const cached = sessionStorage.getItem(`user_profile_${userId}`);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed.username) setUsername(parsed.username);
-        if (parsed.user_tier) {
-          setUserTier(parsed.user_tier);
-          userTierRef.current = parsed.user_tier;
-        }
-      }
-    } catch {
-      // Ignore storage errors in private browsing
-    }
-
-    const supabaseBrowser = await getSupabaseBrowser();
-    const { data } = await supabaseBrowser
-      .from("user_profiles")
-      .select("username, user_tier")
-      .eq("id", userId)
-      .single();
-
-    if (data) {
-      setUsername(data.username);
-      setUserTier(data.user_tier);
-      userTierRef.current = data.user_tier;
-      try {
-        sessionStorage.setItem(`user_profile_${userId}`, JSON.stringify(data));
-      } catch {
-        // Ignore storage errors
-      }
-    }
-  }, []);
-
-  // 2. Lazily subscribe to auth state changes only when an auth session/cookie exists
-  const ensureAuthListener = useCallback(async () => {
-    if (authSubscriptionRef.current) return;
-
-    const supabaseBrowser = await getSupabaseBrowser();
-    if (authSubscriptionRef.current) return;
-
-    const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_OUT" || !session) {
-          currentUserIdRef.current = null;
-          setIsLoggedIn(false);
-          setUsername(null);
-          setUserTier(null);
-          userTierRef.current = null;
-          try {
-            sessionStorage.clear();
-          } catch {}
-        } else if (session?.user) {
-          setIsLoggedIn(true);
-          currentUserIdRef.current = session.user.id;
-          fetchUserProfile(session.user.id);
-        }
-      }
-    );
-
-    authSubscriptionRef.current = listener.subscription;
-  }, [fetchUserProfile]);
-
-  // 3. Synchronize session from client cookie storage (skips SDK download for anonymous visitors)
+  // 1. Synchronize session via lightweight /api/auth/me endpoint (zero @supabase/supabase-js bundle download)
   const syncSession = useCallback(async () => {
-    if (!hasSupabaseAuthCookie() && !user && pathname !== "/reset-password") {
+    const hasCookie = hasSupabaseAuthCookie();
+
+    if (!hasCookie && !user && pathname !== "/reset-password") {
       if (currentUserIdRef.current !== null || isLoggedIn) {
         currentUserIdRef.current = null;
         setIsLoggedIn(false);
@@ -97,56 +34,119 @@ export default function Navbar({ user = null } = {}) {
         setUserTier(null);
         userTierRef.current = null;
       }
+      try {
+        sessionStorage.removeItem("mk_nav_profile");
+      } catch {
+        // Ignore storage errors
+      }
       return;
     }
 
-    await ensureAuthListener();
-    const supabaseBrowser = await getSupabaseBrowser();
-    const {
-      data: { session },
-    } = await supabaseBrowser.auth.getSession();
-
-    if (session?.user) {
-      setIsLoggedIn(true);
-      if (currentUserIdRef.current !== session.user.id || !userTierRef.current) {
-        currentUserIdRef.current = session.user.id;
-        await fetchUserProfile(session.user.id);
+    // Instant 0ms UI hydration from sessionStorage cache when cookie is present
+    if (hasCookie || user) {
+      try {
+        const cached = sessionStorage.getItem("mk_nav_profile");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.id) {
+            currentUserIdRef.current = parsed.id;
+            setIsLoggedIn(true);
+            if (parsed.username) setUsername(parsed.username);
+            if (parsed.user_tier) {
+              setUserTier(parsed.user_tier);
+              userTierRef.current = parsed.user_tier;
+            }
+          }
+        }
+      } catch {
+        // Ignore storage errors
       }
-    } else {
-      currentUserIdRef.current = null;
-      setIsLoggedIn(false);
-      setUsername(null);
-      setUserTier(null);
-      userTierRef.current = null;
     }
-  }, [user, pathname, isLoggedIn, ensureAuthListener, fetchUserProfile]);
 
-  // 4. Cleanup auth subscription on unmount
-  useEffect(() => {
-    return () => {
-      authSubscriptionRef.current?.unsubscribe();
-      authSubscriptionRef.current = null;
-    };
-  }, []);
+    try {
+      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.user) {
+          currentUserIdRef.current = data.user.id;
+          setIsLoggedIn(true);
+          setUsername(data.user.username || null);
+          setUserTier(data.user.user_tier || "regular");
+          userTierRef.current = data.user.user_tier || "regular";
+          try {
+            sessionStorage.setItem(
+              "mk_nav_profile",
+              JSON.stringify({
+                id: data.user.id,
+                username: data.user.username || null,
+                user_tier: data.user.user_tier || "regular",
+              })
+            );
+          } catch {
+            // Ignore storage errors
+          }
+          return;
+        }
+      }
+    } catch {
+      // Ignore fetch errors
+    }
 
-  // 5. Route transition listener: Catches initial mount & Server Action redirects (e.g. /login -> /calendar)
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    syncSession();
-  }, [pathname, syncSession]);
+    // Fallback for /reset-password hash fragment recovery sessions
+    if (pathname === "/reset-password") {
+      try {
+        const supabaseBrowser = await getSupabaseBrowser();
+        const {
+          data: { session },
+        } = await supabaseBrowser.auth.getSession();
+        if (session?.user) {
+          currentUserIdRef.current = session.user.id;
+          setIsLoggedIn(true);
+          return;
+        }
+      } catch {
+        // Ignore fallback errors
+      }
+    }
 
-  // 6. Logout handler
-  const handleLogout = async () => {
-    const supabaseBrowser = await getSupabaseBrowser();
-    await supabaseBrowser.auth.signOut();
     currentUserIdRef.current = null;
     setIsLoggedIn(false);
     setUsername(null);
     setUserTier(null);
     userTierRef.current = null;
     try {
+      sessionStorage.removeItem("mk_nav_profile");
+    } catch {
+      // Ignore storage errors
+    }
+  }, [user, pathname, isLoggedIn]);
+
+  // 2. Route transition listener: Catches initial mount & Server Action redirects (e.g. /login -> /calendar)
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    syncSession();
+  }, [pathname, syncSession]);
+
+  // 3. Logout handler
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/me", { method: "POST" });
+    } catch {
+      // Ignore network errors
+    }
+    try {
       sessionStorage.clear();
-    } catch {}
+    } catch {
+      // Ignore storage errors
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("app:auth-signed-out"));
+    }
+    currentUserIdRef.current = null;
+    setIsLoggedIn(false);
+    setUsername(null);
+    setUserTier(null);
+    userTierRef.current = null;
     setMobileMenuOpen(false);
     router.push("/");
     router.refresh();

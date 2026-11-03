@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import {
   fetchAllSessions,
   getSessionBookings,
@@ -9,15 +10,24 @@ import {
 } from '@/utils/adminQueries';
 import { adminRemoveParticipantAction } from '../actions';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
-import ConfirmModal from '@/components/ConfirmModal';
 import { useToast } from '@/context/ToastContext';
 import { filterSessionsByPeriod } from '../utils/sessionFilters';
 import SessionAttendeePanel from './SessionAttendeePanel';
 
-export default function SessionDetailView({ currentUser }) {
+const ConfirmModal = dynamic(() => import('@/components/ConfirmModal'), {
+  ssr: false,
+});
+
+export default function SessionDetailView({
+  currentUser,
+  initialSessions = null,
+  serverNow = null,
+}) {
   const isInstructor = currentUser?.profile?.user_tier === 'instructor';
   const toast = useToast();
-  const [sessions, setSessions] = useState([]);
+  const hasInitialSessions = Array.isArray(initialSessions);
+  const [sessions, setSessions] = useState(initialSessions || []);
+  const hasInitialSessionsRef = useRef(hasInitialSessions);
   const [selectedSession, setSelectedSession] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [waitlist, setWaitlist] = useState([]);
@@ -31,6 +41,10 @@ export default function SessionDetailView({ currentUser }) {
   const [searchResetKey, setSearchResetKey] = useState(0);
 
   useEffect(() => {
+    if (hasInitialSessionsRef.current) {
+      hasInitialSessionsRef.current = false;
+      return;
+    }
     if (currentUser?.id) {
       loadSessions();
     }
@@ -188,7 +202,7 @@ export default function SessionDetailView({ currentUser }) {
     }
   };
 
-  const filteredSessions = filterSessionsByPeriod(sessions, filter);
+  const filteredSessions = filterSessionsByPeriod(sessions, filter, serverNow);
 
   if (loading && sessions.length === 0) {
     return (
@@ -338,23 +352,25 @@ export default function SessionDetailView({ currentUser }) {
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={!!bookingToRemove}
-        title="Remove Participant"
-        message={
-          bookingToRemove
-            ? `Are you sure you want to remove ${
-                bookingToRemove.user_profiles?.username
-                  ? '@' + bookingToRemove.user_profiles.username
-                  : 'this user'
-              } from this session?\n\nThis will cancel their booking and send them an email notification.`
-            : ''
-        }
-        confirmLabel="Remove Participant"
-        loading={removing}
-        onConfirm={confirmRemoveBooking}
-        onCancel={() => setBookingToRemove(null)}
-      />
+      {!!bookingToRemove && (
+        <ConfirmModal
+          isOpen={!!bookingToRemove}
+          title="Remove Participant"
+          message={
+            bookingToRemove
+              ? `Are you sure you want to remove ${
+                  bookingToRemove.user_profiles?.username
+                    ? '@' + bookingToRemove.user_profiles.username
+                    : 'this user'
+                } from this session?\n\nThis will cancel their booking and send them an email notification.`
+              : ''
+          }
+          confirmLabel="Remove Participant"
+          loading={removing}
+          onConfirm={confirmRemoveBooking}
+          onCancel={() => setBookingToRemove(null)}
+        />
+      )}
     </div>
   );
 }

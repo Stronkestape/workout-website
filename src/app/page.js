@@ -217,13 +217,6 @@ function WorkoutSection({
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 58vw, 750px"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-            <div className="absolute top-4 left-4">
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border shadow-sm backdrop-blur-md ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}
-              >
-                {theme.category}
-              </span>
-            </div>
           </div>
         </div>
 

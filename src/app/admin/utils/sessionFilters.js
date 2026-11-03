@@ -1,23 +1,21 @@
+import { formatDate } from '@/utils/calendarHelpers';
+
 /**
  * Filters and sorts class sessions by period ('all' | 'today' | 'upcoming').
  */
-export function filterSessionsByPeriod(sessions, filter) {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+export function filterSessionsByPeriod(sessions, filter, referenceTime = null) {
+  const now = referenceTime ? new Date(referenceTime) : new Date();
 
   const byNearestFirst = (a, b) =>
     new Date(a.start_time) - new Date(b.start_time);
 
   switch (filter) {
-    case 'today':
+    case 'today': {
+      const todayFormatted = formatDate(now);
       return sessions
-        .filter((s) => {
-          const sessionDate = new Date(s.start_time);
-          return sessionDate >= today && sessionDate < tomorrow;
-        })
+        .filter((s) => formatDate(s.start_time) === todayFormatted)
         .sort(byNearestFirst);
+    }
     case 'upcoming':
       return sessions
         .filter((s) => new Date(s.start_time) >= now)

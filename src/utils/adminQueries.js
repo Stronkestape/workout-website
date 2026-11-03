@@ -1,5 +1,5 @@
 // src/utils/adminQueries.js
-import { supabaseBrowser } from '../lib/browser';
+import { getSupabaseBrowser } from './supabaseQueries';
 import { sanitizeSearchTerm } from './validators';
 
 /**
@@ -12,6 +12,7 @@ export const searchUsers = async (searchTerm) => {
     return { data: [], error: null };
   }
 
+  const supabaseBrowser = await getSupabaseBrowser();
   const rpcResult = await supabaseBrowser.rpc('search_users_for_booking', {
     search_term: cleanTerm,
   });
@@ -34,6 +35,7 @@ export const searchUsers = async (searchTerm) => {
  * Fetch available instructors (users with instructor or admin tier)
  */
 export const fetchInstructors = async () => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser.rpc(
     'get_available_instructors'
   );
@@ -54,6 +56,7 @@ export const fetchInstructors = async () => {
  * Admin only
  */
 export const fetchWorkoutTemplates = async () => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('workout_classes')
     .select('*')
@@ -67,6 +70,7 @@ export const fetchWorkoutTemplates = async () => {
  * Admin only
  */
 export const createWorkoutTemplate = async (template) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('workout_classes')
     .insert(template)
@@ -80,6 +84,7 @@ export const createWorkoutTemplate = async (template) => {
  * Admin only
  */
 export const updateWorkoutTemplate = async (id, updates) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('workout_classes')
     .update(updates)
@@ -94,6 +99,7 @@ export const updateWorkoutTemplate = async (id, updates) => {
  * Admin only
  */
 export const deleteWorkoutTemplate = async (id) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { error } = await supabaseBrowser
     .from('workout_classes')
     .delete()
@@ -106,6 +112,7 @@ export const deleteWorkoutTemplate = async (id) => {
  * Fetch class sessions (all for admin, or filtered by instructorId for instructors)
  */
 export const fetchAllSessions = async (instructorId = null) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   let query = supabaseBrowser
     .from('class_sessions')
     .select(`
@@ -137,6 +144,7 @@ export const fetchAllSessions = async (instructorId = null) => {
  * Admin & Instructor
  */
 export const createSession = async (session) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('class_sessions')
     .insert(session)
@@ -161,6 +169,7 @@ export const createSession = async (session) => {
  * Book a user into a session (admin & instructor)
  */
 export const adminBookUser = async (userId, sessionId) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('bookings')
     .insert({
@@ -177,6 +186,7 @@ export const adminBookUser = async (userId, sessionId) => {
  * Get all bookings for a session (admin & instructor)
  */
 export const getSessionBookings = async (sessionId) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('bookings')
     .select(`
@@ -201,6 +211,7 @@ export const getSessionBookings = async (sessionId) => {
  * Get waitlist for a session (admin & instructor)
  */
 export const getSessionWaitlist = async (sessionId) => {
+  const supabaseBrowser = await getSupabaseBrowser();
   const { data, error } = await supabaseBrowser
     .from('waitlist')
     .select(`

@@ -2,30 +2,8 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-
-const WorkoutTemplateManager = dynamic(
-  () => import('./components/WorkoutTemplateManager'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
-        <div className="text-stone-600 font-medium text-sm">Loading templates...</div>
-      </div>
-    ),
-  }
-);
-
-const SessionManager = dynamic(
-  () => import('./components/SessionManager'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
-        <div className="text-stone-600 font-medium text-sm">Loading sessions...</div>
-      </div>
-    ),
-  }
-);
+import WorkoutTemplateManager from './components/WorkoutTemplateManager';
+import SessionManager from './components/SessionManager';
 
 const SessionDetailView = dynamic(
   () => import('./components/SessionDetailView'),
@@ -39,7 +17,12 @@ const SessionDetailView = dynamic(
   }
 );
 
-export default function AdminDashboardClient({ initialUser }) {
+export default function AdminDashboardClient({
+  initialUser,
+  initialSessions = null,
+  initialTemplates = null,
+  serverNow = null,
+}) {
   const isInstructor = initialUser?.profile?.user_tier === 'instructor';
   const [activeTab, setActiveTab] = useState(isInstructor ? 'sessions' : 'templates');
   const adminUser = initialUser;
@@ -72,14 +55,6 @@ export default function AdminDashboardClient({ initialUser }) {
                 </p>
               </div>
             </div>
-
-            {/* Quick stats or status */}
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="w-2 h-2 mr-1.5 bg-green-500 rounded-full animate-pulse" />
-                System Active
-              </span>
-            </div>
           </div>
 
           {/* Navigation Tabs - responsive horizontal scroll on mobile */}
@@ -110,17 +85,29 @@ export default function AdminDashboardClient({ initialUser }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Templates Tab */}
         {!isInstructor && activeTab === 'templates' && (
-          <WorkoutTemplateManager currentUser={adminUser} />
+          <WorkoutTemplateManager
+            currentUser={adminUser}
+            initialTemplates={initialTemplates}
+          />
         )}
 
         {/* Sessions Tab */}
         {activeTab === 'sessions' && (
-          <SessionManager currentUser={adminUser} />
+          <SessionManager
+            currentUser={adminUser}
+            initialSessions={initialSessions}
+            initialTemplates={initialTemplates}
+            serverNow={serverNow}
+          />
         )}
 
         {/* Session Details Tab */}
         {activeTab === 'session-details' && (
-          <SessionDetailView currentUser={adminUser} />
+          <SessionDetailView
+            currentUser={adminUser}
+            initialSessions={initialSessions}
+            serverNow={serverNow}
+          />
         )}
       </div>
     </div>

@@ -170,6 +170,19 @@ export function useCalendarSchedule({
     let isMounted = true;
     let authSubscription = null;
 
+    const handleSignOut = () => {
+      if (!isMounted) return;
+      setUser(null);
+      setEvents((prev) =>
+        prev.map((ev) => ({
+          ...ev,
+          resource: { ...ev.resource, isBooked: false },
+        }))
+      );
+    };
+
+    window.addEventListener("app:auth-signed-out", handleSignOut);
+
     async function initCalendar() {
       const hasCookie = hasSupabaseAuthCookie();
 
@@ -234,6 +247,7 @@ export function useCalendarSchedule({
 
     return () => {
       isMounted = false;
+      window.removeEventListener("app:auth-signed-out", handleSignOut);
       authSubscription?.unsubscribe();
     };
   }, [hasInitialSessions, fetchEvents]);

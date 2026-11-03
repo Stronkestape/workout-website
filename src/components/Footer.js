@@ -21,12 +21,6 @@ export default function Footer() {
             <p className="text-sm text-stone-300 leading-relaxed">
               Premium group functional training, Spinning, and WALKenergie classes in Budapest. Certified coaching team, modern studio equipment, and an inspiring community.
             </p>
-            <div className="pt-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800/80 border border-stone-700/60 text-xs font-semibold text-amber-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" aria-hidden="true" />
-                <span>Open 7 Days a Week</span>
-              </span>
-            </div>
           </div>
 
           {/* Column 2: Opening Hours */}

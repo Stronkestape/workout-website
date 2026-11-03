@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { resetPasswordAction } from './actions';
-import { supabaseBrowser } from '@/lib/browser';
+import { getSupabaseBrowser } from '@/utils/supabaseQueries';
 import { FormField } from '@/components/FormField';
 import { FormMessage } from '@/components/FormMessage';
 
@@ -17,8 +17,27 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     let mounted = true;
+    let subscription = null;
 
-    const verifyRecoverySession = async () => {
+    const initRecoverySession = async () => {
+      const supabaseBrowser = await getSupabaseBrowser();
+      if (!mounted) return;
+
+      const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
+        (event, session) => {
+          if (!mounted) return;
+          if (
+            event === 'PASSWORD_RECOVERY' ||
+            event === 'SIGNED_IN' ||
+            !!session
+          ) {
+            setHasValidSession(true);
+            setCheckingSession(false);
+          }
+        }
+      );
+      subscription = listener?.subscription || null;
+
       const {
         data: { session },
       } = await supabaseBrowser.auth.getSession();
@@ -31,24 +50,11 @@ export default function ResetPasswordPage() {
       }
     };
 
-    const { data: listener } = supabaseBrowser.auth.onAuthStateChange(
-      (event, session) => {
-        if (
-          event === 'PASSWORD_RECOVERY' ||
-          event === 'SIGNED_IN' ||
-          !!session
-        ) {
-          setHasValidSession(true);
-          setCheckingSession(false);
-        }
-      }
-    );
-
-    verifyRecoverySession();
+    initRecoverySession();
 
     return () => {
       mounted = false;
-      listener.subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 

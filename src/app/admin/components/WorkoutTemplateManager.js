@@ -1,19 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import {
   fetchWorkoutTemplates,
   createWorkoutTemplate,
   updateWorkoutTemplate,
   deleteWorkoutTemplate,
 } from '@/utils/adminQueries';
-import WorkoutTemplateForm from './WorkoutTemplateForm';
-import ConfirmModal from '@/components/ConfirmModal';
 import { useToast } from '@/context/ToastContext';
 
-export default function WorkoutTemplateManager({ currentUser }) {
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
+const WorkoutTemplateForm = dynamic(() => import('./WorkoutTemplateForm'), {
+  ssr: false,
+});
+const ConfirmModal = dynamic(() => import('@/components/ConfirmModal'), {
+  ssr: false,
+});
+
+export default function WorkoutTemplateManager({
+  currentUser,
+  initialTemplates = null,
+}) {
+  const hasInitialTemplates = Array.isArray(initialTemplates);
+  const [templates, setTemplates] = useState(initialTemplates || []);
+  const [loading, setLoading] = useState(!hasInitialTemplates);
+  const hasInitialTemplatesRef = useRef(hasInitialTemplates);
   const [deleting, setDeleting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
@@ -22,6 +33,10 @@ export default function WorkoutTemplateManager({ currentUser }) {
   const toast = useToast();
 
   useEffect(() => {
+    if (hasInitialTemplatesRef.current) {
+      hasInitialTemplatesRef.current = false;
+      return;
+    }
     loadTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -236,19 +251,21 @@ export default function WorkoutTemplateManager({ currentUser }) {
         />
       )}
 
-      <ConfirmModal
-        isOpen={!!templateToDelete}
-        title="Delete Workout Template"
-        message={
-          templateToDelete
-            ? `Are you sure you want to delete the "${templateToDelete.title}" template?\n\nWarning: This action may affect future scheduled sessions linked to this template.`
-            : ''
-        }
-        confirmLabel="Delete Template"
-        loading={deleting}
-        onConfirm={confirmDeleteTemplate}
-        onCancel={() => setTemplateToDelete(null)}
-      />
+      {!!templateToDelete && (
+        <ConfirmModal
+          isOpen={!!templateToDelete}
+          title="Delete Workout Template"
+          message={
+            templateToDelete
+              ? `Are you sure you want to delete the "${templateToDelete.title}" template?\n\nWarning: This action may affect future scheduled sessions linked to this template.`
+              : ''
+          }
+          confirmLabel="Delete Template"
+          loading={deleting}
+          onConfirm={confirmDeleteTemplate}
+          onCancel={() => setTemplateToDelete(null)}
+        />
+      )}
     </div>
   );
 }
