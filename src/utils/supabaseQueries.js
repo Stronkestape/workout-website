@@ -38,22 +38,43 @@ export const fetchUserBookingStatus = async (userId, sessionId) => {
 };
 
 /**
- * Fetches all active class sessions with workout details and instructor info.
- * Leverages Vercel edge caching via /api/schedule with graceful direct fallback.
+ * Fetches all confirmed session IDs booked by a user
  */
-export const fetchClassSessions = async () => {
-  try {
-    if (typeof window !== 'undefined') {
-      const res = await fetch('/api/schedule');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          return { data, error: null };
+export const fetchUserBookedSessionIds = async (userId) => {
+  if (!userId) return { data: [], error: null };
+
+  const { data, error } = await supabaseBrowser
+    .from('bookings')
+    .select('session_id')
+    .eq('user_id', userId)
+    .eq('booking_status', 'confirmed');
+
+  if (error) {
+    console.error('Error fetching user booked session IDs:', error);
+  }
+
+  return { data: data || [], error };
+};
+
+/**
+ * Fetches all active class sessions with workout details and instructor info.
+ * Leverages Vercel edge caching via /api/schedule on initial load, with direct query support when bypassing cache after mutations.
+ */
+export const fetchClassSessions = async ({ bypassCache = false } = {}) => {
+  if (!bypassCache) {
+    try {
+      if (typeof window !== 'undefined') {
+        const res = await fetch('/api/schedule');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            return { data, error: null };
+          }
         }
       }
+    } catch (apiErr) {
+      console.warn('Edge cached schedule fetch failed, falling back to direct query:', apiErr);
     }
-  } catch (apiErr) {
-    console.warn('Edge cached schedule fetch failed, falling back to direct query:', apiErr);
   }
 
   const { data, error } = await supabaseBrowser
@@ -68,6 +89,8 @@ export const fetchClassSessions = async () => {
       workout_classes (
         id,
         title,
+        description,
+        duration,
         max_capacity
       ),
       instructor:instructor_id (
@@ -76,7 +99,6 @@ export const fetchClassSessions = async () => {
         full_name
       )
     `)
-    .gte('start_time', new Date().toISOString())
     .eq('is_active', true)
     .order('start_time', { ascending: true });
 

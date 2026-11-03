@@ -9,7 +9,7 @@ const WorkoutTemplateManager = dynamic(
     ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
-        <div className="text-stone-500 font-medium text-sm">Sablonok betöltése...</div>
+        <div className="text-stone-600 font-medium text-sm">Loading templates...</div>
       </div>
     ),
   }
@@ -21,7 +21,7 @@ const SessionManager = dynamic(
     ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
-        <div className="text-stone-500 font-medium text-sm">Edzések betöltése...</div>
+        <div className="text-stone-600 font-medium text-sm">Loading sessions...</div>
       </div>
     ),
   }
@@ -33,7 +33,7 @@ const SessionDetailView = dynamic(
     ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
-        <div className="text-stone-500 font-medium text-sm">Részletek betöltése...</div>
+        <div className="text-stone-600 font-medium text-sm">Loading session details...</div>
       </div>
     ),
   }
@@ -62,10 +62,10 @@ export default function AdminDashboardClient({ initialUser }) {
             <div className="flex items-center justify-between sm:block">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {isInstructor ? 'Edzői Vezérlőpult' : 'Admin Vezérlőpult'}
+                  {isInstructor ? 'Coach Dashboard' : 'Admin Dashboard'}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
-                  Bejelentkezve mint: <span className="font-semibold text-gray-700">{adminUser?.email}</span>
+                <p className="text-xs sm:text-sm text-stone-600 mt-0.5 sm:mt-1">
+                  Signed in as: <span className="font-semibold text-gray-800">{adminUser?.email}</span>
                   <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 capitalize">
                     {adminUser?.profile?.user_tier || 'admin'}
                   </span>
@@ -73,11 +73,11 @@ export default function AdminDashboardClient({ initialUser }) {
               </div>
             </div>
 
-            {/* Quick stats or actions could go here */}
+            {/* Quick stats or status */}
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="w-2 h-2 mr-1.5 bg-green-400 rounded-full animate-pulse" />
-                Rendszer aktív
+                <span className="w-2 h-2 mr-1.5 bg-green-500 rounded-full animate-pulse" />
+                System Active
               </span>
             </div>
           </div>
@@ -94,8 +94,8 @@ export default function AdminDashboardClient({ initialUser }) {
                     onClick={() => setActiveTab(tab.id)}
                     className={`whitespace-nowrap py-3 px-3 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
                       isActive
-                        ? 'border-warm-terracotta text-warm-terracotta'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-warm-terracotta text-[#8c3010]'
+                        : 'border-transparent text-stone-600 hover:text-stone-900 hover:border-gray-300'
                     }`}
                   >
                     {tab.label}

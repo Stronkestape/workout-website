@@ -22,7 +22,7 @@ const WORKOUT_SECTIONS = [
   },
   {
     image: "/images/1.webp",
-    title: "Step Aerobik",
+    title: "Step Aerobics",
     durationLabel: "60 min",
     intensityLabel: "Moderate intensity",
     description:
@@ -30,7 +30,7 @@ const WORKOUT_SECTIONS = [
   },
   {
     image: "/images/3.webp",
-    title: "Alakformáló",
+    title: "Body Sculpting",
     durationLabel: "60 min",
     intensityLabel: "Moderate intensity",
     description:
@@ -54,7 +54,7 @@ const WORKOUT_SECTIONS = [
   },
   {
     image: "/images/6.webp",
-    title: "Funkcionális edzés",
+    title: "Functional Training",
     durationLabel: "60 min",
     intensityLabel: "High intensity",
     description:

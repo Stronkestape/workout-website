@@ -22,14 +22,17 @@ const addWeeksNative = (date, weeks) => {
 };
 
 export const formatTime = (date) => {
-  return new Date(date).toLocaleTimeString("hu-HU", { timeZone: APP_TIME_ZONE,
+  return new Date(date).toLocaleTimeString("en-US", {
+    timeZone: APP_TIME_ZONE,
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
 };
 
 export const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("hu-HU", { timeZone: APP_TIME_ZONE,
+  return new Date(date).toLocaleDateString("en-US", {
+    timeZone: APP_TIME_ZONE,
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -40,14 +43,17 @@ export const formatDate = (date) => {
 export const formatDateTime = (dateString) => {
   const date = new Date(dateString);
   return {
-    date: date.toLocaleDateString("hu-HU", { timeZone: APP_TIME_ZONE,
+    date: date.toLocaleDateString("en-US", {
+      timeZone: APP_TIME_ZONE,
       weekday: "short",
       month: "short",
       day: "numeric",
     }),
-    time: date.toLocaleTimeString("hu-HU", { timeZone: APP_TIME_ZONE,
+    time: date.toLocaleTimeString("en-US", {
+      timeZone: APP_TIME_ZONE,
       hour: "2-digit",
       minute: "2-digit",
+      hour12: false,
     }),
   };
 };
@@ -88,7 +94,7 @@ export const getCancellationInfo = (startTime, now = new Date()) => {
     return {
       canCancel: false,
       deadline: null,
-      deadlineFormatted: '',
+      deadlineFormatted: "",
       isPast: true,
       hoursRemainingToCancel: 0,
     };
@@ -99,7 +105,7 @@ export const getCancellationInfo = (startTime, now = new Date()) => {
     return {
       canCancel: false,
       deadline: null,
-      deadlineFormatted: '',
+      deadlineFormatted: "",
       isPast: true,
       hoursRemainingToCancel: 0,
     };
@@ -116,12 +122,15 @@ export const getCancellationInfo = (startTime, now = new Date()) => {
     Math.round((msUntilDeadline / (1000 * 60 * 60)) * 10) / 10
   );
 
-  const deadlineFormatted = `${deadline.toLocaleDateString('hu-HU', { timeZone: APP_TIME_ZONE,
-    month: 'short',
-    day: 'numeric',
-  })} ${deadline.toLocaleTimeString('hu-HU', { timeZone: APP_TIME_ZONE,
-    hour: '2-digit',
-    minute: '2-digit',
+  const deadlineFormatted = `${deadline.toLocaleDateString("en-US", {
+    timeZone: APP_TIME_ZONE,
+    month: "short",
+    day: "numeric",
+  })} ${deadline.toLocaleTimeString("en-US", {
+    timeZone: APP_TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   })}`;
 
   return {

@@ -10,6 +10,7 @@ import SessionForm from './SessionForm';
 import ConfirmModal from '@/components/ConfirmModal';
 import { formatDate, formatTime } from '@/utils/calendarHelpers';
 import { useToast } from '@/context/ToastContext';
+import { filterSessionsByPeriod } from '../utils/sessionFilters';
 
 export default function SessionManager({ currentUser }) {
   const isInstructor = currentUser?.profile?.user_tier === 'instructor';
@@ -43,12 +44,7 @@ export default function SessionManager({ currentUser }) {
       if (sessionsResult.error) throw sessionsResult.error;
       if (templatesResult.error) throw templatesResult.error;
 
-      const allSessions = sessionsResult.data || [];
-      setSessions(
-        isInstructor
-          ? allSessions.filter((s) => s.instructor_id === currentUser?.id)
-          : allSessions
-      );
+      setSessions(sessionsResult.data || []);
       setTemplates(templatesResult.data || []);
     } catch (err) {
       console.error('Error loading data:', err);
@@ -110,41 +106,7 @@ export default function SessionManager({ currentUser }) {
     setEditingSession(null);
   };
 
-  const getFilteredSessions = () => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const byNearestFirst = (a, b) =>
-      new Date(a.start_time) - new Date(b.start_time);
-
-    switch (filter) {
-      case 'today':
-        return sessions
-          .filter((s) => {
-            const sessionDate = new Date(s.start_time);
-            return sessionDate >= today && sessionDate < tomorrow;
-          })
-          .sort(byNearestFirst);
-      case 'upcoming':
-        return sessions
-          .filter((s) => new Date(s.start_time) >= now)
-          .sort(byNearestFirst);
-      case 'all':
-      default: {
-        const upcoming = sessions
-          .filter((s) => new Date(s.start_time) >= now)
-          .sort(byNearestFirst);
-        const past = sessions
-          .filter((s) => new Date(s.start_time) < now)
-          .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
-        return [...upcoming, ...past];
-      }
-    }
-  };
-
-  const filteredSessions = getFilteredSessions();
+  const filteredSessions = filterSessionsByPeriod(sessions, filter);
 
   if (loading) {
     return (

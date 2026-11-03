@@ -6,7 +6,7 @@ import UserBookingsList from '@/components/UserBookingsList';
 
 export const metadata = {
   title: 'My Bookings | Mozgás Központ',
-  description: 'Tekintsd meg és kezeld az aktív órafoglalásaidat és várólistás helyeidet.',
+  description: 'View and manage your upcoming confirmed workout bookings and active waitlist positions.',
 };
 
 export default async function BookingsPage() {

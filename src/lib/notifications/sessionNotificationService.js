@@ -11,6 +11,15 @@ import hu from 'date-fns/locale/hu';
  * - instructor_id changed
  * - is_active status changed
  */
+function escapeHtml(value = '') {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function isMeaningfulSessionChange(oldSession, updates) {
   if (!oldSession || !updates) return false;
 
@@ -263,7 +272,7 @@ A Mozgás Központ Csapata
 <html lang="hu">
 <head>
   <meta charset="utf-8">
-  <title>${subject}</title>
+  <title>${escapeHtml(subject)}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f3ef; color: #1c1917; margin: 0; padding: 24px; }
     .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e7e5e4; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
@@ -291,10 +300,10 @@ A Mozgás Központ Csapata
       <p>Értesítünk, hogy a stúdió órarendjéből a következő csoportos edzés <strong>törlésre került</strong>:</p>
       
       <div class="card">
-        <div class="card-item"><span class="card-label">Edzés:</span> <span class="card-value" style="font-weight: 700; font-size: 15px;">${workoutTitle}</span></div>
+        <div class="card-item"><span class="card-label">Edzés:</span> <span class="card-value" style="font-weight: 700; font-size: 15px;">${escapeHtml(workoutTitle)}</span></div>
         <div class="card-item"><span class="card-label">Dátum:</span> <span class="card-value">${formattedDate}</span></div>
         <div class="card-item"><span class="card-label">Időpont:</span> <span class="card-value">${formattedTime}</span></div>
-        <div class="card-item"><span class="card-label">Oktató:</span> <span class="card-value">${instructorDisplay}</span></div>
+        <div class="card-item"><span class="card-label">Oktató:</span> <span class="card-value">${escapeHtml(instructorDisplay)}</span></div>
       </div>
 
       <p style="font-size: 14px; color: #57534e;">
@@ -387,9 +396,9 @@ A Mozgás Központ Csapata
     .map(
       (c) => `
       <div style="margin-bottom: 8px;">
-        <strong style="color: #44403c;">${c.field}:</strong><br>
-        <span style="text-decoration: line-through; color: #a8a29e; font-size: 13px;">${c.oldValue}</span>
-        <span style="color: #16a34a; font-weight: 600; font-size: 14px;"> ➔ ${c.newValue}</span>
+        <strong style="color: #44403c;">${escapeHtml(c.field)}:</strong><br>
+        <span style="text-decoration: line-through; color: #a8a29e; font-size: 13px;">${escapeHtml(c.oldValue)}</span>
+        <span style="color: #16a34a; font-weight: 600; font-size: 14px;"> ➔ ${escapeHtml(c.newValue)}</span>
       </div>`
     )
     .join('');
@@ -399,7 +408,7 @@ A Mozgás Központ Csapata
 <html lang="hu">
 <head>
   <meta charset="utf-8">
-  <title>${subject}</title>
+  <title>${escapeHtml(subject)}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f3ef; color: #1c1917; margin: 0; padding: 24px; }
     .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e7e5e4; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
@@ -420,7 +429,7 @@ A Mozgás Központ Csapata
     </div>
     <div class="content">
       <p>Kedves Vendégünk / Oktatónk!</p>
-      <p>Értesítünk, hogy a(z) <strong>${workoutTitle}</strong> csoportos edzésünk adatai módosultak.</p>
+      <p>Értesítünk, hogy a(z) <strong>${escapeHtml(workoutTitle)}</strong> csoportos edzésünk adatai módosultak.</p>
       
       <div class="changes-card">
         <div style="font-weight: 700; color: #854d0e; margin-bottom: 10px; font-size: 14px;">Mi változott?</div>
@@ -491,7 +500,7 @@ A Mozgás Központ Csapata
 <html lang="hu">
 <head>
   <meta charset="utf-8">
-  <title>${subject}</title>
+  <title>${escapeHtml(subject)}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f3ef; color: #1c1917; margin: 0; padding: 24px; }
     .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e7e5e4; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
@@ -515,14 +524,14 @@ A Mozgás Központ Csapata
       <span class="badge">Foglalás Törölve</span>
     </div>
     <div class="content">
-      <p>Kedves <strong>${participantName}</strong>!</p>
+      <p>Kedves <strong>${escapeHtml(participantName)}</strong>!</p>
       <p>Értesítünk, hogy a feljelentkezésedet az edző / adminisztráció törölte a következő óráról:</p>
       
       <div class="card">
-        <div class="card-item"><span class="card-label">Edzés:</span> <span class="card-value" style="font-weight: 700; font-size: 15px;">${workoutTitle}</span></div>
+        <div class="card-item"><span class="card-label">Edzés:</span> <span class="card-value" style="font-weight: 700; font-size: 15px;">${escapeHtml(workoutTitle)}</span></div>
         <div class="card-item"><span class="card-label">Dátum:</span> <span class="card-value">${formattedDate}</span></div>
         <div class="card-item"><span class="card-label">Időpont:</span> <span class="card-value">${formattedTime}</span></div>
-        <div class="card-item"><span class="card-label">Oktató:</span> <span class="card-value">${instructorDisplay}</span></div>
+        <div class="card-item"><span class="card-label">Oktató:</span> <span class="card-value">${escapeHtml(instructorDisplay)}</span></div>
       </div>
 
       <p style="font-size: 14px; color: #57534e;">

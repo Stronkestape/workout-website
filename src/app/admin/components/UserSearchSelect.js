@@ -69,7 +69,7 @@ export default function UserSearchSelect({
           return;
         }
 
-        // Keep all matches so existing attendees render with disabled state & 'Már jelentkezett' badge
+        // Keep all matches so existing attendees render with disabled state & 'Already booked' badge
         setSearchResults(data || []);
         setIsOpen(true);
       } catch (err) {

@@ -14,13 +14,16 @@ const geistSans = Geist({
 
 export const metadata = {
   title: "Workout Booking | Mozgás Központ",
-  description: "Prémium csoportos funkcionális edzések, Spinning és WALKenergie órák Újbudán.",
+  description:
+    "Premium group functional training, Spinning, and WALKenergie classes in Budapest.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="hu" className={geistSans.variable}>
-      <body className={`${geistSans.className} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col`}>
+    <html lang="en" className={geistSans.variable}>
+      <body
+        className={`${geistSans.className} font-sans bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col`}
+      >
         <ToastProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

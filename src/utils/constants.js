@@ -1,6 +1,6 @@
 export const VALIDATION = {
   PASSWORD_MIN_LENGTH: 6,
-  USERNAME_MAX_LENGTH: 20,
+  USERNAME_MAX_LENGTH: 100,
   USERNAME_MIN_LENGTH: 3,
   EMAIL_MAX_LENGTH: 255,
 };
@@ -28,8 +28,8 @@ export const USER_TIERS = {
 };
 
 export const USERNAME_MIN_LENGTH = 3;
-export const USERNAME_MAX_LENGTH = 20;
-export const USERNAME_PATTERN = /^[a-z0-9_.]{3,20}$/;
+export const USERNAME_MAX_LENGTH = 100;
+export const USERNAME_PATTERN = /^[a-z0-9_. ]{3,100}$/;
 export const PASSWORD_MIN_LENGTH = 6;
 export const FULL_NAME_MAX_LENGTH = 100;
 

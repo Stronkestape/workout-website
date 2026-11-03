@@ -31,13 +31,13 @@ export function ToastProvider({ children }) {
   const toast = useMemo(
     () => ({
       show: showToast,
-      success: (message, title = 'Sikeres művelet') =>
+      success: (message, title = 'Success') =>
         showToast({ type: 'success', title, message }),
-      error: (message, title = 'Hiba történt') =>
+      error: (message, title = 'Error') =>
         showToast({ type: 'error', title, message, duration: 6000 }),
-      warning: (message, title = 'Figyelmeztetés') =>
+      warning: (message, title = 'Warning') =>
         showToast({ type: 'warning', title, message, duration: 5000 }),
-      info: (message, title = 'Tájékoztatás') =>
+      info: (message, title = 'Information') =>
         showToast({ type: 'info', title, message }),
       dismiss: removeToast,
     }),
@@ -141,7 +141,7 @@ function ToastItem({ toast, onDismiss }) {
         type="button"
         onClick={onDismiss}
         className="shrink-0 p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-black/5 transition-opacity"
-        aria-label="Értesítés bezárása"
+        aria-label="Close notification"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

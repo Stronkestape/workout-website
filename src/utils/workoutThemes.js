@@ -33,7 +33,7 @@ export const WORKOUT_THEMES = {
   },
   'step aerobik': {
     key: 'step aerobik',
-    label: 'Step Aerobik',
+    label: 'Step Aerobics',
     category: 'Rhythm & Cardio',
     duration: '60 min',
     intensity: 'Moderate',
@@ -48,7 +48,7 @@ export const WORKOUT_THEMES = {
   },
   alakformalo: {
     key: 'alakformalo',
-    label: 'Alakformáló',
+    label: 'Body Sculpting',
     category: 'Toning & Conditioning',
     duration: '60 min',
     intensity: 'Moderate',
@@ -93,7 +93,7 @@ export const WORKOUT_THEMES = {
   },
   'funkcionalis edzes': {
     key: 'funkcionalis edzes',
-    label: 'Funkcionális edzés',
+    label: 'Functional Training',
     category: 'Strength & Mobility',
     duration: '60 min',
     intensity: 'High',
@@ -110,7 +110,7 @@ export const WORKOUT_THEMES = {
 
 export const DEFAULT_THEME = {
   key: 'default',
-  label: 'Egyéb edzés',
+  label: 'Other Workout',
   category: 'Group Fitness',
   duration: '60 min',
   intensity: 'All Levels',
@@ -139,7 +139,10 @@ const THEME_MATCHERS = [
   },
   {
     key: 'alakformalo',
-    matches: (norm) => norm.includes('alakformal'),
+    matches: (norm) =>
+      norm.includes('alakformal') ||
+      norm.includes('sculpt') ||
+      norm.includes('toning'),
   },
   {
     key: 'tabata',

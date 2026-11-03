@@ -8,7 +8,7 @@ import { sanitizeSearchTerm } from './validators';
  */
 export const searchUsers = async (searchTerm) => {
   const cleanTerm = sanitizeSearchTerm(searchTerm);
-  if (cleanTerm.length < 2 || cleanTerm.includes("@")) {
+  if (cleanTerm.length < 2 || cleanTerm.includes('@')) {
     return { data: [], error: null };
   }
 
@@ -24,9 +24,7 @@ export const searchUsers = async (searchTerm) => {
   const { data, error } = await supabaseBrowser
     .from('user_profiles')
     .select('id, username, full_name')
-    .or(
-      `username.ilike.%${cleanTerm}%,full_name.ilike.%${cleanTerm}%`
-    )
+    .or(`username.ilike.%${cleanTerm}%,full_name.ilike.%${cleanTerm}%`)
     .limit(10);
 
   return { data, error };
@@ -36,8 +34,9 @@ export const searchUsers = async (searchTerm) => {
  * Fetch available instructors (users with instructor or admin tier)
  */
 export const fetchInstructors = async () => {
-  const { data, error } = await supabaseBrowser
-    .rpc('get_available_instructors');
+  const { data, error } = await supabaseBrowser.rpc(
+    'get_available_instructors'
+  );
 
   if (!error && data) {
     return { data, error: null };
@@ -135,7 +134,7 @@ export const fetchAllSessions = async (instructorId = null) => {
 
 /**
  * Create a class session
- * Admin only
+ * Admin & Instructor
  */
 export const createSession = async (session) => {
   const { data, error } = await supabaseBrowser
@@ -159,47 +158,7 @@ export const createSession = async (session) => {
 };
 
 /**
- * Update a class session
- * Admin only
- */
-export const updateSession = async (id, updates) => {
-  const { data, error } = await supabaseBrowser
-    .from('class_sessions')
-    .update(updates)
-    .eq('id', id)
-    .select(`
-      *,
-      workout_classes (
-        id,
-        title,
-        max_capacity
-      ),
-      instructor:instructor_id (
-        id,
-        username,
-        full_name
-      )
-    `);
-
-  return { data, error };
-};
-
-/**
- * Delete a class session
- * Admin only
- */
-export const deleteSession = async (id) => {
-  const { error } = await supabaseBrowser
-    .from('class_sessions')
-    .delete()
-    .eq('id', id);
-
-  return { error };
-};
-
-/**
- * Book a user into a session (admin only)
- * Admin can book any user
+ * Book a user into a session (admin & instructor)
  */
 export const adminBookUser = async (userId, sessionId) => {
   const { data, error } = await supabaseBrowser
@@ -215,7 +174,7 @@ export const adminBookUser = async (userId, sessionId) => {
 };
 
 /**
- * Get all bookings for a session (admin only)
+ * Get all bookings for a session (admin & instructor)
  */
 export const getSessionBookings = async (sessionId) => {
   const { data, error } = await supabaseBrowser
@@ -239,19 +198,7 @@ export const getSessionBookings = async (sessionId) => {
 };
 
 /**
- * Remove a booking (admin only)
- */
-export const adminRemoveBooking = async (bookingId) => {
-  const { error } = await supabaseBrowser
-    .from('bookings')
-    .delete()
-    .eq('id', bookingId);
-
-  return { error };
-};
-
-/**
- * Get waitlist for a session (admin only)
+ * Get waitlist for a session (admin & instructor)
  */
 export const getSessionWaitlist = async (sessionId) => {
   const { data, error } = await supabaseBrowser

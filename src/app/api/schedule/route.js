@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { CALENDAR_MONTHS_BACK } from '@/utils/constants';
 
 export const revalidate = 30; // 30-second edge cache
 
@@ -9,6 +10,10 @@ export async function GET() {
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
+
+    // Only fetch sessions within the calendar's allowed lookback window
+    const minWindowDate = new Date();
+    minWindowDate.setMonth(minWindowDate.getMonth() - CALENDAR_MONTHS_BACK);
 
     const { data, error } = await supabase
       .from('class_sessions')
@@ -32,6 +37,7 @@ export async function GET() {
           full_name
         )
       `)
+      .gte('start_time', minWindowDate.toISOString())
       .eq('is_active', true)
       .order('start_time', { ascending: true });
 
