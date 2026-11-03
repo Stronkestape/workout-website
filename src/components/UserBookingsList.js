@@ -14,6 +14,7 @@ export default function UserBookingsList({
   userId,
   initialBookings = null,
   initialWaitlist = null,
+  serverNow = null,
 }) {
   const hasInitialData = Array.isArray(initialBookings) && Array.isArray(initialWaitlist);
   const [bookings, setBookings] = useState(initialBookings || []);
@@ -22,6 +23,13 @@ export default function UserBookingsList({
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [confirmAction, setConfirmAction] = useState(null);
+  const [referenceTime, setReferenceTime] = useState(() =>
+    serverNow ? new Date(serverNow) : new Date()
+  );
+
+  useEffect(() => {
+    setReferenceTime(new Date());
+  }, []);
 
   const fetchBookingsData = useCallback(async () => {
     try {
@@ -94,10 +102,18 @@ export default function UserBookingsList({
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="text-stone-600 font-medium text-sm">
-          Loading bookings and waitlists...
-        </div>
+      <div
+        className="space-y-4 min-h-[60vh]"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading bookings and waitlists"
+      >
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-32 rounded-2xl bg-stone-200/70 animate-pulse"
+          />
+        ))}
       </div>
     );
   }
@@ -105,7 +121,7 @@ export default function UserBookingsList({
   const hasBookings = bookings.length > 0;
   const hasWaitlist = waitlist.length > 0;
 
-  const now = new Date();
+  const now = referenceTime;
   const upcomingBookings = bookings.filter(
     (booking) => new Date(booking.class_sessions?.start_time) >= now
   );
@@ -210,7 +226,7 @@ export default function UserBookingsList({
                 ? instructor.full_name || instructor.username
                 : "Unassigned coach";
               const { date, time } = formatDateTime(session?.start_time);
-              const cancelInfo = getCancellationInfo(session?.start_time);
+              const cancelInfo = getCancellationInfo(session?.start_time, referenceTime);
 
               return (
                 <div
@@ -261,7 +277,7 @@ export default function UserBookingsList({
                         </svg>
                         <span>
                           Cancellation cutoff: <strong className="text-stone-800">{cancelInfo.deadlineFormatted}</strong>
-                          <span className="text-stone-500 ml-1">(2 hours before class)</span>
+                          <span className="text-stone-600 ml-1">(2 hours before class)</span>
                         </span>
                       </div>
                     ) : (
@@ -288,12 +304,12 @@ export default function UserBookingsList({
                               confirmLabel: "Yes, Cancel Booking",
                             })
                           }
-                          className="w-full sm:w-auto text-rose-600 hover:text-rose-700 hover:bg-rose-50 text-xs font-semibold px-3.5 py-2 rounded-xl border border-rose-200 transition-colors text-center"
+                          className="w-full sm:w-auto text-rose-700 hover:text-rose-800 hover:bg-rose-50 text-xs font-semibold px-3.5 py-2 rounded-xl border border-rose-300 transition-colors text-center"
                         >
                           Cancel Booking
                         </button>
                       ) : (
-                        <span className="text-[11px] font-semibold text-stone-400 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200/60">
+                        <span className="text-[11px] font-semibold text-stone-700 bg-stone-200/90 px-3 py-1.5 rounded-lg border border-stone-300">
                           Cancellation Closed
                         </span>
                       )}
@@ -411,7 +427,7 @@ export default function UserBookingsList({
                       </div>
                     </div>
                     <div className="shrink-0">
-                      <span className="text-xs text-stone-500 bg-stone-200/70 px-2 py-0.5 rounded font-medium">
+                      <span className="text-xs text-stone-700 bg-stone-200/90 px-2 py-0.5 rounded font-medium">
                         Completed
                       </span>
                     </div>

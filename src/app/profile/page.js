@@ -39,7 +39,7 @@ export default async function ProfilePage() {
   const isInstructor = profile.user_tier === 'instructor';
 
   return (
-    <div className="container mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
+    <div className="container mx-auto max-w-6xl p-4 sm:p-6 lg:p-8 min-h-[85vh]">
       {/* Header */}
       <div className="mb-6 sm:mb-8 pb-6 border-b border-stone-200/80">
         <div className="flex items-start sm:items-center justify-between gap-3">
@@ -152,20 +152,21 @@ export default async function ProfilePage() {
                   {profile.full_name}
                 </p>
               )}
-              <p className="text-stone-500 text-xs mt-1">{profile.email}</p>
+              <p className="text-stone-700 text-xs mt-1">{profile.email}</p>
 
               <div className="mt-5 pt-5 border-t border-stone-200">
                 <div className="flex justify-between text-sm py-1">
-                  <span className="text-stone-500">Member since</span>
+                  <span className="text-stone-700">Member since</span>
                   <span className="font-semibold text-stone-900">
                     {new Date(profile.created_at).toLocaleDateString('en-US', {
+                      timeZone: 'Europe/Budapest',
                       year: 'numeric',
                       month: 'short',
                     })}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm py-1 mt-1">
-                  <span className="text-stone-500">Account tier</span>
+                  <span className="text-stone-700">Account tier</span>
                   <span
                     className={`font-semibold ${
                       isAdmin

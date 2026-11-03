@@ -1,4 +1,3 @@
-import { addMonths, subMonths, addWeeks, subWeeks } from "date-fns";
 import {
   BOOKING_CANCEL_HOURS,
   BOOKING_CUTOFF_MINUTES,
@@ -8,15 +7,29 @@ import {
   CALENDAR_WEEKS_FORWARD,
 } from "./constants.js";
 
+const APP_TIME_ZONE = "Europe/Budapest";
+
+const addMonthsNative = (date, months) => {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+};
+
+const addWeeksNative = (date, weeks) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + weeks * 7);
+  return d;
+};
+
 export const formatTime = (date) => {
-  return new Date(date).toLocaleTimeString("hu-HU", {
+  return new Date(date).toLocaleTimeString("hu-HU", { timeZone: APP_TIME_ZONE,
     hour: "2-digit",
     minute: "2-digit",
   });
 };
 
 export const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("hu-HU", {
+  return new Date(date).toLocaleDateString("hu-HU", { timeZone: APP_TIME_ZONE,
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -27,12 +40,12 @@ export const formatDate = (date) => {
 export const formatDateTime = (dateString) => {
   const date = new Date(dateString);
   return {
-    date: date.toLocaleDateString("hu-HU", {
+    date: date.toLocaleDateString("hu-HU", { timeZone: APP_TIME_ZONE,
       weekday: "short",
       month: "short",
       day: "numeric",
     }),
-    time: date.toLocaleTimeString("hu-HU", {
+    time: date.toLocaleTimeString("hu-HU", { timeZone: APP_TIME_ZONE,
       hour: "2-digit",
       minute: "2-digit",
     }),
@@ -42,13 +55,13 @@ export const formatDateTime = (dateString) => {
 export const getDateLimits = (view, today) => {
   if (view === "month") {
     return {
-      min: subMonths(today, CALENDAR_MONTHS_BACK),
-      max: addMonths(today, CALENDAR_MONTHS_FORWARD),
+      min: addMonthsNative(today, -CALENDAR_MONTHS_BACK),
+      max: addMonthsNative(today, CALENDAR_MONTHS_FORWARD),
     };
   } else if (view === "week") {
     return {
-      min: subWeeks(today, CALENDAR_WEEKS_BACK),
-      max: addWeeks(today, CALENDAR_WEEKS_FORWARD),
+      min: addWeeksNative(today, -CALENDAR_WEEKS_BACK),
+      max: addWeeksNative(today, CALENDAR_WEEKS_FORWARD),
     };
   }
   return { min: today, max: today };
@@ -103,10 +116,10 @@ export const getCancellationInfo = (startTime, now = new Date()) => {
     Math.round((msUntilDeadline / (1000 * 60 * 60)) * 10) / 10
   );
 
-  const deadlineFormatted = `${deadline.toLocaleDateString('hu-HU', {
+  const deadlineFormatted = `${deadline.toLocaleDateString('hu-HU', { timeZone: APP_TIME_ZONE,
     month: 'short',
     day: 'numeric',
-  })} ${deadline.toLocaleTimeString('hu-HU', {
+  })} ${deadline.toLocaleTimeString('hu-HU', { timeZone: APP_TIME_ZONE,
     hour: '2-digit',
     minute: '2-digit',
   })}`;
