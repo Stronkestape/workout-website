@@ -7,17 +7,17 @@ export const revalidate = 300; // 5-minute Edge ISR caching
 export const metadata = {
   title: 'Our Instructors | Mozgás Központ',
   description:
-    'Meet the certified, dedicated coaching team at Mozgás Központ. Expert Spinning, WALKenergie, HIIT, and functional training instructors.',
+    'Meet the certified, dedicated instructor team at Mozgás Központ. Expert Spinning, WALKenergie, HIIT, and functional training instructors.',
 };
 
 // Rich instructor profile metadata for bio, certifications, and teaching philosophy
 const INSTRUCTOR_PROFILES = {
   demo_instructor: {
-    role: 'Head Coach & Spinning® Instructor',
+    role: 'Head Instructor & Spinning® Instructor',
     experience: '8+ years experience',
     certification: 'IWI Personal Trainer • Mad Dogg Spinning® Certified',
     specialties: ['Spinning®', 'Functional Training', 'Body Sculpting'],
-    bio: 'With over 8 years of coaching group endurance and functional training, my classes combine precise biomechanics with driving musical rhythm so you can bring out your absolute best.',
+    bio: 'With over 8 years of instruction in group endurance and functional training, my classes combine precise biomechanics with driving musical rhythm so you can bring out your absolute best.',
     quote: '“Perseverance is not something we are born with—it is built one workout at a time.”',
   },
   coach_eszter: {
@@ -29,9 +29,9 @@ const INSTRUCTOR_PROFILES = {
     quote: '“Every step brings you closer to a healthier, more energized version of yourself.”',
   },
   coach_bence: {
-    role: 'HIIT & GYMSTICK Coach',
+    role: 'HIIT & GYMSTICK Instructor',
     experience: '5+ years experience',
-    certification: 'Functional Strength Coach • GYMSTICK International',
+    certification: 'Functional Strength Instructor • GYMSTICK International',
     specialties: ['Tabata (HIIT)', 'GYMSTICK', 'Strength & Conditioning'],
     bio: 'I specialize in high-intensity interval training (HIIT) and functional resistance workouts. My goal is to help you safely and effectively push past your comfort zone.',
     quote: '“We don’t look for the easier path—we build a stronger version of ourselves.”',
@@ -40,7 +40,7 @@ const INSTRUCTOR_PROFILES = {
 
 const DEFAULT_PROFILE = {
   role: 'Group Fitness Instructor',
-  experience: 'Certified Coach',
+  experience: 'Certified Instructor',
   certification: 'Certified Group Fitness Specialist',
   specialties: ['Group Classes', 'Strength & Conditioning'],
   bio: 'Dedicated to teaching proper movement patterns and fostering a supportive, motivating community experience for every member.',
@@ -108,10 +108,10 @@ export default async function InstructorsPage() {
           <span>Expertise & Community</span>
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight">
-          Meet Our Coaching Team
+          Meet Our Instructor Team
         </h1>
         <p className="mt-4 text-base sm:text-lg text-stone-600 leading-relaxed">
-          Guided by our certified, passionate instructors, every workout becomes an inspiring experience. Whether you are a beginner or a seasoned athlete, our coaches will help you reach your goals.
+          Guided by our certified, passionate instructors, every workout becomes an inspiring experience. Whether you are a beginner or a seasoned athlete, our instructors will help you reach your goals.
         </p>
       </div>
 
@@ -257,7 +257,7 @@ export default async function InstructorsPage() {
             Why Train With Us?
           </h2>
           <p className="mt-2 text-sm text-stone-600">
-            The power of our group workouts lies in attentive coaching and an inspiring community.
+            The power of our group workouts lies in attentive instruction and an inspiring community.
           </p>
         </div>
 
@@ -270,7 +270,7 @@ export default async function InstructorsPage() {
             </div>
             <h3 className="text-base font-bold text-stone-900">Personalized Form Correction</h3>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              Even in a group setting, our coaches closely monitor posture and movement execution to ensure safety and prevent injuries.
+              Even in a group setting, our instructors closely monitor posture and movement execution to ensure safety and prevent injuries.
             </p>
           </div>
 

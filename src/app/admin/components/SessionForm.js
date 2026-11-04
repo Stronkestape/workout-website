@@ -257,7 +257,7 @@ export default function SessionForm({
               htmlFor="instructor_id"
               className="block text-sm font-semibold text-stone-900 mb-2"
             >
-              Coach / Instructor
+              Instructor
             </label>
             {isInstructor ? (
               <div className="w-full px-4 py-2.5 bg-stone-100 border border-stone-300 rounded-xl text-stone-700 text-sm">

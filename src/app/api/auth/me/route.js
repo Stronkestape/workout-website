@@ -2,16 +2,23 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getCookieUserId, createSupabaseServerClient } from '@/lib/server';
 
+function createUnauthorizedResponse() {
+  const response = NextResponse.json(
+    { user: null },
+    { headers: { 'Cache-Control': 'private, no-store' } }
+  );
+  response.cookies.delete('mk_role');
+  response.cookies.delete('mk_user');
+  return response;
+}
+
 export async function GET(request) {
   try {
     const cookieStore = await cookies();
     const cookieUserId = getCookieUserId(cookieStore);
 
     if (!cookieUserId) {
-      return NextResponse.json(
-        { user: null },
-        { headers: { 'Cache-Control': 'private, no-store' } }
-      );
+      return createUnauthorizedResponse();
     }
 
     const includeBookings =
@@ -36,15 +43,20 @@ export async function GET(request) {
 
     const user = authRes.data?.user;
     if (!user || user.id !== cookieUserId) {
-      return NextResponse.json(
-        { user: null },
-        { headers: { 'Cache-Control': 'private, no-store' } }
-      );
+      return createUnauthorizedResponse();
     }
 
     const profile = profileRes.data;
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      path: '/',
+      maxAge: 604800,
+      sameSite: 'lax',
+      secure: isProd,
+      httpOnly: false,
+    };
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         user: {
           id: user.id,
@@ -62,11 +74,17 @@ export async function GET(request) {
       },
       { headers: { 'Cache-Control': 'private, no-store' } }
     );
-  } catch {
-    return NextResponse.json(
-      { user: null },
-      { headers: { 'Cache-Control': 'private, no-store' } }
+
+    response.cookies.set('mk_role', profile?.user_tier || 'regular', cookieOptions);
+    response.cookies.set(
+      'mk_user',
+      encodeURIComponent(profile?.username || ''),
+      cookieOptions
     );
+
+    return response;
+  } catch {
+    return createUnauthorizedResponse();
   }
 }
 
@@ -77,5 +95,8 @@ export async function POST() {
   } catch {
     // Ignore errors during sign-out cleanup
   }
-  return NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true });
+  response.cookies.delete('mk_role');
+  response.cookies.delete('mk_user');
+  return response;
 }

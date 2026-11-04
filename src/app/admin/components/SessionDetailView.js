@@ -283,7 +283,7 @@ export default function SessionDetailView({
                   const instructorName = session.instructor
                     ? session.instructor.full_name ||
                       session.instructor.username
-                    : 'Unassigned coach';
+                    : 'Unassigned instructor';
 
                   const sessionSpotsLeft =
                     session.workout_classes.max_capacity -

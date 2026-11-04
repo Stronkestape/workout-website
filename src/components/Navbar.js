@@ -8,6 +8,19 @@ import {
   hasSupabaseAuthCookie,
 } from "@/utils/supabaseQueries";
 
+function getCookie(name) {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(
+    new RegExp("(?:^|;\\s*)" + name + "=([^;]*)")
+  );
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 export default function Navbar({ user = null } = {}) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
   const [username, setUsername] = useState(null);
@@ -27,7 +40,7 @@ export default function Navbar({ user = null } = {}) {
     const hasCookie = hasSupabaseAuthCookie();
 
     if (!hasCookie && !user && pathname !== "/reset-password") {
-      if (currentUserIdRef.current !== null || isLoggedIn) {
+      if (currentUserIdRef.current !== null) {
         currentUserIdRef.current = null;
         setIsLoggedIn(false);
         setUsername(null);
@@ -36,6 +49,8 @@ export default function Navbar({ user = null } = {}) {
       }
       try {
         sessionStorage.removeItem("mk_nav_profile");
+        document.cookie = "mk_role=; Path=/; Max-Age=0; SameSite=Lax";
+        document.cookie = "mk_user=; Path=/; Max-Age=0; SameSite=Lax";
       } catch {
         // Ignore storage errors
       }
@@ -44,6 +59,18 @@ export default function Navbar({ user = null } = {}) {
 
     // Instant 0ms UI hydration from sessionStorage cache when cookie is present
     if (hasCookie || user) {
+      const cookieRole = getCookie("mk_role");
+      const cookieUser = getCookie("mk_user");
+      if (cookieRole || cookieUser) {
+        setIsLoggedIn(true);
+        if (cookieRole) {
+          setUserTier(cookieRole);
+          userTierRef.current = cookieRole;
+        }
+        if (cookieUser) {
+          setUsername(cookieUser);
+        }
+      }
       try {
         const cached = sessionStorage.getItem("mk_nav_profile");
         if (cached) {
@@ -119,7 +146,7 @@ export default function Navbar({ user = null } = {}) {
     } catch {
       // Ignore storage errors
     }
-  }, [user, pathname, isLoggedIn]);
+  }, [user, pathname]);
 
   // 2. Route transition listener: Catches initial mount & Server Action redirects (e.g. /login -> /calendar)
   useEffect(() => {
@@ -129,6 +156,17 @@ export default function Navbar({ user = null } = {}) {
 
   // 3. Logout handler
   const handleLogout = async () => {
+    if (typeof document !== "undefined") {
+      const secureFlag = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `mk_role=; Path=/; Max-Age=0; SameSite=Lax${secureFlag}`;
+      document.cookie = `mk_user=; Path=/; Max-Age=0; SameSite=Lax${secureFlag}`;
+    }
+    currentUserIdRef.current = null;
+    setIsLoggedIn(false);
+    setUsername(null);
+    setUserTier(null);
+    userTierRef.current = null;
+    setMobileMenuOpen(false);
     try {
       await fetch("/api/auth/me", { method: "POST" });
     } catch {
@@ -142,12 +180,6 @@ export default function Navbar({ user = null } = {}) {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("app:auth-signed-out"));
     }
-    currentUserIdRef.current = null;
-    setIsLoggedIn(false);
-    setUsername(null);
-    setUserTier(null);
-    userTierRef.current = null;
-    setMobileMenuOpen(false);
     router.push("/");
     router.refresh();
   };
@@ -238,7 +270,7 @@ export default function Navbar({ user = null } = {}) {
                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                   />
                 </svg>
-                <span>{userTier === "admin" ? "Admin" : "Coach Panel"}</span>
+                <span>{userTier === "admin" ? "Admin" : "Instructor Panel"}</span>
               </Link>
             )}
 
@@ -348,7 +380,7 @@ export default function Navbar({ user = null } = {}) {
                         : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
                     }`}
                   >
-                    {userTier === "admin" ? "Admin" : "Coach"}
+                    {userTier === "admin" ? "Admin" : "Instructor"}
                   </span>
                 )}
               </div>
@@ -408,7 +440,7 @@ export default function Navbar({ user = null } = {}) {
                   <span>
                     {userTier === "admin"
                       ? "Admin Dashboard"
-                      : "Coach Panel"}
+                      : "Instructor Panel"}
                   </span>
                   <ChevronRightIcon className="w-4 h-4 text-purple-400" />
                 </Link>

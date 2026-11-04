@@ -474,7 +474,7 @@ export async function notifyParticipantRemoved({
   const startDate = new Date(session.start_time);
   const formattedDate = format(startDate, 'yyyy. MMMM d., EEEE', { locale: hu });
   const formattedTime = `${format(startDate, 'HH:mm')} – ${format(new Date(session.end_time), 'HH:mm')}`;
-  const instructorDisplay = instructor?.full_name || instructor?.username || 'Coaching Staff';
+  const instructorDisplay = instructor?.full_name || instructor?.username || 'Instruction Staff';
   const participantName = participant.full_name || participant.username || 'Valued Member';
 
   const subject = `[Mozgás Központ] Foglalás törölve: ${workoutTitle} (${formattedDate})`;

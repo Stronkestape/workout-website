@@ -24,7 +24,7 @@ const WORKOUT_SECTIONS = [
     durationLabel: "60 min",
     intensityLabel: "High intensity",
     description:
-      "An indoor cycling fitness journey combining heart-pumping beats with motivating coaching. Climb steep virtual hills, accelerate through fast sprints, and strengthen your lower body while elevating your cardiovascular conditioning.",
+      "An indoor cycling fitness journey combining heart-pumping beats with motivating instruction. Climb steep virtual hills, accelerate through fast sprints, and strengthen your lower body while elevating your cardiovascular conditioning.",
   },
   {
     image: "/images/1.webp",
@@ -87,7 +87,7 @@ export default function HomePage() {
             Our Workout Formats
           </h2>
           <p className="mt-4 text-base sm:text-lg text-stone-700 max-w-2xl mx-auto leading-relaxed">
-            Diverse group classes led by certified, passionate coaches — from
+            Diverse group classes led by certified, passionate instructors — from
             dynamic cardio journeys to high-intensity interval conditioning and
             functional strength.
           </p>

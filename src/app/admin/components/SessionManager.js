@@ -153,7 +153,7 @@ export default function SessionManager({
           <p className="text-sm text-stone-600 mt-1">
             {isInstructor
               ? 'Manage your scheduled workouts, session times, and attendee lists.'
-              : 'Schedule sessions from templates and assign coaching staff.'}
+              : 'Schedule sessions from templates and assign instruction staff.'}
           </p>
         </div>
         <button
@@ -247,7 +247,7 @@ export default function SessionManager({
           {filteredSessions.map((session) => {
             const instructorName = session.instructor
               ? session.instructor.full_name || session.instructor.username
-              : 'Unassigned coach';
+              : 'Unassigned instructor';
             const isPast = new Date(session.start_time) < referenceDate;
             const spotsLeft =
               session.workout_classes.max_capacity -
@@ -288,20 +288,20 @@ export default function SessionManager({
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-stone-600 mt-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-stone-400 font-medium">Time:</span>
+                          <span className="text-stone-600 font-medium">Time:</span>
                           <span className="font-semibold text-stone-800">
                             {formatDate(session.start_time)} •{' '}
                             {formatTime(session.start_time)}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 truncate">
-                          <span className="text-stone-400 font-medium">Coach:</span>
+                          <span className="text-stone-600 font-medium">Instructor:</span>
                           <span className="font-semibold text-stone-800 truncate">
                             {instructorName}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-stone-400 font-medium">Spots:</span>
+                          <span className="text-stone-600 font-medium">Spots:</span>
                           <span className="font-semibold text-stone-800">
                             {spotsLeft} available / {session.workout_classes.max_capacity}
                           </span>
@@ -309,7 +309,7 @@ export default function SessionManager({
                       </div>
 
                       {session.current_bookings > 0 && (
-                        <div className="mt-2 text-xs text-stone-500 font-medium">
+                        <div className="mt-2 text-xs text-stone-600 font-medium">
                           {session.current_bookings} registered attendees
                         </div>
                       )}

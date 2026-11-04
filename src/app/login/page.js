@@ -123,7 +123,7 @@ export default function LoginPage() {
                 onClick={() => handleDemoLogin('instructor')}
                 className="px-2.5 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition-colors disabled:opacity-50"
               >
-                Demo Coach
+                Demo Instructor
               </button>
               {DEMO_ACCOUNTS.admin && (
                 <button

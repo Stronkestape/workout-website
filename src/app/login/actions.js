@@ -1,5 +1,6 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -42,7 +43,7 @@ export async function loginAction(prevState, formData) {
     const email = data[0].email;
 
     // Authenticate user
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -54,6 +55,32 @@ export async function loginAction(prevState, formData) {
           : authError.message || MESSAGES.SOMETHING_WENT_WRONG,
         values: { emailOrUsername },
       };
+    }
+
+    const userId = authData?.user?.id;
+    if (userId) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('username, user_tier')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const cookieStore = await cookies();
+      const isProd = process.env.NODE_ENV === 'production';
+      const cookieOptions = {
+        path: '/',
+        maxAge: 604800,
+        sameSite: 'lax',
+        secure: isProd,
+        httpOnly: false,
+      };
+
+      cookieStore.set('mk_role', profile?.user_tier || 'regular', cookieOptions);
+      cookieStore.set(
+        'mk_user',
+        encodeURIComponent(profile?.username || ''),
+        cookieOptions
+      );
     }
   } catch {
     return {

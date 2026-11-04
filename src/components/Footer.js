@@ -19,7 +19,7 @@ export default function Footer() {
               <span>Mozgás Központ</span>
             </Link>
             <p className="text-sm text-stone-300 leading-relaxed">
-              Premium group functional training, Spinning, and WALKenergie classes in Budapest. Certified coaching team, modern studio equipment, and an inspiring community.
+              Premium group functional training, Spinning, and WALKenergie classes in Budapest. Certified instructor team, modern studio equipment, and an inspiring community.
             </p>
           </div>
 

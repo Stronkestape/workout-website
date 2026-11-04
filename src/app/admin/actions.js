@@ -216,13 +216,13 @@ export async function updateSessionAction(sessionId, updates) {
       return { success: false, error: 'Instructors can only edit their own sessions.' };
     }
 
-    // Authorization check: instructors cannot reassign the session to another coach
+    // Authorization check: instructors cannot reassign the session to another instructor
     if (
       userProfile.user_tier === 'instructor' &&
       updates.instructor_id &&
       updates.instructor_id !== user.id
     ) {
-      return { success: false, error: 'Instructors cannot reassign sessions to another coach.' };
+      return { success: false, error: 'Instructors cannot reassign sessions to another instructor.' };
     }
 
     // 2. Parameter whitelisting to prevent mass assignment

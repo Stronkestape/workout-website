@@ -63,7 +63,7 @@ export default function SessionAttendeePanel({
           </div>
           <div>
             <div className="text-stone-400 text-xs uppercase tracking-wider font-semibold">
-              Coach
+              Instructor
             </div>
             <div className="font-semibold text-stone-100 mt-0.5 truncate">
               {selectedSession.instructor
@@ -230,7 +230,7 @@ export default function SessionAttendeePanel({
             Confirmed Bookings ({bookings.length})
           </h4>
           {bookings.length === 0 && (
-            <span className="text-xs sm:text-sm text-stone-500">
+            <span className="text-xs sm:text-sm text-stone-600 font-medium">
               No bookings yet
             </span>
           )}
@@ -261,8 +261,8 @@ export default function SessionAttendeePanel({
                   </div>
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-stone-200/70 shrink-0">
-                  <div className="text-xs text-stone-500 sm:text-right">
-                    <span className="sm:block text-stone-400">Booked on</span>
+                  <div className="text-xs text-stone-600 font-medium sm:text-right">
+                    <span className="sm:block text-stone-600 font-medium">Booked on</span>
                     <span className="font-medium text-stone-700">
                       {formatDate(booking.booked_at)}
                     </span>
@@ -279,7 +279,7 @@ export default function SessionAttendeePanel({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-stone-500 text-sm">
+          <div className="text-center py-8 text-stone-600 font-medium text-sm">
             <p>No confirmed bookings for this session</p>
           </div>
         )}
@@ -312,7 +312,7 @@ export default function SessionAttendeePanel({
                     )}
                   </div>
                 </div>
-                <div className="text-xs text-stone-500 shrink-0 pl-11 sm:pl-0">
+                <div className="text-xs text-stone-600 font-medium shrink-0 pl-11 sm:pl-0">
                   Joined {formatDate(entry.joined_at)}
                 </div>
               </div>

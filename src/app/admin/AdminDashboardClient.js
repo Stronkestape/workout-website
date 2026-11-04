@@ -45,12 +45,12 @@ export default function AdminDashboardClient({
             <div className="flex items-center justify-between sm:block">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {isInstructor ? 'Coach Dashboard' : 'Admin Dashboard'}
+                  {isInstructor ? 'Instructor Dashboard' : 'Admin Dashboard'}
                 </h1>
                 <p className="text-xs sm:text-sm text-stone-600 mt-0.5 sm:mt-1">
                   Signed in as: <span className="font-semibold text-gray-800">{adminUser?.email}</span>
                   <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 capitalize">
-                    {adminUser?.profile?.user_tier || 'admin'}
+                    {adminUser?.profile?.user_tier === 'instructor' ? 'Instructor' : (adminUser?.profile?.user_tier || 'admin')}
                   </span>
                 </p>
               </div>

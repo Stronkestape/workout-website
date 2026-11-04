@@ -82,7 +82,7 @@ export default function WorkoutCard({
         <div className="p-6 space-y-4">
           {/* Date and Time */}
           <div className="bg-stone-50 rounded-xl p-4 border border-stone-200/70">
-            <div className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-1">
+            <div className="text-xs font-semibold uppercase tracking-wider text-stone-600 font-medium mb-1">
               Date & Time
             </div>
             <div className="font-bold text-stone-900">
@@ -110,7 +110,7 @@ export default function WorkoutCard({
                   ? `${spotsLeft} spots available`
                   : "Full"}
               </div>
-              <div className="text-xs text-stone-500 mt-0.5">
+              <div className="text-xs text-stone-600 font-medium mt-0.5">
                 {workout.resource?.maxCapacity - spotsLeft}/
                 {workout.resource?.maxCapacity} booked
               </div>
@@ -205,7 +205,7 @@ export default function WorkoutCard({
                         <span className="font-bold text-stone-800 block text-xs">
                           Cancellation deadline: {cancelInfo.deadlineFormatted}
                         </span>
-                        <span className="text-stone-500 text-[11px] leading-relaxed">
+                        <span className="text-stone-600 font-medium text-[11px] leading-relaxed">
                           Free cancellation closes 2 hours before session start.
                         </span>
                       </div>

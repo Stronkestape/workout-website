@@ -228,7 +228,7 @@ export default function UserBookingsList({
               const instructor = session?.instructor;
               const instructorName = instructor
                 ? instructor.full_name || instructor.username
-                : "Unassigned coach";
+                : "Unassigned instructor";
               const { date, time } = formatDateTime(session?.start_time);
               const cancelInfo = getCancellationInfo(session?.start_time, referenceTime);
 
@@ -252,7 +252,7 @@ export default function UserBookingsList({
                         </span>
                       </div>
                       <p className="text-sm text-stone-600 mt-1 truncate">
-                        Coach: <span className="font-medium text-stone-800">{instructorName}</span>
+                        Instructor: <span className="font-medium text-stone-800">{instructorName}</span>
                       </p>
                       <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-stone-500">
                         <span className="inline-flex items-center gap-1.5 font-medium text-stone-700">
@@ -345,7 +345,7 @@ export default function UserBookingsList({
               const instructor = session?.instructor;
               const instructorName = instructor
                 ? instructor.full_name || instructor.username
-                : "Unassigned coach";
+                : "Unassigned instructor";
               const { date, time } = formatDateTime(session?.start_time);
 
               return (
@@ -364,7 +364,7 @@ export default function UserBookingsList({
                         </span>
                       </div>
                       <p className="text-sm text-stone-600 mt-1">
-                        Coach: <span className="font-medium text-stone-800">{instructorName}</span>
+                        Instructor: <span className="font-medium text-stone-800">{instructorName}</span>
                       </p>
                       <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2.5 text-xs sm:text-sm text-stone-500">
                         <span className="font-medium text-stone-700">{date}</span>
@@ -411,7 +411,7 @@ export default function UserBookingsList({
               const instructor = session?.instructor;
               const instructorName = instructor
                 ? instructor.full_name || instructor.username
-                : "Unassigned coach";
+                : "Unassigned instructor";
               const { date, time } = formatDateTime(session?.start_time);
 
               return (

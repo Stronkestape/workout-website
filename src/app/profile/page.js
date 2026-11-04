@@ -68,7 +68,7 @@ export default async function ProfilePage() {
           )}
           {isInstructor && !isAdmin && (
             <div className="bg-indigo-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-semibold shadow-xs text-xs sm:text-sm shrink-0">
-              Coach / Instructor
+              Instructor
             </div>
           )}
         </div>
@@ -118,14 +118,14 @@ export default async function ProfilePage() {
                 Instructor Dashboard
               </h2>
               <p className="text-indigo-800 text-sm">
-                You are registered as a coach. You can schedule sessions, manage your assigned classes, and view participant rosters.
+                You are registered as an instructor. You can schedule sessions, manage your assigned classes, and view participant rosters.
               </p>
               <div className="mt-4">
                 <Link
                   href="/admin"
                   className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors font-medium text-sm shadow-xs"
                 >
-                  <span>Open Coach Dashboard</span>
+                  <span>Open Instructor Dashboard</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -185,7 +185,7 @@ export default async function ProfilePage() {
                     {isAdmin
                       ? 'Admin'
                       : isInstructor
-                      ? 'Coach'
+                      ? 'Instructor'
                       : 'Member'}
                   </span>
                 </div>

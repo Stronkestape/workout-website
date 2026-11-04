@@ -13,13 +13,13 @@ Designed to handle real-world gym operations: template-based class scheduling, l
 - **One-Click Booking & Cancellation**: Instant session reservation with a 2-hour pre-session cancellation cutoff policy enforced both in the UI and via PostgreSQL `BEFORE DELETE` and `BEFORE UPDATE` triggers.
 - **Automated Waitlist Queue**: When a session reaches capacity, members can join a numbered waitlist. If a confirmed participant cancels, a PostgreSQL trigger automatically promotes the #1 waitlisted user into a confirmed booking and re-indexes the remaining queue.
 - **Account Management & My Bookings**: Dedicated `/bookings` hub to review upcoming confirmed workouts, active waitlist positions, and past session history. Server-Action-powered profile updates, username uniqueness validation (`username_available` RPC), password management, forgot/reset password email flow.
-- **Instructors Showcase & Studio Footer**: Dedicated `/instructors` page introducing the coaching staff and their specialties, complete with direct schedule links and persistent studio footer.
-- **1-Click Demo Login (Portfolio Sandbox)**: Instant sign-in buttons on `/login` for **Demo Member** and **Demo Coach** roles, with optional opt-in **Demo Admin** access via environment configuration.
+- **Instructors Showcase & Studio Footer**: Dedicated `/instructors` page introducing the instructor team and their specialties, complete with direct schedule links and persistent studio footer.
+- **1-Click Demo Login (Portfolio Sandbox)**: Instant sign-in buttons on `/login` for **Demo Member** and **Demo Instructor** roles, with optional opt-in **Demo Admin** access via environment configuration.
 
 ### Admin & Instructor Operations
-- **Workout Class Templates (Admin & Coach)**: Define reusable class blueprints (title, description, default duration, max capacity) with instructor RLS isolation.
-- **Session Scheduling & 4-Week Rolling Recurrence (Admin & Coach)**: Schedule concrete time slots from templates with automatic end-time calculation, instructor assignment, and a `Repeat weekly` option that automatically maintains a 4-week rolling schedule in `Europe/Budapest` time and purges expired sessions older than 14 days via `pg_cron`.
-- **Scoped Coach Dashboard**: Instructors manage their assigned sessions, participants, waitlists, and their own class templates (`private.is_session_instructor()` & `private.is_participant_of_my_session()`).
+- **Workout Class Templates (Admin & Instructor)**: Define reusable class blueprints (title, description, default duration, max capacity) with instructor RLS isolation.
+- **Session Scheduling & 4-Week Rolling Recurrence (Admin & Instructor)**: Schedule concrete time slots from templates with automatic end-time calculation, instructor assignment, and a `Repeat weekly` option that automatically maintains a 4-week rolling schedule in `Europe/Budapest` time and purges expired sessions older than 14 days via `pg_cron`.
+- **Scoped Instructor Dashboard**: Instructors manage their assigned sessions, participants, waitlists, and their own class templates (`private.is_session_instructor()` & `private.is_participant_of_my_session()`).
 - **Manual Assisted Booking & Participant Removal**: Sanitized, debounced user search (`search_users_for_booking` RPC) to book members into active sessions on their behalf, plus Server-Action-powered participant removal with automated email notifications.
 - **Session Analytics & Roster Management**: View confirmed participants, waitlist positions, and occupancy metrics per session.
 

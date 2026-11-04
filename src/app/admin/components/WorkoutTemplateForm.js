@@ -135,7 +135,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
           </div>
 
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 text-xs text-stone-600 leading-relaxed">
-            This template defines the base settings for a class type. In the Manage Sessions tab, you can schedule specific calendar sessions from this template with an assigned coach and start time.
+            This template defines the base settings for a class type. In the Manage Sessions tab, you can schedule specific calendar sessions from this template with an assigned instructor and start time.
           </div>
 
           {error && <FormMessage type="error" message={error} />}
