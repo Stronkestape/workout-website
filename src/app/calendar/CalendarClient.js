@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import styles from "./Calendar.module.css";
 import CalendarToolbar from "@/components/CalendarToolbar";
 import CalendarEvent from "@/components/CalendarEvent";
+import DesktopCalendar from "@/components/DesktopCalendar";
 import {
   CALENDAR_MIN_HOUR,
   CALENDAR_MAX_HOUR,
@@ -17,12 +17,6 @@ import CategoryFilterBar from "./components/CategoryFilterBar";
 import MobileScheduleView from "./components/MobileScheduleView";
 import { DesktopCalendarSkeleton } from "./components/CalendarSkeleton";
 
-// Dynamic imports to optimize initial client bundle size
-const DesktopCalendar = dynamic(() => import("@/components/DesktopCalendar"), {
-  ssr: false,
-  loading: () => <DesktopCalendarSkeleton label="Órarend betöltése..." />,
-});
-
 const WorkoutCard = dynamic(() => import("@/components/WorkoutCard"), {
   ssr: false,
 });
@@ -31,16 +25,6 @@ export default function CalendarClient({
   initialSessions = null,
   serverNow = null,
 }) {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia("(min-width: 768px)");
-    setIsDesktop(mql.matches);
-    const handler = (e) => setIsDesktop(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
-
   const {
     loading,
     currentDate,
@@ -92,35 +76,33 @@ export default function CalendarClient({
           onSelectEvent={handleSelectEvent}
         />
 
-        {/* Desktop & Tablet Full Calendar Grid (>= 768px) - Conditional on breakpoint to avoid bundle download on mobile */}
-        {isDesktop && (
-          <div className="hidden md:block">
-            <div className={styles.calendarWrapper} key={view}>
-              {loading ? (
-                <DesktopCalendarSkeleton label="Órarend betöltése..." />
-              ) : (
-                <DesktopCalendar
-                  events={filteredEvents}
-                  view={view}
-                  onView={handleViewChange}
-                  date={currentDate}
-                  onNavigate={handleNavigate}
-                  components={{
-                    toolbar: CalendarToolbar,
-                    event: CalendarEvent,
-                  }}
-                  eventPropGetter={eventPropGetter}
-                  step={CALENDAR_STEP_MINUTES}
-                  timeslots={CALENDAR_TIMESLOTS}
-                  min={new Date(1970, 1, 1, CALENDAR_MIN_HOUR, 0)}
-                  max={new Date(1970, 1, 1, CALENDAR_MAX_HOUR, 0)}
-                  scrollToTime={new Date(1970, 1, 1, CALENDAR_SCROLL_TO_HOUR, 0)}
-                  onSelectEvent={handleSelectEvent}
-                />
-              )}
-            </div>
+        {/* Desktop & Tablet Full Calendar Grid (>= 768px) */}
+        <div className="hidden md:block">
+          <div className={styles.calendarWrapper} key={view}>
+            {loading ? (
+              <DesktopCalendarSkeleton label="Órarend betöltése..." />
+            ) : (
+              <DesktopCalendar
+                events={filteredEvents}
+                view={view}
+                onView={handleViewChange}
+                date={currentDate}
+                onNavigate={handleNavigate}
+                components={{
+                  toolbar: CalendarToolbar,
+                  event: CalendarEvent,
+                }}
+                eventPropGetter={eventPropGetter}
+                step={CALENDAR_STEP_MINUTES}
+                timeslots={CALENDAR_TIMESLOTS}
+                min={new Date(1970, 1, 1, CALENDAR_MIN_HOUR, 0)}
+                max={new Date(1970, 1, 1, CALENDAR_MAX_HOUR, 0)}
+                scrollToTime={new Date(1970, 1, 1, CALENDAR_SCROLL_TO_HOUR, 0)}
+                onSelectEvent={handleSelectEvent}
+              />
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Workout Card Modal - lazily loaded only when a workout is selected */}

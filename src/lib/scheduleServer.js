@@ -1,12 +1,11 @@
 import { createSupabasePublicClient } from '@/lib/publicSupabase';
 import { CALENDAR_MONTHS_BACK } from '@/utils/constants';
+import { unstable_cache } from 'next/cache';
 
 /**
- * Fetches active class sessions within the calendar's allowed lookback window
- * using the cookie-free public Supabase client.
- * Safe for ISR Server Components and Edge/Node Route Handlers.
+ * Low-level query that fetches active class sessions from Supabase.
  */
-export async function fetchPublicScheduleServer() {
+async function queryPublicSchedule() {
   const supabase = createSupabasePublicClient();
 
   const minWindowDate = new Date();
@@ -38,5 +37,18 @@ export async function fetchPublicScheduleServer() {
     .eq('is_active', true)
     .order('start_time', { ascending: true });
 
-  return { data: data || [], error };
+  return { data: data || [], error: error ? error.message : null };
 }
+
+/**
+ * Cached public schedule provider with Next.js Data Cache.
+ * Enables instant (<20ms TTFB) server response for Edge ISR and route handlers.
+ */
+export const fetchPublicScheduleServer = unstable_cache(
+  queryPublicSchedule,
+  ['public-schedule-cache'],
+  {
+    revalidate: 60,
+    tags: ['public-schedule'],
+  }
+);

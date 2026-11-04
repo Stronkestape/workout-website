@@ -10,7 +10,6 @@ import {
   isBefore,
   isAfter,
 } from "date-fns";
-import { hu } from "date-fns/locale";
 import WorkoutIcon from "@/components/WorkoutIcon";
 import {
   formatTime,
@@ -23,6 +22,49 @@ import {
   SPOTS_ALMOST_FULL_THRESHOLD,
 } from "@/utils/constants";
 import { MobileCalendarSkeleton } from "./CalendarSkeleton";
+
+
+const HU_DAYS_FULL = [
+  "Vasárnap",
+  "Hétfő",
+  "Kedd",
+  "Szerda",
+  "Csütörtök",
+  "Péntek",
+  "Szombat",
+];
+
+const HU_DAYS_SHORT = ["V", "H", "K", "Sze", "Cs", "P", "Szo"];
+
+const HU_MONTHS_SHORT = [
+  "jan.",
+  "febr.",
+  "márc.",
+  "ápr.",
+  "máj.",
+  "jún.",
+  "júl.",
+  "aug.",
+  "szept.",
+  "okt.",
+  "nov.",
+  "dec.",
+];
+
+const HU_MONTHS_FULL = [
+  "január",
+  "február",
+  "március",
+  "április",
+  "május",
+  "június",
+  "július",
+  "augusztus",
+  "szeptember",
+  "október",
+  "november",
+  "december",
+];
 
 export default function MobileScheduleView({
   currentDate,
@@ -144,8 +186,8 @@ export default function MobileScheduleView({
             </button>
           </div>
           <div className="text-xs font-bold text-stone-800 text-right">
-            {format(mobileWeekStart, "MMM d.", { locale: hu })} –{" "}
-            {format(mobileWeekEnd, "yyyy. MMM d.", { locale: hu })}
+            {HU_MONTHS_SHORT[mobileWeekStart.getMonth()]} {mobileWeekStart.getDate()}. –{" "}
+            {mobileWeekEnd.getFullYear()}. {HU_MONTHS_SHORT[mobileWeekEnd.getMonth()]} {mobileWeekEnd.getDate()}.
           </div>
         </div>
 
@@ -187,7 +229,7 @@ export default function MobileScheduleView({
                 }`}
               >
                 <span className="text-[10px] font-medium uppercase opacity-80">
-                  {format(day, "EEE", { locale: hu }).slice(0, 2)}
+                  {HU_DAYS_SHORT[day.getDay()]}
                 </span>
                 <span className="text-xs font-bold mt-0.5">
                   {format(day, "d")}
@@ -227,7 +269,7 @@ export default function MobileScheduleView({
               >
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm text-stone-900 capitalize">
-                    {format(day, "EEEE, MMMM d.", { locale: hu })}
+                    {HU_DAYS_FULL[day.getDay()]}, {HU_MONTHS_FULL[day.getMonth()]} {day.getDate()}.
                   </span>
                   {isTodayDay && (
                     <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-warm-terracotta text-white rounded-full">
