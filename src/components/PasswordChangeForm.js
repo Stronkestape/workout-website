@@ -13,11 +13,11 @@ export default function PasswordChangeForm() {
       <FormField
         id="newPassword"
         name="newPassword"
-        label="New Password"
+        label="Új Jelszó"
         type="password"
         error={state?.fieldErrors?.newPassword}
         disabled={isPending}
-        hint="Minimum 6 characters (consider using a stronger password)"
+        hint="Legalább 6 karakter"
         required
         autoComplete="new-password"
       />
@@ -25,7 +25,7 @@ export default function PasswordChangeForm() {
       <FormField
         id="confirmPassword"
         name="confirmPassword"
-        label="Confirm New Password"
+        label="Új Jelszó Megerősítése"
         type="password"
         error={state?.fieldErrors?.confirmPassword}
         disabled={isPending}
@@ -41,7 +41,7 @@ export default function PasswordChangeForm() {
         disabled={isPending}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
       >
-        {isPending ? 'Updating...' : 'Update Password'}
+        {isPending ? 'Módosítás folyamatban...' : 'Jelszó Módosítása'}
       </button>
     </form>
   );

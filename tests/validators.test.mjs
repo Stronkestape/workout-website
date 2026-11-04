@@ -40,11 +40,11 @@ test("validateUsername - normalizes to lowercase, trims, and enforces 3-100 char
   // Out-of-bounds (< 3 or > 100 chars)
   const tooShort = validateUsername("ab");
   assert.equal(tooShort.isValid, false);
-  assert.equal(tooShort.error, "Username must be at least 3 characters");
+  assert.equal(tooShort.error, "A felhasználónévnek legalább 3 karakterből kell állnia");
 
   const tooLong = validateUsername("a".repeat(101));
   assert.equal(tooLong.isValid, false);
-  assert.equal(tooLong.error, "Username must be at most 100 characters");
+  assert.equal(tooLong.error, "A felhasználónév legfeljebb 100 karakter lehet");
 
   // Disallowed characters (SQL injection / XSS / special chars)
   assert.equal(validateUsername("admin'--").isValid, false);
@@ -69,7 +69,7 @@ test("validatePassword & validatePasswordMatch - enforce minimum 6 character bou
   assert.equal(validatePasswordMatch("secret123", "secret123").isValid, true);
   const mismatch = validatePasswordMatch("secret123", "secret456");
   assert.equal(mismatch.isValid, false);
-  assert.equal(mismatch.error, "Passwords do not match");
+  assert.equal(mismatch.error, "A megadott jelszavak nem egyeznek");
 });
 
 test("validateFullName - allows optional empty name and rejects > 100 character names", () => {
@@ -81,7 +81,7 @@ test("validateFullName - allows optional empty name and rejects > 100 character 
 
   const tooLong = validateFullName("A".repeat(101));
   assert.equal(tooLong.isValid, false);
-  assert.equal(tooLong.error, "Full name is too long");
+  assert.equal(tooLong.error, "A teljes név legfeljebb 100 karakter lehet");
 });
 
 test("sanitizeSearchTerm - strips PostgREST filter metacharacters to prevent .or() injection", () => {

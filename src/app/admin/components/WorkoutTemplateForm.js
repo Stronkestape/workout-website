@@ -40,7 +40,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return; // Prevent double-submit
+    if (loading) return;
     setError('');
 
     const validation = validateTemplate(formData);
@@ -53,7 +53,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
     try {
       await onSubmit(formData);
     } catch (err) {
-      setError(err.message || 'An error occurred while saving the template.');
+      setError(err.message || 'Hiba történt a sablon mentése során.');
     } finally {
       setLoading(false);
     }
@@ -64,14 +64,14 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
       <div className="bg-white rounded-2xl border border-stone-200/80 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-stone-200/80">
           <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-            {template ? 'Edit Workout Template' : 'Create Workout Template'}
+            {template ? 'Edzés Sablon Módosítása' : 'Új Edzés Sablon Létrehozása'}
           </h2>
           <button
             type="button"
             onClick={onCancel}
             disabled={loading}
             className="text-stone-500 hover:text-stone-800 p-1.5 rounded-lg transition-colors focus:outline-none"
-            aria-label="Close modal"
+            aria-label="Ablak bezárása"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -83,24 +83,24 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
           <FormInput
             id="title"
             name="title"
-            label="Workout Title"
+            label="Edzés Megnevezése"
             value={formData.title}
             onChange={handleChange}
             error={fieldErrors.title}
             disabled={loading}
-            placeholder="e.g. Spinning, WALKenergie, Functional Training"
+            placeholder="pl. Spinning, WALKenergie, Funkcionális Tréning"
             required
           />
 
           <FormInput
             id="description"
             name="description"
-            label="Description"
+            label="Leírás"
             type="textarea"
             value={formData.description}
             onChange={handleChange}
             disabled={loading}
-            placeholder="Detailed overview of the workout format, intensity, and structure..."
+            placeholder="Részletes leírás az edzés jellegéről, intenzitásáról és felépítéséről..."
             rows={4}
           />
 
@@ -108,7 +108,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
             <FormInput
               id="duration"
               name="duration"
-              label="Duration (minutes)"
+              label="Időtartam (perc)"
               type="number"
               value={formData.duration}
               onChange={handleChange}
@@ -122,7 +122,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
             <FormInput
               id="max_capacity"
               name="max_capacity"
-              label="Max Capacity (spots)"
+              label="Maximális férőhely (fő)"
               type="number"
               value={formData.max_capacity}
               onChange={handleChange}
@@ -135,7 +135,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
           </div>
 
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 text-xs text-stone-600 leading-relaxed">
-            This template defines the base settings for a class type. In the Manage Sessions tab, you can schedule specific calendar sessions from this template with an assigned instructor and start time.
+            Ez a sablon határozza meg az edzéstípus alapbeállításait. Az Órarend Kezelése fülön ebből a sablonból írhatsz ki konkrét időpontokat és rendelhetsz hozzájuk oktatót.
           </div>
 
           {error && <FormMessage type="error" message={error} />}
@@ -147,7 +147,7 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
               className="flex-1 px-5 py-2.5 border border-stone-300 rounded-xl hover:bg-stone-50 transition-colors font-medium text-stone-700 text-sm"
               disabled={loading}
             >
-              Cancel
+              Mégse
             </button>
             <button
               type="submit"
@@ -159,10 +159,10 @@ export default function WorkoutTemplateForm({ template, onSubmit, onCancel }) {
               )}
               <span>
                 {loading
-                  ? 'Saving...'
+                  ? 'Mentés...'
                   : template
-                  ? 'Save Changes'
-                  : 'Create Template'}
+                  ? 'Módosítások Mentése'
+                  : 'Sablon Létrehozása'}
               </span>
             </button>
           </div>

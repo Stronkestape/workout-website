@@ -58,7 +58,7 @@ const addWeeksNative = (date, weeks) => {
 };
 
 export const formatTime = (date) => {
-  return new Date(date).toLocaleTimeString("en-US", {
+  return new Date(date).toLocaleTimeString("hu-HU", {
     timeZone: APP_TIME_ZONE,
     hour: "2-digit",
     minute: "2-digit",
@@ -67,7 +67,7 @@ export const formatTime = (date) => {
 };
 
 export const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString("hu-HU", {
     timeZone: APP_TIME_ZONE,
     weekday: "long",
     year: "numeric",
@@ -79,13 +79,13 @@ export const formatDate = (date) => {
 export const formatDateTime = (dateString) => {
   const date = new Date(dateString);
   return {
-    date: date.toLocaleDateString("en-US", {
+    date: date.toLocaleDateString("hu-HU", {
       timeZone: APP_TIME_ZONE,
       weekday: "short",
       month: "short",
       day: "numeric",
     }),
-    time: date.toLocaleTimeString("en-US", {
+    time: date.toLocaleTimeString("hu-HU", {
       timeZone: APP_TIME_ZONE,
       hour: "2-digit",
       minute: "2-digit",
@@ -158,11 +158,11 @@ export const getCancellationInfo = (startTime, now = new Date()) => {
     Math.round((msUntilDeadline / (1000 * 60 * 60)) * 10) / 10
   );
 
-  const deadlineFormatted = `${deadline.toLocaleDateString("en-US", {
+  const deadlineFormatted = `${deadline.toLocaleDateString("hu-HU", {
     timeZone: APP_TIME_ZONE,
     month: "short",
     day: "numeric",
-  })} ${deadline.toLocaleTimeString("en-US", {
+  })} ${deadline.toLocaleTimeString("hu-HU", {
     timeZone: APP_TIME_ZONE,
     hour: "2-digit",
     minute: "2-digit",

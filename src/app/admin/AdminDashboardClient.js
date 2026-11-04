@@ -11,7 +11,7 @@ const SessionDetailView = dynamic(
     ssr: false,
     loading: () => (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
-        <div className="text-stone-600 font-medium text-sm">Loading session details...</div>
+        <div className="text-stone-600 font-medium text-sm">Edzés részleteinek betöltése...</div>
       </div>
     ),
   }
@@ -28,12 +28,12 @@ export default function AdminDashboardClient({
   const adminUser = initialUser;
 
   const tabs = [
-    { id: 'templates', label: 'Workout Templates' },
+    { id: 'templates', label: 'Edzés Sablonok' },
     {
       id: 'sessions',
-      label: isInstructor ? 'My Sessions' : 'Manage Sessions',
+      label: isInstructor ? 'Saját Edzéseim' : 'Órarend Kezelése',
     },
-    { id: 'session-details', label: 'Session Details & Bookings' },
+    { id: 'session-details', label: 'Résztvevők & Részletek' },
   ];
 
   return (
@@ -45,12 +45,12 @@ export default function AdminDashboardClient({
             <div className="flex items-center justify-between sm:block">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {isInstructor ? 'Instructor Dashboard' : 'Admin Dashboard'}
+                  {isInstructor ? 'Oktatói Műszerfal' : 'Adminisztrációs Vezérlőpult'}
                 </h1>
                 <p className="text-xs sm:text-sm text-stone-600 mt-0.5 sm:mt-1">
-                  Signed in as: <span className="font-semibold text-gray-800">{adminUser?.email}</span>
-                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 capitalize">
-                    {adminUser?.profile?.user_tier === 'instructor' ? 'Instructor' : (adminUser?.profile?.user_tier || 'admin')}
+                  Bejelentkezve mint: <span className="font-semibold text-gray-800">{adminUser?.email}</span>
+                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                    {adminUser?.profile?.user_tier === 'instructor' ? 'Oktató' : (adminUser?.profile?.user_tier || 'Admin')}
                   </span>
                 </p>
               </div>

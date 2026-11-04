@@ -78,7 +78,7 @@ export async function registerAction(prevState, formData) {
       }
       const errorMessage = signUpError.message?.includes('Username is already taken')
         ? MESSAGES.USERNAME_TAKEN
-        : signUpError.message || 'Failed to sign up';
+        : signUpError.message || 'Hiba történt a regisztráció során.';
       return { error: errorMessage, values: { email, username } };
     }
 
@@ -93,7 +93,7 @@ export async function registerAction(prevState, formData) {
     }
 
     return {
-      success: 'Registration successful! Please check your email to confirm your account.',
+      success: 'Sikeres regisztráció! Kérjük, ellenőrizd az e-mail fiókodat a fiók megerősítéséhez.',
     };
   } catch {
     return {

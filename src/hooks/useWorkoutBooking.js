@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { fetchUserBookingStatus } from '@/utils/supabaseQueries';
 import {
-  fetchUserBookingStatus,
-  bookWorkoutSession,
-  joinWaitlist,
-  cancelBooking,
-  leaveWaitlist,
-} from '@/utils/supabaseQueries';
+  bookWorkoutAction,
+  joinWaitlistAction,
+  cancelBookingAction,
+  leaveWaitlistAction,
+} from '@/app/calendar/actions';
 import { SPOTS_FULL_THRESHOLD } from '@/utils/constants';
 
 export function useWorkoutBooking(workout, user, onBookingChange) {
@@ -45,8 +45,8 @@ export function useWorkoutBooking(workout, user, onBookingChange) {
         setIsOnWaitlist(false);
         setWaitlistPosition(null);
       }
-    } catch (error) {
-      console.error('Error checking booking status:', error);
+    } catch (err) {
+      console.error('Error checking booking status:', err);
     }
   }, [userId, workoutId]);
 
@@ -66,31 +66,32 @@ export function useWorkoutBooking(workout, user, onBookingChange) {
     setError('');
 
     try {
-      const isFull = workout.resource.spotsLeft <= SPOTS_FULL_THRESHOLD;
+      const isFull = workout.resource?.spotsLeft <= SPOTS_FULL_THRESHOLD;
 
       if (isFull) {
-        // Join waitlist
-        const { error: waitlistError } = await joinWaitlist(userId, workout.id);
-
-        if (waitlistError) throw waitlistError;
+        // Join waitlist via Server Action
+        const result = await joinWaitlistAction(Number(workout.id));
+        if (!result.success) {
+          setError(result.error || 'Hiba történt a várólistára jelentkezéskor.');
+          return;
+        }
 
         setIsOnWaitlist(true);
-        await checkUserBookingStatus(); // Refresh to get waitlist position
+        await checkUserBookingStatus();
       } else {
-        // Book directly
-        const { error: bookingError } = await bookWorkoutSession(
-          userId,
-          workout.id
-        );
-
-        if (bookingError) throw bookingError;
+        // Book directly via Server Action
+        const result = await bookWorkoutAction(Number(workout.id));
+        if (!result.success) {
+          setError(result.error || 'Hiba történt a foglalás során.');
+          return;
+        }
 
         setUserBooking({ user_id: userId, session_id: workout.id });
       }
 
-      await onBookingChange?.(); // Refresh calendar and selectedWorkout silently
-    } catch (error) {
-      setError(error.message);
+      await onBookingChange?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Váratlan hiba történt a foglalás során.');
     } finally {
       setLoading(false);
     }
@@ -102,15 +103,16 @@ export function useWorkoutBooking(workout, user, onBookingChange) {
     setError('');
 
     try {
-      const { error: cancelError } = await cancelBooking(userId, workout.id);
-
-      if (cancelError) throw cancelError;
+      const result = await cancelBookingAction(Number(workout.id));
+      if (!result.success) {
+        setError(result.error || 'Hiba történt a foglalás lemondása során.');
+        return;
+      }
 
       setUserBooking(null);
-
-      await onBookingChange?.(); // Refresh calendar and selectedWorkout silently
-    } catch (error) {
-      setError(error.message);
+      await onBookingChange?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Váratlan hiba történt a lemondás során.');
     } finally {
       setLoading(false);
     }
@@ -122,16 +124,17 @@ export function useWorkoutBooking(workout, user, onBookingChange) {
     setError('');
 
     try {
-      const { error: leaveError } = await leaveWaitlist(userId, workout.id);
-
-      if (leaveError) throw leaveError;
+      const result = await leaveWaitlistAction(Number(workout.id));
+      if (!result.success) {
+        setError(result.error || 'Hiba történt a várólista elhagyása során.');
+        return;
+      }
 
       setIsOnWaitlist(false);
       setWaitlistPosition(null);
-
       await onBookingChange?.();
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Váratlan hiba történt.');
     } finally {
       setLoading(false);
     }

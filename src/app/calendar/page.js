@@ -4,9 +4,9 @@ import CalendarClient from "./CalendarClient";
 export const revalidate = 60; // 60-second Edge ISR cache for instant schedule delivery
 
 export const metadata = {
-  title: "Workout Calendar | Mozgás Központ",
+  title: "Heti Órarend & Helyfoglalás | Mozgás Központ",
   description:
-    "Browse weekly group classes, filter by workout format, and book your spot online at Mozgás Központ.",
+    "Böngészd át heti csoportos óráinkat, szűrj edzéstípus szerint, és foglald le a helyed online a Mozgás Központban.",
 };
 
 export default async function CalendarPage() {

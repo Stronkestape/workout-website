@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createSession, fetchInstructors } from '@/utils/adminQueries';
-import { updateSessionAction } from '../actions';
+import { fetchInstructors } from '@/utils/adminQueries';
+import { updateSessionAction, createSessionAction } from '../actions';
 import { FormInput } from '@/components/FormInput';
 import { FormMessage } from '@/components/FormMessage';
 import { validateSession, formatDateTimeLocal, calculateEndTime } from '@/utils/sessionValidation';
@@ -66,7 +66,7 @@ export default function SessionForm({
       if (error) throw error;
       setInstructors(data || []);
     } catch {
-      setError('Failed to load instructors.');
+      setError('Nem sikerült betölteni az oktatók listáját.');
     } finally {
       setLoadingInstructors(false);
     }
@@ -116,7 +116,7 @@ export default function SessionForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return; // Prevent accidental double-submit
+    if (loading) return;
     setError('');
 
     const validation = validateSession(formData, !!session);
@@ -139,18 +139,18 @@ export default function SessionForm({
       if (session) {
         const result = await updateSessionAction(session.id, sessionData);
         if (!result.success) throw new Error(result.error);
-        toast.success('Class session updated successfully!', 'Session Updated');
+        toast.success('Az edzés adatai sikeresen módosítva!', 'Edzés Módosítva');
       } else {
-        const { error } = await createSession(sessionData);
-        if (error) throw error;
-        toast.success('New class session scheduled on the calendar!', 'Session Scheduled');
+        const result = await createSessionAction(sessionData);
+        if (!result.success) throw new Error(result.error);
+        toast.success('Új edzés sikeresen rögzítve az órarendben!', 'Edzés Létrehozva');
       }
 
       onSubmit();
     } catch (err) {
-      const errMsg = err.message || 'Failed to save class session.';
+      const errMsg = err.message || 'Hiba történt az edzés mentése során.';
       setError(errMsg);
-      toast.error(errMsg, 'Save Error');
+      toast.error(errMsg, 'Mentési Hiba');
     } finally {
       setLoading(false);
     }
@@ -158,32 +158,28 @@ export default function SessionForm({
 
   return (
     <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl border border-stone-200/80 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b border-stone-200/80">
+      <div className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200">
+        <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-            {session ? 'Edit Class Session' : 'Schedule New Session'}
+            {session ? 'Edzés Szerkesztése' : 'Új Edzés Ütemezése'}
           </h2>
           <button
-            type="button"
             onClick={onCancel}
-            disabled={loading}
-            className="text-stone-500 hover:text-stone-800 p-1.5 rounded-lg transition-colors focus:outline-none"
-            aria-label="Close modal"
+            type="button"
+            className="text-stone-400 hover:text-stone-600 text-2xl font-bold leading-none p-1"
+            aria-label="Ablak bezárása"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ×
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label
               htmlFor="class_id"
               className="block text-sm font-semibold text-stone-900 mb-2"
             >
-              Workout Template{' '}
-              {!session && <span className="text-warm-terracotta">*</span>}
+              Edzés Sablon
             </label>
             <select
               id="class_id"
@@ -199,11 +195,11 @@ export default function SessionForm({
               required
               disabled={!!session || loading}
             >
-              <option value="">Select a workout template...</option>
+              <option value="">Válassz edzéssablont...</option>
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>
-                  {template.title} ({template.duration} min, max{' '}
-                  {template.max_capacity} spots)
+                  {template.title} ({template.duration} perc, max{' '}
+                  {template.max_capacity} fő)
                 </option>
               ))}
             </select>
@@ -214,7 +210,7 @@ export default function SessionForm({
             )}
             {session && (
               <p className="text-xs text-stone-600 mt-1">
-                Workout template cannot be changed after creation.
+                Az edzéssablon létrehozás után már nem módosítható.
               </p>
             )}
           </div>
@@ -223,12 +219,13 @@ export default function SessionForm({
             <FormInput
               id="start_time"
               name="start_time"
-              label="Start Time"
+              label="Kezdési Időpont"
               type="datetime-local"
               value={formData.start_time}
               onChange={handleStartTimeChange}
               error={fieldErrors.start_time}
               disabled={loading}
+              min={formatDateTimeLocal(new Date())}
               required
             />
 
@@ -236,7 +233,7 @@ export default function SessionForm({
               <FormInput
                 id="end_time"
                 name="end_time"
-                label="End Time"
+                label="Befejezési Időpont"
                 type="datetime-local"
                 value={formData.end_time}
                 onChange={handleChange}
@@ -246,7 +243,7 @@ export default function SessionForm({
               />
               {selectedTemplate && (
                 <p className="text-xs text-stone-600 mt-1">
-                  Automatically calculated from the {selectedTemplate.duration}-minute template.
+                  Automatikusan kalkulálva a {selectedTemplate.duration} perces sablon alapján.
                 </p>
               )}
             </div>
@@ -257,15 +254,15 @@ export default function SessionForm({
               htmlFor="instructor_id"
               className="block text-sm font-semibold text-stone-900 mb-2"
             >
-              Instructor
+              Oktató
             </label>
             {isInstructor ? (
               <div className="w-full px-4 py-2.5 bg-stone-100 border border-stone-300 rounded-xl text-stone-700 text-sm">
                 {currentUser?.profile?.full_name ||
                   currentUser?.profile?.username ||
-                  'Assigned to me'}
+                  'Hozzám rendelve'}
                 <span className="text-xs text-stone-600 ml-2 font-normal">
-                  (Assigned as your own session)
+                  (Saját edzésként hozzárendelve)
                 </span>
               </div>
             ) : (
@@ -301,12 +298,12 @@ export default function SessionForm({
                   htmlFor="is_recurring"
                   className="text-sm font-semibold text-stone-900"
                 >
-                  Weekly Recurring Session (4-week rolling schedule)
+                  Heti ismétlődő edzés (4 hetes gördülő ütemezés)
                 </label>
                 <p className="text-xs text-stone-600 mt-0.5">
                   {session
-                    ? 'The system automatically maintains weekly recurrence for this session.'
-                    : 'Automatically generates sessions at the same time slot for the next 4 weeks.'}
+                    ? 'A rendszer automatikusan fenntartja a heti ismétlődést ehhez az edzéshez.'
+                    : 'Automatikusan létrehozza az edzést ugyanebben az idősávban a következő 4 hétre.'}
                 </p>
               </div>
             </div>
@@ -325,7 +322,7 @@ export default function SessionForm({
                 htmlFor="is_active"
                 className="ml-2.5 text-sm font-semibold text-stone-700"
               >
-                Active (visible on the calendar for member bookings)
+                Aktív (látható az órarendben a tagok számára)
               </label>
             </div>
           </div>
@@ -339,7 +336,7 @@ export default function SessionForm({
               className="flex-1 px-5 py-2.5 border border-stone-300 rounded-xl hover:bg-stone-50 transition-colors font-medium text-stone-700 text-sm"
               disabled={loading}
             >
-              Cancel
+              Mégse
             </button>
             <button
               type="submit"
@@ -351,10 +348,10 @@ export default function SessionForm({
               )}
               <span>
                 {loading
-                  ? 'Saving...'
+                  ? 'Mentés folyamatban...'
                   : session
-                  ? 'Save Changes'
-                  : 'Schedule Session'}
+                  ? 'Módosítások Mentése'
+                  : 'Edzés Ütemezése'}
               </span>
             </button>
           </div>

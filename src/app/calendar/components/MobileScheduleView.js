@@ -10,6 +10,7 @@ import {
   isBefore,
   isAfter,
 } from "date-fns";
+import { hu } from "date-fns/locale";
 import WorkoutIcon from "@/components/WorkoutIcon";
 import {
   formatTime,
@@ -112,7 +113,7 @@ export default function MobileScheduleView({
               type="button"
               onClick={handleMobilePrevWeek}
               disabled={!canMobileGoPrev}
-              aria-label="Previous week"
+              aria-label="Előző hét"
               className={`p-2 rounded-lg text-sm font-semibold transition-colors ${
                 canMobileGoPrev
                   ? "bg-stone-800 text-white active:bg-stone-700"
@@ -126,13 +127,13 @@ export default function MobileScheduleView({
               onClick={handleMobileToday}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-200 text-stone-800 hover:bg-stone-300 transition-colors"
             >
-              Today
+              Ma
             </button>
             <button
               type="button"
               onClick={handleMobileNextWeek}
               disabled={!canMobileGoNext}
-              aria-label="Next week"
+              aria-label="Következő hét"
               className={`p-2 rounded-lg text-sm font-semibold transition-colors ${
                 canMobileGoNext
                   ? "bg-stone-800 text-white active:bg-stone-700"
@@ -143,8 +144,8 @@ export default function MobileScheduleView({
             </button>
           </div>
           <div className="text-xs font-bold text-stone-800 text-right">
-            {format(mobileWeekStart, "MMM d")} –{" "}
-            {format(mobileWeekEnd, "MMM d, yyyy")}
+            {format(mobileWeekStart, "MMM d.", { locale: hu })} –{" "}
+            {format(mobileWeekEnd, "yyyy. MMM d.", { locale: hu })}
           </div>
         </div>
 
@@ -159,7 +160,7 @@ export default function MobileScheduleView({
                 : "bg-stone-100 text-stone-700 hover:bg-stone-200"
             }`}
           >
-            <span className="text-[10px] uppercase">All</span>
+            <span className="text-[10px] uppercase">Összes</span>
             <span className="text-xs font-bold mt-0.5">
               {mobileWeekEvents.length}
             </span>
@@ -186,7 +187,7 @@ export default function MobileScheduleView({
                 }`}
               >
                 <span className="text-[10px] font-medium uppercase opacity-80">
-                  {format(day, "EEE").slice(0, 2)}
+                  {format(day, "EEE", { locale: hu }).slice(0, 2)}
                 </span>
                 <span className="text-xs font-bold mt-0.5">
                   {format(day, "d")}
@@ -225,24 +226,23 @@ export default function MobileScheduleView({
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-stone-900">
-                    {format(day, "EEEE, MMM d")}
+                  <span className="font-bold text-sm text-stone-900 capitalize">
+                    {format(day, "EEEE, MMMM d.", { locale: hu })}
                   </span>
                   {isTodayDay && (
                     <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-warm-terracotta text-white rounded-full">
-                      Today
+                      Ma
                     </span>
                   )}
                 </div>
                 <span className="text-xs text-stone-600 font-medium">
-                  {dayEvents.length}{" "}
-                  {dayEvents.length === 1 ? "class" : "classes"}
+                  {dayEvents.length} edzés
                 </span>
               </div>
 
               {dayEvents.length === 0 ? (
                 <div className="p-6 text-center text-sm text-stone-600 font-medium">
-                  No classes scheduled for this day.
+                  Erre a napra nincs kiírt csoportos edzés.
                 </div>
               ) : (
                 <div className="divide-y divide-stone-200">
@@ -294,16 +294,16 @@ export default function MobileScheduleView({
                               {isBooked && (
                                 <span
                                   className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800 shrink-0 border border-green-300"
-                                  title="Booked"
-                                  aria-label="Booked"
+                                  title="Lefoglalva"
+                                  aria-label="Lefoglalva"
                                 >
                                   <span aria-hidden="true">✓</span>
-                                  <span className="sr-only">Booked</span>
+                                  <span className="sr-only">Lefoglalva</span>
                                 </span>
                               )}
                             </div>
                             <p className="text-xs text-stone-600 truncate mt-0.5">
-                              Instructor: {instructorName}
+                              Oktató: {instructorName}
                             </p>
                           </div>
                         </div>
@@ -319,7 +319,7 @@ export default function MobileScheduleView({
                                 : "bg-green-100 text-green-900 border border-green-300"
                             }`}
                           >
-                            {isFull ? "Full" : `${spotsLeft}/${maxCapacity}`}
+                            {isFull ? "Megtelt" : `${spotsLeft}/${maxCapacity}`}
                           </span>
                           <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                         </div>
@@ -336,8 +336,8 @@ export default function MobileScheduleView({
           <div className="bg-white rounded-xl shadow-xs border border-stone-300 p-8 text-center">
             <p className="text-stone-600 font-medium text-sm">
               {selectedWorkoutType !== "all"
-                ? "No classes found for the selected category this week."
-                : "No classes scheduled for this week."}
+                ? "Nincs edzés a kiválasztott kategóriában ezen a héten."
+                : "Ezen a héten nincsenek kiírt csoportos edzések."}
             </p>
           </div>
         )}

@@ -6,8 +6,8 @@ import ProfileForm from '@/components/ProfileForm';
 import PasswordChangeForm from '@/components/PasswordChangeForm';
 
 export const metadata = {
-  title: 'Profile Settings | Mozgás Központ',
-  description: 'Manage your profile details, password, and account settings.',
+  title: 'Profil Beállítások | Mozgás Központ',
+  description: 'Kezeld személyes adataidat, jelszavadat és fiókbeállításaidat.',
 };
 
 export default async function ProfilePage() {
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
     return (
       <div className="p-6 max-w-4xl mx-auto">
         <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-rose-800 text-sm font-medium">
-          Failed to load profile details. Please try refreshing or logging in again.
+          Nem sikerült betölteni a profil adatait. Kérjük, próbáld újra vagy jelentkezz be ismét.
         </div>
       </div>
     );
@@ -52,23 +52,23 @@ export default async function ProfilePage() {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#8c3010] mb-1">
               <span className="w-2 h-2 rounded-full bg-[#8c3010]" aria-hidden="true" />
-              <span>My Account</span>
+              <span>Fiókom</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-              Profile Settings
+              Profil Beállítások
             </h1>
             <p className="text-sm sm:text-base text-stone-600 mt-1">
-              Manage your personal information, contact email, and account password.
+              Kezeld a személyes adataidat, az értesítési e-mail címedet és a jelszavadat.
             </p>
           </div>
           {isAdmin && (
             <div className="bg-purple-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-semibold shadow-xs text-xs sm:text-sm shrink-0">
-              Administrator
+              Adminisztrátor
             </div>
           )}
           {isInstructor && !isAdmin && (
             <div className="bg-indigo-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-semibold shadow-xs text-xs sm:text-sm shrink-0">
-              Instructor
+              Oktató
             </div>
           )}
         </div>
@@ -80,14 +80,14 @@ export default async function ProfilePage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-6">
             <h2 className="text-xl font-bold mb-4 text-stone-900">
-              Personal Information
+              Személyes Adatok
             </h2>
             <ProfileForm profile={profile} />
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-6">
             <h2 className="text-xl font-bold mb-4 text-stone-900">
-              Change Password
+              Jelszó Módosítása
             </h2>
             <PasswordChangeForm />
           </div>
@@ -95,16 +95,16 @@ export default async function ProfilePage() {
           {isAdmin && (
             <div className="bg-purple-50/70 rounded-2xl shadow-sm p-6 border border-purple-200">
               <h2 className="text-xl font-bold mb-2 text-purple-950">
-                Administration Console
+                Adminisztrációs Vezérlőpult
               </h2>
               <p className="text-purple-800 mb-4 text-sm">
-                As an administrator, you can configure workout templates, schedule classes, and manage participant rosters.
+                Adminisztrátorként kezelheted az edzéssablonokat, meghirdethetsz órákat és megtekintheted a résztvevők névsorát.
               </p>
               <Link
                 href="/admin"
                 className="inline-flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm shadow-xs"
               >
-                <span>Open Admin Dashboard</span>
+                <span>Adminisztráció Megnyitása</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -115,17 +115,17 @@ export default async function ProfilePage() {
           {isInstructor && !isAdmin && (
             <div className="bg-indigo-50/70 rounded-2xl shadow-sm p-6 border border-indigo-200">
               <h2 className="text-xl font-bold mb-2 text-indigo-950">
-                Instructor Dashboard
+                Oktatói Műszerfal
               </h2>
               <p className="text-indigo-800 text-sm">
-                You are registered as an instructor. You can schedule sessions, manage your assigned classes, and view participant rosters.
+                Oktatóként hozzáférsz a hozzád rendelt edzésekhez, kezelheted a beosztásodat és megtekintheted a vendégek névsorát.
               </p>
               <div className="mt-4">
                 <Link
                   href="/admin"
                   className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors font-medium text-sm shadow-xs"
                 >
-                  <span>Open Instructor Dashboard</span>
+                  <span>Oktatói Pult Megnyitása</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -162,9 +162,9 @@ export default async function ProfilePage() {
 
               <div className="mt-5 pt-5 border-t border-stone-200">
                 <div className="flex justify-between text-sm py-1">
-                  <span className="text-stone-700">Member since</span>
+                  <span className="text-stone-700">Tagság kezdete</span>
                   <span className="font-semibold text-stone-900">
-                    {new Date(profile.created_at).toLocaleDateString('en-US', {
+                    {new Date(profile.created_at).toLocaleDateString('hu-HU', {
                       timeZone: 'Europe/Budapest',
                       year: 'numeric',
                       month: 'short',
@@ -172,7 +172,7 @@ export default async function ProfilePage() {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm py-1 mt-1">
-                  <span className="text-stone-700">Account tier</span>
+                  <span className="text-stone-700">Fiók típusa</span>
                   <span
                     className={`font-semibold ${
                       isAdmin
@@ -183,10 +183,10 @@ export default async function ProfilePage() {
                     }`}
                   >
                     {isAdmin
-                      ? 'Admin'
+                      ? 'Adminisztrátor'
                       : isInstructor
-                      ? 'Instructor'
-                      : 'Member'}
+                      ? 'Oktató'
+                      : 'Vendég'}
                   </span>
                 </div>
               </div>
@@ -202,18 +202,18 @@ export default async function ProfilePage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-stone-900 text-base">My Bookings</h3>
-                <p className="text-xs text-stone-600">Review your class bookings & waitlist</p>
+                <h3 className="font-bold text-stone-900 text-base">Foglalásaim</h3>
+                <p className="text-xs text-stone-600">Tekintsd át edzéseidet és várólistáidat</p>
               </div>
             </div>
             <p className="text-xs text-stone-600 leading-relaxed mb-4">
-              View your confirmed upcoming workout schedule and manage your active waitlist spots.
+              Nézd meg a megerősített közelgő edzéseidet és kezeld az aktív várólistás jelentkezéseidet.
             </p>
             <Link
               href="/bookings"
               className="w-full inline-flex items-center justify-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white font-semibold text-sm py-2.5 px-4 rounded-xl transition-colors shadow-xs"
             >
-              <span>View My Bookings</span>
+              <span>Foglalásaim Megtekintése</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

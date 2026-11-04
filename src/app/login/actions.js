@@ -12,7 +12,7 @@ export async function loginAction(prevState, formData) {
 
   if (!emailOrUsername) {
     return {
-      error: 'Please enter your email or username',
+      error: 'Kérjük, add meg az e-mail címedet vagy a felhasználónevedet.',
       values: { emailOrUsername },
     };
   }

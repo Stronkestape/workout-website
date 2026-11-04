@@ -51,8 +51,8 @@ export default function WorkoutTemplateManager({
       setTemplates(data || []);
     } catch (err) {
       console.error('Error loading templates:', err);
-      setError('Failed to load workout templates.');
-      toast.error('Failed to load workout templates.');
+      setError('Nem sikerült betölteni az edzéssablonokat.');
+      toast.error('Nem sikerült betölteni az edzéssablonokat.');
     } finally {
       setLoading(false);
     }
@@ -81,12 +81,12 @@ export default function WorkoutTemplateManager({
       const deletedTitle = templateToDelete.title;
       setTemplates(templates.filter((t) => t.id !== templateToDelete.id));
       setTemplateToDelete(null);
-      toast.success(`Template "${deletedTitle}" deleted successfully!`, 'Template Deleted');
+      toast.success(`A(z) "${deletedTitle}" sablon sikeresen törölve!`, 'Sablon törölve');
     } catch (err) {
       console.error('Error deleting template:', err);
-      const errMsg = err.message || 'An error occurred while deleting the template.';
+      const errMsg = err.message || 'Hiba történt a sablon törlése során.';
       setError(errMsg);
-      toast.error(errMsg, 'Delete Error');
+      toast.error(errMsg, 'Törlési hiba');
       setTemplateToDelete(null);
     } finally {
       setDeleting(false);
@@ -106,21 +106,21 @@ export default function WorkoutTemplateManager({
         setTemplates(
           templates.map((t) => (t.id === editingTemplate.id ? data[0] : t))
         );
-        toast.success(`Template "${formData.title}" updated successfully!`, 'Template Updated');
+        toast.success(`A(z) "${formData.title}" sablon sikeresen frissítve!`, 'Sablon frissítve');
       } else {
         const { data, error } = await createWorkoutTemplate(formData);
 
         if (error) throw error;
 
         setTemplates([data[0], ...templates]);
-        toast.success(`New workout template "${formData.title}" created successfully!`, 'Template Created');
+        toast.success(`Új edzéssablon ("${formData.title}") sikeresen létrehozva!`, 'Sablon létrehozva');
       }
 
       setShowForm(false);
       setEditingTemplate(null);
     } catch (err) {
       console.error('Error saving template:', err);
-      toast.error(err.message || 'Failed to save workout template.', 'Save Error');
+      toast.error(err.message || 'Nem sikerült elmenteni az edzéssablont.', 'Mentési hiba');
       throw err;
     }
   };
@@ -134,7 +134,7 @@ export default function WorkoutTemplateManager({
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">
-          <div className="text-stone-600 font-medium">Loading templates...</div>
+          <div className="text-stone-600 font-medium">Sablonok betöltése...</div>
         </div>
       </div>
     );
@@ -145,10 +145,10 @@ export default function WorkoutTemplateManager({
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-            Workout Templates
+            Edzés Sablonok
           </h2>
           <p className="text-sm text-stone-600 mt-1">
-            Manage group class types and templates (duration, max capacity, description).
+            Kezeld a csoportos edzéstípusokat (időtartam, maximális férőhely, leírás).
           </p>
         </div>
         <button
@@ -159,7 +159,7 @@ export default function WorkoutTemplateManager({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>Create New Template</span>
+          <span>+ Új Sablon Létrehozása</span>
         </button>
       </div>
 
@@ -175,17 +175,17 @@ export default function WorkoutTemplateManager({
       {templates.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-12 text-center">
           <h3 className="text-xl font-bold text-stone-900 mb-2">
-            No Workout Templates Yet
+            Még nincsenek edzéssablonok
           </h3>
           <p className="text-stone-600 mb-6 max-w-sm mx-auto text-sm">
-            Create a workout template to start scheduling group classes on the calendar.
+            Hozz létre egy edzéssablont a csoportos órák kiírásához!
           </p>
           <button
             type="button"
             onClick={handleCreate}
             className="inline-flex items-center gap-2 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
           >
-            <span>Create First Template</span>
+            <span>Első Sablon Létrehozása</span>
           </button>
         </div>
       ) : (
@@ -203,20 +203,20 @@ export default function WorkoutTemplateManager({
                 </div>
 
                 <p className="text-sm text-stone-600 mb-4 line-clamp-3 min-h-[60px] leading-relaxed">
-                  {template.description || 'No description provided.'}
+                  {template.description || 'Nincs leírás megadva.'}
                 </p>
 
                 <div className="space-y-2 mb-4 bg-stone-50 rounded-xl p-3 border border-stone-200/60">
                   <div className="flex justify-between text-xs">
-                    <span className="text-stone-600 font-medium">Duration:</span>
+                    <span className="text-stone-600 font-medium">Időtartam:</span>
                     <span className="font-bold text-stone-900">
-                      {template.duration} min
+                      {template.duration} perc
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-stone-600 font-medium">Capacity:</span>
+                    <span className="text-stone-600 font-medium">Férőhely:</span>
                     <span className="font-bold text-stone-900">
-                      {template.max_capacity} spots
+                      {template.max_capacity} fő
                     </span>
                   </div>
                 </div>
@@ -226,16 +226,16 @@ export default function WorkoutTemplateManager({
                 <button
                   type="button"
                   onClick={() => handleEdit(template)}
-                  className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl transition-colors font-semibold text-xs"
+                  className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl transition-colors font-semibold text-xs text-center"
                 >
-                  Edit
+                  Módosítás
                 </button>
                 <button
                   type="button"
                   onClick={() => setTemplateToDelete(template)}
-                  className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl transition-colors font-semibold text-xs"
+                  className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl transition-colors font-semibold text-xs text-center"
                 >
-                  Delete
+                  Törlés
                 </button>
               </div>
             </div>
@@ -254,13 +254,13 @@ export default function WorkoutTemplateManager({
       {!!templateToDelete && (
         <ConfirmModal
           isOpen={!!templateToDelete}
-          title="Delete Workout Template"
+          title="Edzés sablon törlése"
           message={
             templateToDelete
-              ? `Are you sure you want to delete the "${templateToDelete.title}" template?\n\nWarning: This action may affect future scheduled sessions linked to this template.`
+              ? `Biztosan törölni szeretnéd a(z) "${templateToDelete.title}" sablont?\n\nFigyelem: Ez a művelet hatással lehet a sablonhoz kapcsolódó jövőbeli edzésekre.`
               : ''
           }
-          confirmLabel="Delete Template"
+          confirmLabel="Sablon törlése"
           loading={deleting}
           onConfirm={confirmDeleteTemplate}
           onCancel={() => setTemplateToDelete(null)}

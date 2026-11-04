@@ -11,14 +11,14 @@ export default function RegisterPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Fiók Létrehozása</h2>
       <div className="flex items-center justify-center min-h-[75vh] py-8">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
           <form action={formAction} className="space-y-4">
             <FormField
               id="email"
               name="email"
-              label="Email"
+              label="E-mail cím"
               type="email"
               defaultValue={state?.values?.email || ''}
               error={state?.fieldErrors?.email}
@@ -30,11 +30,11 @@ export default function RegisterPage() {
             <FormField
               id="username"
               name="username"
-              label="Username"
+              label="Felhasználónév"
               defaultValue={state?.values?.username || ''}
               error={state?.fieldErrors?.username}
               disabled={isPending}
-              hint="3–20 characters: lowercase letters, numbers, underscores, and dots"
+              hint="3–20 karakter: kisbetűk, számok, aláhúzás és pont"
               required
               autoComplete="username"
             />
@@ -42,7 +42,7 @@ export default function RegisterPage() {
             <FormField
               id="password"
               name="password"
-              label="Password"
+              label="Jelszó"
               type="password"
               error={state?.fieldErrors?.password}
               disabled={isPending}
@@ -53,7 +53,7 @@ export default function RegisterPage() {
             {state?.emailTaken && (
               <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-900">
                 <p className="font-medium mb-1">
-                  This email address is already associated with an account.
+                  Ez az e-mail cím már társítva van egy regisztrált fiókhoz.
                 </p>
                 <div className="flex gap-3 mt-2">
                   <Link
@@ -64,14 +64,14 @@ export default function RegisterPage() {
                     }`}
                     className="text-blue-600 hover:text-blue-800 font-semibold underline"
                   >
-                    Send password reset email
+                    Jelszó-visszaállító link küldése
                   </Link>
                   <span className="text-amber-400">•</span>
                   <Link
                     href="/login"
                     className="text-blue-600 hover:text-blue-800 font-semibold underline"
                   >
-                    Go to Login
+                    Vissza a bejelentkezéshez
                   </Link>
                 </div>
               </div>
@@ -85,13 +85,13 @@ export default function RegisterPage() {
               disabled={isPending}
               className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
             >
-              {isPending ? 'Creating account...' : 'Create Account'}
+              {isPending ? 'Fiók létrehozása folyamatban...' : 'Regisztráció'}
             </button>
 
             <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
-              Already have an account?{' '}
+              Már van fiókod?{' '}
               <Link href="/login" className="text-blue-600 hover:underline font-medium">
-                Log in
+                Jelentkezz be
               </Link>
             </div>
           </form>

@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/calendarHelpers.test.mjs tests/validators.test.mjs tests/workoutValidation.test.mjs tests/databaseIntegrity.test.mjs tests/sessionNotifications.test.mjs"
+    "test": "node --test tests/calendarHelpers.test.mjs tests/validators.test.mjs tests/workoutValidation.test.mjs tests/databaseIntegrity.test.mjs tests/sessionNotifications.test.mjs",
+    "test:e2e": "playwright test"
   },
   "browserslist": [
     "last 2 Chrome versions",
@@ -29,11 +30,16 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "eslint-plugin-react-hooks": "^6.1.0",
     "supabase": "^2.47.2",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "^6.0.3"
   }
 }

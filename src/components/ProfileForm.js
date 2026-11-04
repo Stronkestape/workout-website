@@ -19,11 +19,11 @@ export default function ProfileForm({ profile, onUpdate }) {
       <FormField
         id="username"
         name="username"
-        label="Username"
+        label="Felhasználónév"
         defaultValue={state?.values?.username ?? profile.username}
         error={state?.fieldErrors?.username}
         disabled={isPending}
-        hint="3–20 characters: lowercase letters, numbers, underscores, and dots"
+        hint="3–20 karakter: kisbetűk, számok, aláhúzás és pont"
         required
         autoComplete="username"
       />
@@ -31,12 +31,12 @@ export default function ProfileForm({ profile, onUpdate }) {
       <FormField
         id="email"
         name="email"
-        label="Email"
+        label="E-mail cím"
         type="email"
         defaultValue={state?.values?.email ?? profile.email}
         error={state?.fieldErrors?.email}
         disabled={isPending}
-        hint="Changing your email requires verification"
+        hint="Az e-mail cím megváltoztatása megerősítést igényel"
         required
         autoComplete="email"
       />
@@ -44,7 +44,7 @@ export default function ProfileForm({ profile, onUpdate }) {
       <FormField
         id="fullName"
         name="fullName"
-        label="Full Name (Optional)"
+        label="Teljes Név (Opcionális)"
         defaultValue={state?.values?.fullName ?? (profile.full_name || '')}
         error={state?.fieldErrors?.fullName}
         disabled={isPending}
@@ -59,7 +59,7 @@ export default function ProfileForm({ profile, onUpdate }) {
         disabled={isPending}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
       >
-        {isPending ? 'Saving...' : 'Save Changes'}
+        {isPending ? 'Mentés...' : 'Módosítások Mentése'}
       </button>
     </form>
   );

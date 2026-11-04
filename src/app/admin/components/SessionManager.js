@@ -69,8 +69,8 @@ export default function SessionManager({
       setTemplates(templatesResult.data || []);
     } catch (err) {
       console.error('Error loading data:', err);
-      setError('Failed to load class sessions.');
-      toast.error('Failed to load class sessions.');
+      setError('Nem sikerült betölteni az edzéseket.');
+      toast.error('Nem sikerült betölteni az edzéseket.');
     } finally {
       setLoading(false);
     }
@@ -98,18 +98,18 @@ export default function SessionManager({
         throw new Error(result.error);
       }
 
-      const sessionTitle = sessionToDelete.workout_classes?.title || 'Session';
+      const sessionTitle = sessionToDelete.workout_classes?.title || 'Edzés';
       setSessions(sessions.filter((s) => s.id !== sessionToDelete.id));
       setSessionToDelete(null);
       toast.success(
-        `Session "${sessionTitle}" successfully deleted!`,
-        'Session Deleted'
+        `A(z) "${sessionTitle}" edzés sikeresen törölve!`,
+        'Edzés törölve'
       );
     } catch (err) {
       console.error('Error deleting session:', err);
-      const errMsg = err.message || 'Failed to delete session.';
+      const errMsg = err.message || 'Nem sikerült törölni az edzést.';
       setError(errMsg);
-      toast.error(errMsg, 'Deletion Error');
+      toast.error(errMsg, 'Törlési hiba');
       setSessionToDelete(null);
     } finally {
       setDeleting(false);
@@ -137,7 +137,7 @@ export default function SessionManager({
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">
-          <div className="text-stone-600 font-medium">Loading sessions...</div>
+          <div className="text-stone-600 font-medium">Edzések betöltése...</div>
         </div>
       </div>
     );
@@ -148,12 +148,12 @@ export default function SessionManager({
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-            {isInstructor ? 'My Scheduled Sessions' : 'Manage Class Sessions'}
+            {isInstructor ? 'Saját Edzéseim' : 'Órarend Kezelése'}
           </h2>
           <p className="text-sm text-stone-600 mt-1">
             {isInstructor
-              ? 'Manage your scheduled workouts, session times, and attendee lists.'
-              : 'Schedule sessions from templates and assign instruction staff.'}
+              ? 'Kezeld a meghirdetett óráidat, időpontokat és a résztvevők listáját.'
+              : 'Írj ki új órákat a sablonokból és rendelj hozzájuk oktatót.'}
           </p>
         </div>
         <button
@@ -164,7 +164,7 @@ export default function SessionManager({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>+ Schedule New Session</span>
+          <span>+ Új Edzés Kiírása</span>
         </button>
       </div>
 
@@ -179,7 +179,7 @@ export default function SessionManager({
               : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
           }`}
         >
-          All ({sessions.length})
+          Összes ({sessions.length})
         </button>
         <button
           type="button"
@@ -190,7 +190,7 @@ export default function SessionManager({
               : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
           }`}
         >
-          Today
+          Ma
         </button>
         <button
           type="button"
@@ -201,7 +201,7 @@ export default function SessionManager({
               : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
           }`}
         >
-          Upcoming Sessions
+          Közelgő Edzések
         </button>
       </div>
 
@@ -217,7 +217,7 @@ export default function SessionManager({
       {templates.length === 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <p className="text-amber-800 text-sm font-medium">
-            No workout templates available. Please create at least one workout template before scheduling sessions.
+            Nincs elérhető edzéssablon. Kérjük, hozz létre legalább egy sablont az órák kiírása előtt!
           </p>
         </div>
       )}
@@ -225,12 +225,12 @@ export default function SessionManager({
       {filteredSessions.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-12 text-center">
           <h3 className="text-xl font-bold text-stone-900 mb-2">
-            No sessions to display
+            Nincs megjeleníthető edzés
           </h3>
           <p className="text-stone-600 mb-6 text-sm max-w-sm mx-auto">
             {templates.length === 0
-              ? 'Create a workout template first to get started.'
-              : 'Schedule a new class session by clicking the button above.'}
+              ? 'Kezdésként hozz létre egy sablont az "Edzés Sablonok" fülön.'
+              : 'Írj ki egy új csoportos órát a fenti gombra kattintva.'}
           </p>
           {templates.length > 0 && (
             <button
@@ -238,7 +238,7 @@ export default function SessionManager({
               onClick={handleCreate}
               className="inline-flex items-center gap-2 bg-warm-terracotta text-white px-5 py-2.5 rounded-xl hover:bg-warm-terracotta-hover transition-colors font-medium text-sm shadow-xs"
             >
-              <span>+ Schedule New Session</span>
+              <span>+ Új Edzés Kiírása</span>
             </button>
           )}
         </div>
@@ -247,7 +247,7 @@ export default function SessionManager({
           {filteredSessions.map((session) => {
             const instructorName = session.instructor
               ? session.instructor.full_name || session.instructor.username
-              : 'Unassigned instructor';
+              : 'Nincs kijelölt oktató';
             const isPast = new Date(session.start_time) < referenceDate;
             const spotsLeft =
               session.workout_classes.max_capacity -
@@ -271,46 +271,46 @@ export default function SessionManager({
                         </h3>
                         {session.is_recurring && (
                           <span className="bg-stone-100 text-stone-700 text-xs px-2.5 py-0.5 rounded-md font-medium">
-                            Weekly recurring
+                            Heti ismétlődés
                           </span>
                         )}
                         {!session.is_active && (
                           <span className="bg-rose-100 text-rose-800 text-xs px-2.5 py-0.5 rounded-md font-medium">
-                            Inactive
+                            Inaktív
                           </span>
                         )}
                         {isPast && (
                           <span className="bg-stone-200 text-stone-600 text-xs px-2.5 py-0.5 rounded-md font-medium">
-                            Past session
+                            Korábbi edzés
                           </span>
                         )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-stone-600 mt-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-stone-600 font-medium">Time:</span>
+                          <span className="text-stone-600 font-medium">Időpont:</span>
                           <span className="font-semibold text-stone-800">
                             {formatDate(session.start_time)} •{' '}
                             {formatTime(session.start_time)}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 truncate">
-                          <span className="text-stone-600 font-medium">Instructor:</span>
+                          <span className="text-stone-600 font-medium">Oktató:</span>
                           <span className="font-semibold text-stone-800 truncate">
                             {instructorName}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-stone-600 font-medium">Spots:</span>
+                          <span className="text-stone-600 font-medium">Szabad helyek:</span>
                           <span className="font-semibold text-stone-800">
-                            {spotsLeft} available / {session.workout_classes.max_capacity}
+                            {spotsLeft} szabad / {session.workout_classes.max_capacity}
                           </span>
                         </div>
                       </div>
 
                       {session.current_bookings > 0 && (
                         <div className="mt-2 text-xs text-stone-600 font-medium">
-                          {session.current_bookings} registered attendees
+                          {session.current_bookings} bejelentkezett résztvevő
                         </div>
                       )}
                     </div>
@@ -321,14 +321,14 @@ export default function SessionManager({
                         onClick={() => handleEdit(session)}
                         className="flex-1 sm:flex-initial bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl transition-colors font-semibold text-xs text-center"
                       >
-                        Edit
+                        Módosítás
                       </button>
                       <button
                         type="button"
                         onClick={() => setSessionToDelete(session)}
                         className="flex-1 sm:flex-initial bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl transition-colors font-semibold text-xs text-center"
                       >
-                        Delete
+                        Törlés
                       </button>
                     </div>
                   </div>
@@ -352,17 +352,17 @@ export default function SessionManager({
       {!!sessionToDelete && (
         <ConfirmModal
           isOpen={!!sessionToDelete}
-          title="Delete Class Session"
+          title="Edzés törlése"
           message={
             sessionToDelete
-              ? `Are you sure you want to delete the "${sessionToDelete.workout_classes.title}" session on ${formatDate(
+              ? `Biztosan törölni szeretnéd a(z) "${sessionToDelete.workout_classes.title}" edzést (${formatDate(
                   sessionToDelete.start_time
-                )} at ${formatTime(
+                )}, ${formatTime(
                   sessionToDelete.start_time
-                )}?\n\nThis action will cancel existing bookings and notify registered participants via email.`
+                )})?\n\nEz a művelet visszavonja az összes meglévő foglalást és e-mailben értesíti a résztvevőket.`
               : ''
           }
-          confirmLabel="Delete Session"
+          confirmLabel="Edzés törlése"
           loading={deleting}
           onConfirm={confirmDeleteSession}
           onCancel={() => setSessionToDelete(null)}

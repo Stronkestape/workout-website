@@ -72,7 +72,7 @@ export default function SessionDetailView({
       setSessions(data || []);
     } catch (err) {
       console.error('Error loading sessions:', err);
-      setError('Failed to load sessions');
+      setError('Nem sikerült betölteni az edzéseket');
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function SessionDetailView({
       return nextBookings.length;
     } catch (err) {
       console.error('Error loading session details:', err);
-      setError('Failed to load session details');
+      setError('Nem sikerült betölteni az edzés részleteit');
       return null;
     } finally {
       setLoading(false);
@@ -126,17 +126,17 @@ export default function SessionDetailView({
             ? updatedCount
             : Math.max(0, (selectedSession.current_bookings || 1) - 1),
       });
-      const userName = bookingToRemove.user_profiles?.username || 'participant';
+      const userName = bookingToRemove.user_profiles?.username || 'résztvevő';
       toast.success(
-        `@${userName} successfully removed and notified via email!`,
-        'Participant Removed'
+        `@${userName} sikeresen eltávolítva az edzésről és e-mailben értesítve!`,
+        'Résztvevő eltávolítva'
       );
       setBookingToRemove(null);
     } catch (err) {
       console.error('Error removing booking:', err);
-      const errMsg = err.message || 'Failed to remove participant.';
+      const errMsg = err.message || 'Nem sikerült eltávolítani a résztvevőt.';
       setError(errMsg);
-      toast.error(errMsg, 'Removal Error');
+      toast.error(errMsg, 'Eltávolítási hiba');
       setBookingToRemove(null);
     } finally {
       setRemoving(false);
@@ -152,8 +152,8 @@ export default function SessionDetailView({
 
     if (spotsRemaining <= 0) {
       toast.error(
-        'This session is full, no additional participants can be added.',
-        'Session Full'
+        'Ez az edzés már megtelt, nem adható hozzá több résztvevő.',
+        'Edzés megtelt'
       );
       return;
     }
@@ -174,8 +174,8 @@ export default function SessionDetailView({
         : `@${selectedUserToBook.username}`;
 
       toast.success(
-        `${userDisplay} successfully registered for the session!`,
-        'Participant Added'
+        `${userDisplay} sikeresen regisztrálva az edzésre!`,
+        'Résztvevő hozzáadva'
       );
 
       const updatedCount = await loadSessionDetails(selectedSession.id);
@@ -194,9 +194,9 @@ export default function SessionDetailView({
     } catch (err) {
       console.error('Error booking user:', err);
       const errMsg =
-        err.message || 'Failed to add participant to session.';
+        err.message || 'Nem sikerült hozzáadni a résztvevőt.';
       setError(errMsg);
-      toast.error(errMsg, 'Booking Error');
+      toast.error(errMsg, 'Hozzáadási hiba');
     } finally {
       setBookingLoading(false);
     }
@@ -208,7 +208,7 @@ export default function SessionDetailView({
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">
-          <div className="text-stone-600 font-medium">Loading sessions...</div>
+          <div className="text-stone-600 font-medium">Edzések betöltése...</div>
         </div>
       </div>
     );
@@ -218,17 +218,17 @@ export default function SessionDetailView({
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-          Session Details & Attendees
+          Résztvevők & Részletek
         </h2>
         <p className="text-sm text-stone-600 mt-1">
-          View registered participants, manage waitlists, and add or remove attendees.
+          Tekintsd meg a regisztrált résztvevőket, kezeld a várólistát és vegyél fel új vendégeket.
         </p>
       </div>
 
       {sessions.length === 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <p className="text-amber-800 text-sm font-medium">
-            No sessions available. Schedule some class sessions first.
+            Nincs megjeleníthető edzés. Hozz létre új órát az Órarend Kezelése fülön!
           </p>
         </div>
       )}
@@ -239,7 +239,7 @@ export default function SessionDetailView({
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-5">
               <h3 className="text-base font-bold text-stone-900 mb-3">
-                Select Session
+                Válassz Edzést
               </h3>
 
               <div className="flex gap-1 mb-4 bg-stone-100 p-1 rounded-xl border border-stone-200/80">
@@ -252,7 +252,7 @@ export default function SessionDetailView({
                       : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                   }`}
                 >
-                  All
+                  Összes
                 </button>
                 <button
                   type="button"
@@ -263,7 +263,7 @@ export default function SessionDetailView({
                       : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                   }`}
                 >
-                  Today
+                  Ma
                 </button>
                 <button
                   type="button"
@@ -274,7 +274,7 @@ export default function SessionDetailView({
                       : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                   }`}
                 >
-                  Upcoming
+                  Közelgő
                 </button>
               </div>
 
@@ -283,7 +283,7 @@ export default function SessionDetailView({
                   const instructorName = session.instructor
                     ? session.instructor.full_name ||
                       session.instructor.username
-                    : 'Unassigned instructor';
+                    : 'Nincs kijelölt oktató';
 
                   const sessionSpotsLeft =
                     session.workout_classes.max_capacity -
@@ -314,7 +314,7 @@ export default function SessionDetailView({
                               : 'bg-emerald-100 text-emerald-800'
                           }`}
                         >
-                          {session.current_bookings || 0}/
+                          {session.current_bookings || 0} /{' '}
                           {session.workout_classes.max_capacity}
                         </span>
                       </div>
@@ -355,17 +355,17 @@ export default function SessionDetailView({
       {!!bookingToRemove && (
         <ConfirmModal
           isOpen={!!bookingToRemove}
-          title="Remove Participant"
+          title="Résztvevő eltávolítása"
           message={
             bookingToRemove
-              ? `Are you sure you want to remove ${
+              ? `Biztosan el szeretnéd távolítani ${
                   bookingToRemove.user_profiles?.username
                     ? '@' + bookingToRemove.user_profiles.username
-                    : 'this user'
-                } from this session?\n\nThis will cancel their booking and send them an email notification.`
+                    : 'ezt a résztvevőt'
+                } erről az edzésről?\n\nEz a művelet törli a foglalást és e-mailben értesíti a felhasználót.`
               : ''
           }
-          confirmLabel="Remove Participant"
+          confirmLabel="Résztvevő eltávolítása"
           loading={removing}
           onConfirm={confirmRemoveBooking}
           onCancel={() => setBookingToRemove(null)}

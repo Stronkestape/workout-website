@@ -12,45 +12,45 @@ export default function Footer() {
           <div className="space-y-4">
             <Link
               href="/"
-              aria-label="Mozgás Központ – Homepage"
+              aria-label="Mozgás Központ – Főoldal"
               className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-white hover:text-warm-terracotta transition-colors"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-warm-terracotta shrink-0" aria-hidden="true" />
               <span>Mozgás Központ</span>
             </Link>
             <p className="text-sm text-stone-300 leading-relaxed">
-              Premium group functional training, Spinning, and WALKenergie classes in Budapest. Certified instructor team, modern studio equipment, and an inspiring community.
+              Prémium csoportos funkcionális edzések, Spinning és WALKenergie órák Budapest szívében. Képzett oktatói csapat, korszerű stúdiófelszerelés és összetartó közösség.
             </p>
           </div>
 
           {/* Column 2: Opening Hours */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Opening Hours
+              Nyitvatartás
             </h3>
             <ul className="space-y-2.5 text-sm text-stone-300">
               <li className="flex justify-between items-center py-1 border-b border-stone-800/80">
-                <span className="text-stone-300">Monday – Friday:</span>
+                <span className="text-stone-300">Hétfő – Péntek:</span>
                 <span className="font-medium text-white">06:30 – 21:00</span>
               </li>
               <li className="flex justify-between items-center py-1 border-b border-stone-800/80">
-                <span className="text-stone-300">Saturday:</span>
+                <span className="text-stone-300">Szombat:</span>
                 <span className="font-medium text-white">08:00 – 16:00</span>
               </li>
               <li className="flex justify-between items-center py-1 border-b border-stone-800/80">
-                <span className="text-stone-300">Sunday:</span>
+                <span className="text-stone-300">Vasárnap:</span>
                 <span className="font-medium text-white">09:00 – 14:00</span>
               </li>
             </ul>
             <p className="text-xs text-stone-300 leading-relaxed pt-1">
-              We recommend arriving 15 minutes before class starts to change and check in comfortably.
+              Kérjük, érkezz az edzés előtt 15 perccel a kényelmes átöltözés és bejelentkezés érdekében!
             </p>
           </div>
 
           {/* Column 3: Contact & Location */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Contact & Location
+              Kapcsolat & Helyszín
             </h3>
             <ul className="space-y-3 text-sm text-stone-300">
               <li className="flex items-start gap-3">
@@ -59,7 +59,7 @@ export default function Footer() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span className="leading-relaxed">
-                  1117 Budapest, Október 23. u. 8–10. (Next to Allee)
+                  1117 Budapest, Október 23. u. 8–10. (Allee mellett)
                 </span>
               </li>
               <li className="flex items-center gap-3">
@@ -84,25 +84,25 @@ export default function Footer() {
           {/* Column 4: Quick Links & Cancellation Info */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Navigation & Info
+              Navigáció & Információk
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/calendar" prefetch={false} className="text-stone-300 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   <span className="text-warm-terracotta" aria-hidden="true">›</span>
-                  <span>Class Schedule & Booking</span>
+                  <span>Órarend & Foglalás</span>
                 </Link>
               </li>
               <li>
                 <Link href="/bookings" prefetch={false} className="text-stone-300 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   <span className="text-warm-terracotta" aria-hidden="true">›</span>
-                  <span>My Bookings</span>
+                  <span>Foglalásaim</span>
                 </Link>
               </li>
               <li>
                 <Link href="/instructors" prefetch={false} className="text-stone-300 hover:text-white transition-colors inline-flex items-center gap-1.5">
                   <span className="text-warm-terracotta" aria-hidden="true">›</span>
-                  <span>Our Instructors</span>
+                  <span>Oktatóink</span>
                 </Link>
               </li>
             </ul>
@@ -112,10 +112,10 @@ export default function Footer() {
                 <svg className="w-4 h-4 text-warm-terracotta shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Cancellation Policy</span>
+                <span>Lemondási Szabályzat</span>
               </div>
               <p className="text-xs text-stone-300 leading-relaxed">
-                Bookings can be cancelled free of charge up to 2 hours before the session starts.
+                A foglalások díjmentesen lemondhatók legkésőbb az edzés kezdete előtt 2 órával.
               </p>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function Footer() {
         {/* Social Links Row */}
         <div className="mt-12 pt-8 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-stone-300 text-center sm:text-left">
-            Follow us on social media for studio news, training tips, and schedule updates:
+            Kövess minket a közösségi médiában a legfrissebb órarendi hírekért és edzéstippekért:
           </div>
 
           <div className="flex items-center space-x-3">
@@ -133,7 +133,7 @@ export default function Footer() {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Mozgás Központ Facebook page"
+              aria-label="Mozgás Központ Facebook oldal"
               className="w-9 h-9 rounded-full bg-stone-800 hover:bg-warm-terracotta text-stone-300 hover:text-white flex items-center justify-center transition-colors"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -146,7 +146,7 @@ export default function Footer() {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Mozgás Központ Instagram page"
+              aria-label="Mozgás Központ Instagram oldal"
               className="w-9 h-9 rounded-full bg-stone-800 hover:bg-warm-terracotta text-stone-300 hover:text-white flex items-center justify-center transition-colors"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -159,7 +159,7 @@ export default function Footer() {
               href="https://youtube.com"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Mozgás Központ YouTube channel"
+              aria-label="Mozgás Központ YouTube csatorna"
               className="w-9 h-9 rounded-full bg-stone-800 hover:bg-warm-terracotta text-stone-300 hover:text-white flex items-center justify-center transition-colors"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -172,19 +172,19 @@ export default function Footer() {
         {/* Bottom Legal Copyright Bar */}
         <div className="mt-8 pt-6 border-t border-stone-800/60 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-300 gap-3">
           <div>
-            © {currentYear} Mozgás Központ Studio. All rights reserved.
+            © {currentYear} Mozgás Központ Stúdió. Minden jog fenntartva.
           </div>
           <div className="flex items-center gap-4">
             <span className="text-stone-300 hover:text-white transition-colors cursor-pointer">
-              House Rules
+              Házirend
             </span>
             <span>•</span>
             <span className="text-stone-300 hover:text-white transition-colors cursor-pointer">
-              Privacy Policy
+              Adatkezelési Tájékoztató
             </span>
             <span>•</span>
             <span className="text-stone-300 hover:text-white transition-colors cursor-pointer">
-              Terms of Service
+              Általános Szerződési Feltételek
             </span>
           </div>
         </div>

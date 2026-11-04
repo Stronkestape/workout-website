@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import type { Database } from '@/types/database';
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -8,7 +9,7 @@ const UUID_REGEX =
  * Extracts the unverified user UUID from the Supabase auth cookie synchronously (0 ms)
  * so Server Components can launch their database queries in parallel with `supabase.auth.getUser()`.
  */
-export function getCookieUserId(cookieStore) {
+export function getCookieUserId(cookieStore: { getAll: () => Array<{ name: string; value: string }> }) {
   try {
     const allCookies = cookieStore.getAll();
     const authCookies = allCookies.filter(
@@ -26,8 +27,8 @@ export function getCookieUserId(cookieStore) {
       rawValue = exactMatch.value;
     } else {
       const sortedChunks = [...authCookies].sort((a, b) => {
-        const idxA = parseInt(a.name.split('.').pop(), 10) || 0;
-        const idxB = parseInt(b.name.split('.').pop(), 10) || 0;
+        const idxA = parseInt(a.name.split('.').pop() || '0', 10) || 0;
+        const idxB = parseInt(b.name.split('.').pop() || '0', 10) || 0;
         return idxA - idxB;
       });
       rawValue = sortedChunks.map((c) => c.value).join('');
@@ -88,7 +89,7 @@ export async function getSafeUser() {
     return { user: null, supabase: null };
   }
 
-  const supabase = await createSupabaseServerClient(cookieStore);
+  const supabase = await createSupabaseServerClient<Database>(cookieStore);
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -96,12 +97,12 @@ export async function getSafeUser() {
   return { user, supabase };
 }
 
-export async function createSupabaseServerClient(existingCookieStore = null) {
+export async function createSupabaseServerClient<T = Database>(existingCookieStore: any = null) {
   const cookieStore = existingCookieStore || (await cookies());
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  return createServerClient<T>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
@@ -109,12 +110,11 @@ export async function createSupabaseServerClient(existingCookieStore = null) {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
+            cookiesToSet.forEach(({ name, value, options }: any) =>
               cookieStore.set(name, value, options)
             );
           } catch {
             // The `setAll` method was called from a Server Component.
-            // This can be ignored if proxy is refreshing user sessions.
           }
         },
       },

@@ -9,7 +9,7 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
             type="button"
             onClick={() => onNavigate("PREV")}
             className="p-2 sm:px-3 sm:py-1.5 bg-stone-800 text-white rounded-lg hover:bg-stone-700 transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-600"
-            aria-label="Previous period"
+            aria-label="Előző időszak"
           >
             <ChevronLeftIcon className="w-4 h-4" />
           </button>
@@ -18,13 +18,13 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
             onClick={() => onNavigate("TODAY")}
             className="px-3.5 py-1.5 bg-stone-200 text-stone-800 border border-stone-300 rounded-lg hover:bg-stone-300 transition-colors text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
           >
-            Today
+            Ma
           </button>
           <button
             type="button"
             onClick={() => onNavigate("NEXT")}
             className="p-2 sm:px-3 sm:py-1.5 bg-stone-800 text-white rounded-lg hover:bg-stone-700 transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-600"
-            aria-label="Next period"
+            aria-label="Következő időszak"
           >
             <ChevronRightIcon className="w-4 h-4" />
           </button>
@@ -40,7 +40,7 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
                 : "text-stone-700 hover:bg-stone-300/80"
             }`}
           >
-            Week
+            Hét
           </button>
           <button
             type="button"
@@ -51,7 +51,7 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
                 : "text-stone-700 hover:bg-stone-300/80"
             }`}
           >
-            Month
+            Hónap
           </button>
         </div>
       </div>
@@ -70,7 +70,7 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
               : "text-stone-700 hover:bg-stone-300/80"
           }`}
         >
-          Week
+          Hét
         </button>
         <button
           type="button"
@@ -81,7 +81,7 @@ export default function CalendarToolbar({ label, onNavigate, onView, view }) {
               : "text-stone-700 hover:bg-stone-300/80"
           }`}
         >
-          Month
+          Hónap
         </button>
       </div>
     </div>

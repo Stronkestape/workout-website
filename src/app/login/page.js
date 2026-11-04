@@ -51,7 +51,7 @@ export default function LoginPage() {
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">
-        Login to Workout Booking
+        Bejelentkezés | Mozgás Központ
       </h2>
       <div className="flex items-center justify-center min-h-[75vh] py-8">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md space-y-6">
@@ -59,7 +59,7 @@ export default function LoginPage() {
             <FormField
               id="emailOrUsername"
               name="emailOrUsername"
-              label="Email or Username"
+              label="E-mail cím vagy Felhasználónév"
               defaultValue={state?.values?.emailOrUsername || ''}
               disabled={isPending}
               required
@@ -70,7 +70,7 @@ export default function LoginPage() {
               <FormField
                 id="password"
                 name="password"
-                label="Password"
+                label="Jelszó"
                 type="password"
                 disabled={isPending}
                 required
@@ -81,7 +81,7 @@ export default function LoginPage() {
                   href="/forgot-password"
                   className="text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
                 >
-                  Forgot your password?
+                  Elfelejtetted a jelszavad?
                 </Link>
               </div>
             </div>
@@ -95,14 +95,14 @@ export default function LoginPage() {
               disabled={isPending}
               className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
             >
-              {isPending ? 'Logging in...' : 'Login'}
+              {isPending ? 'Bejelentkezés folyamatban...' : 'Bejelentkezés'}
             </button>
           </form>
 
           {/* 1-Click Demo Access for Portfolio / Recruiters */}
           <div className="pt-4 border-t border-gray-200">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 text-center mb-3">
-              Quick Demo Access (1-Click Login)
+              Gyors Demó Belépés (1 kattintással)
             </p>
             <div
               className={`grid gap-2 ${
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 onClick={() => handleDemoLogin('member')}
                 className="px-2.5 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
               >
-                Demo Member
+                Demó Vendég
               </button>
               <button
                 type="button"
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 onClick={() => handleDemoLogin('instructor')}
                 className="px-2.5 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition-colors disabled:opacity-50"
               >
-                Demo Instructor
+                Demó Oktató
               </button>
               {DEMO_ACCOUNTS.admin && (
                 <button
@@ -132,19 +132,19 @@ export default function LoginPage() {
                   onClick={() => handleDemoLogin('admin')}
                   className="px-2.5 py-2 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition-colors disabled:opacity-50"
                 >
-                  Demo Admin
+                  Demó Admin
                 </button>
               )}
             </div>
           </div>
 
           <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
-            Don&apos;t have an account?{' '}
+            Még nincs fiókod?{' '}
             <Link
               href="/register"
               className="text-blue-600 hover:underline font-medium"
             >
-              Create an account
+              Regisztrálj most
             </Link>
           </div>
         </div>

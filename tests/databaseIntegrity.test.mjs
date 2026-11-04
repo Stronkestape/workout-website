@@ -146,3 +146,36 @@ test("Migration 20261101000000 - enforces staff RLS policies on workout_classes 
     /CREATE POLICY "Staff can delete workout templates"\s+ON public\.workout_classes\s+FOR DELETE\s+TO authenticated\s+USING \(private\.is_admin\(\) OR private\.is_instructor\(\)\);/
   );
 });
+
+
+test("Migration 20261104000000 - enforces past session rejection and transactional notification outbox", () => {
+  const outboxMigrationPath = path.resolve(
+    "supabase/migrations/20261104000000_past_session_validation_and_outbox.sql"
+  );
+  const sql = fs.readFileSync(outboxMigrationPath, "utf8");
+
+  assert.match(
+    sql,
+    /CREATE OR REPLACE FUNCTION private\.validate_class_session_times\(\)/
+  );
+  assert.match(
+    sql,
+    /CREATE TRIGGER trigger_validate_class_session_times\s+BEFORE INSERT OR UPDATE ON public\.class_sessions/
+  );
+  assert.match(
+    sql,
+    /CREATE TABLE IF NOT EXISTS public\.notification_outbox/
+  );
+  assert.match(
+    sql,
+    /INSERT INTO public\.notification_outbox/
+  );
+  assert.match(
+    sql,
+    /waitlist_promoted/
+  );
+  assert.match(
+    sql,
+    /NEW\.start_time <= now\(\)/
+  );
+});

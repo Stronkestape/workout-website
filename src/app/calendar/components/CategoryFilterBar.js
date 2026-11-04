@@ -11,7 +11,7 @@ export default function CategoryFilterBar({
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-600">
           <FilterIcon className="w-3.5 h-3.5" />
-          <span>Category Filter & Color Legend</span>
+          <span>Kategória Szűrő & Színjelmagyarázat</span>
         </div>
         {selectedWorkoutType !== "all" && (
           <button
@@ -19,7 +19,7 @@ export default function CategoryFilterBar({
             onClick={() => onSelectType("all")}
             className="text-xs text-[#8c3010] hover:underline font-semibold focus-visible:outline-none"
           >
-            Clear Filter
+            Szűrő törlése
           </button>
         )}
       </div>
@@ -36,7 +36,7 @@ export default function CategoryFilterBar({
               : "bg-stone-100 text-stone-800 hover:bg-stone-200 border-stone-300"
           }`}
         >
-          <span>All Workouts</span>
+          <span>Összes Edzés</span>
         </button>
 
         {Object.values(WORKOUT_THEMES).map((theme) => {
@@ -61,7 +61,7 @@ export default function CategoryFilterBar({
                   : `${theme.calendarBorder}60`,
                 color: theme.calendarText,
               }}
-              title={`Filter by: ${displayLabel}`}
+              title={`Szűrés: ${displayLabel}`}
             >
               <span
                 className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -100,7 +100,7 @@ export default function CategoryFilterBar({
                   : `${DEFAULT_THEME.calendarBorder}60`,
               color: DEFAULT_THEME.calendarText,
             }}
-            title={`Filter by: ${DEFAULT_THEME.label}`}
+            title={`Szűrés: ${DEFAULT_THEME.label}`}
           >
             <span
               className="w-2.5 h-2.5 rounded-full shrink-0"

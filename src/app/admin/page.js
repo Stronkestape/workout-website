@@ -4,8 +4,8 @@ import { getCookieUserId, createSupabaseServerClient } from '@/lib/server';
 import AdminDashboardClient from './AdminDashboardClient';
 
 export const metadata = {
-  title: 'Dashboard | Mozgás Központ',
-  description: 'Manage class sessions, templates, and bookings.',
+  title: 'Vezérlőpult | Mozgás Központ',
+  description: 'Edzések, sablonok és foglalások adminisztrációja.',
 };
 
 export default async function AdminDashboardPage() {

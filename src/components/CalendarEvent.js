@@ -24,7 +24,7 @@ export default function CalendarEvent({ event }) {
           <div className="flex items-center gap-1 min-w-0">
             <WorkoutIcon
               title={title}
-              className="w-3.5 h-3.5 shrink-0 opacity-80"
+              className="w-3.5 h-3.5 shrink-0 opacity-85"
             />
             <span className="font-bold truncate text-[11px] sm:text-xs tracking-tight">
               {title}
@@ -33,11 +33,11 @@ export default function CalendarEvent({ event }) {
           {isBooked && (
             <span
               className="inline-flex items-center px-1 py-[1px] rounded text-[9px] font-bold bg-green-600 text-white shrink-0 shadow-2xs"
-              title="Booked"
-              aria-label="Booked"
+              title="Lefoglalva"
+              aria-label="Lefoglalva"
             >
               <span aria-hidden="true">✓</span>
-              <span className="sr-only">Booked</span>
+              <span className="sr-only">Lefoglalva</span>
             </span>
           )}
         </div>
@@ -58,7 +58,7 @@ export default function CalendarEvent({ event }) {
               : "opacity-85"
           }`}
         >
-          {isFull ? "Full" : `${spotsLeft} spots`}
+          {isFull ? "Megtelt" : `${spotsLeft} hely`}
         </span>
       </div>
     </div>

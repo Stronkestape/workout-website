@@ -6,8 +6,8 @@ import { fetchUserBookingsServer } from '@/utils/supabaseServerQueries';
 import UserBookingsList from '@/components/UserBookingsList';
 
 export const metadata = {
-  title: 'My Bookings | Mozgás Központ',
-  description: 'View and manage your upcoming confirmed workout bookings and active waitlist positions.',
+  title: 'Foglalásaim | Mozgás Központ',
+  description: 'Tekintsd meg és kezeld közelgő megerősített órafoglalásaidat és aktív várólistás pozícióidat.',
 };
 
 export default async function BookingsPage() {
@@ -38,13 +38,13 @@ export default async function BookingsPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#8c3010] mb-1">
             <span className="w-2 h-2 rounded-full bg-[#8c3010]" aria-hidden="true" />
-            <span>My Account</span>
+            <span>Fiókom</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-            My Bookings
+            Foglalásaim
           </h1>
           <p className="text-sm sm:text-base text-stone-600 mt-1">
-            Review your upcoming confirmed workouts, active waitlist positions, and past session history.
+            Tekintsd át a megerősített edzéseidet, aktív várólistáidat és a korábbi edzéstörténetedet.
           </p>
         </div>
 
@@ -66,12 +66,12 @@ export default async function BookingsPage() {
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <span>Book New Class</span>
+            <span>Új Edzés Foglalása</span>
           </Link>
           <Link href="/profile" prefetch={false}
             className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-2xs"
           >
-            <span>Profile Settings</span>
+            <span>Profil Beállítások</span>
           </Link>
         </div>
       </div>

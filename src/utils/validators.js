@@ -8,7 +8,7 @@ export const validateUsername = (username) => {
   if (!username || typeof username !== "string") {
     return {
       isValid: false,
-      error: "Username is required",
+      error: "A felhasználónév megadása kötelező",
     };
   }
 
@@ -18,21 +18,21 @@ export const validateUsername = (username) => {
   if (!cleanUsername) {
     return {
       isValid: false,
-      error: "Username is required",
+      error: "A felhasználónév megadása kötelező",
     };
   }
 
   if (cleanUsername.length < 3) {
     return {
       isValid: false,
-      error: "Username must be at least 3 characters",
+      error: "A felhasználónévnek legalább 3 karakterből kell állnia",
     };
   }
 
   if (cleanUsername.length > 100) {
     return {
       isValid: false,
-      error: "Username must be at most 100 characters",
+      error: "A felhasználónév legfeljebb 100 karakter lehet",
     };
   }
 
@@ -40,7 +40,7 @@ export const validateUsername = (username) => {
     return {
       isValid: false,
       error:
-        "Username can only contain lowercase letters, numbers, underscores, dots, and spaces",
+        "A felhasználónév csak kisbetűket, számokat, aláhúzást, pontot és szóközt tartalmazhat",
     };
   }
 
@@ -54,14 +54,14 @@ export const validatePassword = (password) => {
   if (!password || typeof password !== "string") {
     return {
       isValid: false,
-      error: "Password is required",
+      error: "A jelszó megadása kötelező",
     };
   }
 
   if (password.length < 6) {
     return {
       isValid: false,
-      error: "Password must be at least 6 characters",
+      error: "A jelszónak legalább 6 karakterből kell állnia",
     };
   }
 
@@ -72,7 +72,7 @@ export const validatePasswordMatch = (password, confirmPassword) => {
   if (password !== confirmPassword) {
     return {
       isValid: false,
-      error: "Passwords do not match",
+      error: "A megadott jelszavak nem egyeznek",
     };
   }
 
@@ -89,7 +89,7 @@ export const validateFullName = (fullName) => {
   if (trimmedName.length > 100) {
     return {
       isValid: false,
-      error: "Full name is too long",
+      error: "A teljes név legfeljebb 100 karakter lehet",
     };
   }
 
@@ -98,5 +98,7 @@ export const validateFullName = (fullName) => {
 
 export const sanitizeSearchTerm = (rawTerm) => {
   if (typeof rawTerm !== "string") return "";
-  return rawTerm.replace(/[,().%\\*]/g, "").trim();
+  return rawTerm
+    .replace(/[%,()\\*.]/g, "")
+    .trim();
 };

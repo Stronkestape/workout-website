@@ -204,7 +204,7 @@ export default function Navbar({ user = null } = {}) {
         <div className="flex justify-between items-center h-16">
           <Link
             href="/"
-            aria-label="Mozgás Központ – Go to homepage"
+            aria-label="Mozgás Központ – Főoldal"
             className="inline-flex items-center gap-2 text-lg sm:text-xl font-bold tracking-tight text-white hover:text-warm-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm-terracotta rounded-lg py-1 transition-colors truncate"
           >
             <span
@@ -221,7 +221,7 @@ export default function Navbar({ user = null } = {}) {
               prefetch={false}
               className={navLinkClass("/calendar")}
             >
-              Calendar
+              Órarend
             </Link>
 
             <Link
@@ -229,7 +229,7 @@ export default function Navbar({ user = null } = {}) {
               prefetch={false}
               className={navLinkClass("/instructors")}
             >
-              Instructors
+              Oktatóink
             </Link>
 
             {isLoggedIn && (
@@ -238,7 +238,7 @@ export default function Navbar({ user = null } = {}) {
                 prefetch={false}
                 className={navLinkClass("/bookings")}
               >
-                My Bookings
+                Foglalásaim
               </Link>
             )}
 
@@ -270,7 +270,7 @@ export default function Navbar({ user = null } = {}) {
                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                   />
                 </svg>
-                <span>{userTier === "admin" ? "Admin" : "Instructor Panel"}</span>
+                <span>{userTier === "admin" ? "Adminisztráció" : "Oktatói Pult"}</span>
               </Link>
             )}
 
@@ -281,14 +281,14 @@ export default function Navbar({ user = null } = {}) {
                   prefetch={false}
                   className={navLinkClass("/profile")}
                 >
-                  Profile
+                  Profil
                 </Link>
                 <div className="h-4 w-px bg-stone-700 mx-2" />
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 bg-stone-800 border border-stone-700 rounded-lg hover:bg-red-600 hover:border-red-600 transition-colors font-medium text-sm"
                 >
-                  Log Out
+                  Kijelentkezés
                 </button>
               </>
             ) : (
@@ -299,14 +299,14 @@ export default function Navbar({ user = null } = {}) {
                   prefetch={false}
                   className={navLinkClass("/login")}
                 >
-                  Log In
+                  Bejelentkezés
                 </Link>
                 <Link
                   href="/register"
                   prefetch={false}
                   className="px-4 py-2 bg-warm-terracotta text-white rounded-lg hover:bg-warm-terracotta/90 transition-colors font-medium text-sm shadow-xs"
                 >
-                  Register
+                  Regisztráció
                 </Link>
               </>
             )}
@@ -317,7 +317,7 @@ export default function Navbar({ user = null } = {}) {
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             className="md:hidden p-2.5 rounded-xl text-stone-300 hover:text-white hover:bg-stone-800 active:bg-stone-700 transition-colors focus:outline-none"
-            aria-label="Toggle navigation menu"
+            aria-label="Navigációs menü megnyitása"
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
@@ -365,10 +365,14 @@ export default function Navbar({ user = null } = {}) {
                   </div>
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-white truncate">
-                      @{username || "Member"}
+                      @{username || "Vendég"}
                     </div>
                     <div className="text-xs text-stone-400 capitalize">
-                      {userTier || "regular"} account
+                      {userTier === "admin"
+                        ? "Adminisztrátori fiók"
+                        : userTier === "instructor"
+                        ? "Oktatói fiók"
+                        : "Vendég fiók"}
                     </div>
                   </div>
                 </div>
@@ -380,7 +384,7 @@ export default function Navbar({ user = null } = {}) {
                         : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
                     }`}
                   >
-                    {userTier === "admin" ? "Admin" : "Instructor"}
+                    {userTier === "admin" ? "Admin" : "Oktató"}
                   </span>
                 )}
               </div>
@@ -392,7 +396,7 @@ export default function Navbar({ user = null } = {}) {
                 prefetch={false}
                 className={mobileNavLinkClass("/calendar")}
               >
-                <span>Workout Calendar</span>
+                <span>Órarend</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
@@ -401,7 +405,7 @@ export default function Navbar({ user = null } = {}) {
                 prefetch={false}
                 className={mobileNavLinkClass("/instructors")}
               >
-                <span>Instructors</span>
+                <span>Oktatóink</span>
                 <ChevronRightIcon className="w-4 h-4 text-stone-500" />
               </Link>
 
@@ -411,7 +415,7 @@ export default function Navbar({ user = null } = {}) {
                   prefetch={false}
                   className={mobileNavLinkClass("/bookings")}
                 >
-                  <span>My Bookings</span>
+                  <span>Foglalásaim</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
@@ -422,7 +426,7 @@ export default function Navbar({ user = null } = {}) {
                   prefetch={false}
                   className={mobileNavLinkClass("/profile")}
                 >
-                  <span>Profile</span>
+                  <span>Profil</span>
                   <ChevronRightIcon className="w-4 h-4 text-stone-500" />
                 </Link>
               )}
@@ -439,8 +443,8 @@ export default function Navbar({ user = null } = {}) {
                 >
                   <span>
                     {userTier === "admin"
-                      ? "Admin Dashboard"
-                      : "Instructor Panel"}
+                      ? "Adminisztrációs Pult"
+                      : "Oktatói Pult"}
                   </span>
                   <ChevronRightIcon className="w-4 h-4 text-purple-400" />
                 </Link>
@@ -453,7 +457,7 @@ export default function Navbar({ user = null } = {}) {
                   onClick={handleLogout}
                   className="w-full py-2.5 px-4 bg-red-600/15 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-600 hover:text-white transition-colors font-medium text-sm text-center"
                 >
-                  Log Out
+                  Kijelentkezés
                 </button>
               ) : (
                 <div className="grid grid-cols-2 gap-2.5">
@@ -462,14 +466,14 @@ export default function Navbar({ user = null } = {}) {
                     prefetch={false}
                     className="py-2.5 px-4 bg-stone-800 text-stone-200 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors font-medium text-sm text-center"
                   >
-                    Log In
+                    Bejelentkezés
                   </Link>
                   <Link
                     href="/register"
                     prefetch={false}
                     className="py-2.5 px-4 bg-warm-terracotta text-white rounded-xl hover:bg-warm-terracotta/90 transition-colors font-medium text-sm text-center shadow-xs"
                   >
-                    Register
+                    Regisztráció
                   </Link>
                 </div>
               )}

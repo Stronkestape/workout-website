@@ -6,19 +6,19 @@ export const VALIDATION = {
 };
 
 export const MESSAGES = {
-  PASSWORD_TOO_SHORT: `Password must be at least ${VALIDATION.PASSWORD_MIN_LENGTH} characters`,
-  USERNAME_TOO_LONG: `Username must be at most ${VALIDATION.USERNAME_MAX_LENGTH} characters`,
-  USERNAME_TOO_SHORT: `Username must be at least ${VALIDATION.USERNAME_MIN_LENGTH} characters`,
-  USERNAME_TAKEN: "Username is already taken",
-  EMAIL_TAKEN: "This email address is already registered",
-  INVALID_EMAIL: "Please enter a valid email address",
-  PROFILE_UPDATED: "Profile updated successfully!",
-  PROFILE_UPDATED_EMAIL_VERIFY: "Profile updated! Please check your new email to confirm the change.",
-  PASSWORD_UPDATED: "Password updated successfully!",
-  PASSWORDS_DONT_MATCH: "Passwords do not match",
-  INVALID_LOGIN: "Invalid email/username or password",
-  USER_NOT_FOUND: "Email or username not found",
-  SOMETHING_WENT_WRONG: "Something went wrong. Please try again.",
+  PASSWORD_TOO_SHORT: `A jelszónak legalább ${VALIDATION.PASSWORD_MIN_LENGTH} karakter hosszúnak kell lennie`,
+  USERNAME_TOO_LONG: `A felhasználónév legfeljebb ${VALIDATION.USERNAME_MAX_LENGTH} karakter lehet`,
+  USERNAME_TOO_SHORT: `A felhasználónévnek legalább ${VALIDATION.USERNAME_MIN_LENGTH} karakterből kell állnia`,
+  USERNAME_TAKEN: "Ez a felhasználónév már foglalt",
+  EMAIL_TAKEN: "Ez az e-mail cím már regisztrálva van",
+  INVALID_EMAIL: "Kérjük, adj meg egy érvényes e-mail címet",
+  PROFILE_UPDATED: "Profil sikeresen frissítve!",
+  PROFILE_UPDATED_EMAIL_VERIFY: "Profil frissítve! Kérjük, erősítsd meg az új e-mail címedet a kiküldött levélben.",
+  PASSWORD_UPDATED: "Jelszó sikeresen megváltoztatva!",
+  PASSWORDS_DONT_MATCH: "A megadott jelszavak nem egyeznek",
+  INVALID_LOGIN: "Hibás e-mail cím/felhasználónév vagy jelszó",
+  USER_NOT_FOUND: "Nem található ilyen e-mail cím vagy felhasználónév",
+  SOMETHING_WENT_WRONG: "Váratlan hiba történt. Kérjük, próbáld újra!",
 };
 
 export const USER_TIERS = {

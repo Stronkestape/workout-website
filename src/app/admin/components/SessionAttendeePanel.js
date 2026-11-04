@@ -19,10 +19,10 @@ export default function SessionAttendeePanel({
     return (
       <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-12 text-center">
         <h3 className="text-xl font-bold text-stone-900 mb-2">
-          Select a Session
+          Válassz egy edzést
         </h3>
         <p className="text-stone-600 text-sm">
-          Choose a session from the list on the left to view participants and manage attendees.
+          Válassz egy edzést a bal oldali listából a résztvevők megtekintéséhez és a létszám kezeléséhez.
         </p>
       </div>
     );
@@ -46,7 +46,7 @@ export default function SessionAttendeePanel({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <div className="text-stone-400 text-xs uppercase tracking-wider font-semibold">
-              Date
+              Dátum
             </div>
             <div className="font-semibold text-stone-100 mt-0.5">
               {formatDate(selectedSession.start_time)}
@@ -54,7 +54,7 @@ export default function SessionAttendeePanel({
           </div>
           <div>
             <div className="text-stone-400 text-xs uppercase tracking-wider font-semibold">
-              Time
+              Időtartam
             </div>
             <div className="font-semibold text-stone-100 mt-0.5">
               {formatTime(selectedSession.start_time)} –{' '}
@@ -63,18 +63,18 @@ export default function SessionAttendeePanel({
           </div>
           <div>
             <div className="text-stone-400 text-xs uppercase tracking-wider font-semibold">
-              Instructor
+              Oktató
             </div>
             <div className="font-semibold text-stone-100 mt-0.5 truncate">
               {selectedSession.instructor
                 ? selectedSession.instructor.full_name ||
                   selectedSession.instructor.username
-                : 'Unassigned'}
+                : 'Nincs kijelölve'}
             </div>
           </div>
           <div>
             <div className="text-stone-400 text-xs uppercase tracking-wider font-semibold">
-              Capacity
+              Férőhely
             </div>
             <div className="font-semibold text-stone-100 mt-0.5">
               {selectedSession.current_bookings || 0} /{' '}
@@ -109,10 +109,10 @@ export default function SessionAttendeePanel({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
             <h4 className="text-base sm:text-lg font-bold text-stone-900">
-              Add Participant
+              Résztvevő Hozzáadása
             </h4>
             <p className="text-xs sm:text-sm text-stone-600 mt-0.5">
-              Manually register a member for this workout session.
+              Regisztrálj be egy vendéget manuálisan erre az edzésre.
             </p>
           </div>
           <span
@@ -122,7 +122,7 @@ export default function SessionAttendeePanel({
                 : 'bg-emerald-100 text-emerald-800'
             }`}
           >
-            {isSessionFull ? 'Class Full' : `${spotsLeft} spots available`}
+            {isSessionFull ? 'Edzés megtelt' : `${spotsLeft} szabad hely`}
           </span>
         </div>
 
@@ -143,7 +143,7 @@ export default function SessionAttendeePanel({
               />
             </svg>
             <span>
-              This session has reached maximum capacity. No additional participants can be added.
+              Ez az edzés elérte a maximális létszámot. További résztvevő nem adható hozzá.
             </span>
           </div>
         ) : (
@@ -153,7 +153,7 @@ export default function SessionAttendeePanel({
                 <UserSearchSelect
                   onUserSelect={onSelectUserToBook}
                   excludeUserIds={bookedUserIds}
-                  placeholder="Search member by name or @username..."
+                  placeholder="Keresés név vagy @felhasználónév alapján..."
                   disabled={bookingLoading}
                   resetKey={searchResetKey}
                 />
@@ -186,7 +186,7 @@ export default function SessionAttendeePanel({
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    <span>Registering...</span>
+                    <span>Regisztrálás...</span>
                   </>
                 ) : (
                   <>
@@ -204,14 +204,14 @@ export default function SessionAttendeePanel({
                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                       />
                     </svg>
-                    <span>Add Participant</span>
+                    <span>Résztvevő Hozzáadása</span>
                   </>
                 )}
               </button>
             </div>
             {selectedUserToBook && (
               <p className="text-xs text-stone-600">
-                Selected:{' '}
+                Kiválasztva:{' '}
                 <strong className="text-stone-900 font-semibold">
                   {selectedUserToBook.full_name ||
                     `@${selectedUserToBook.username}`}
@@ -227,11 +227,11 @@ export default function SessionAttendeePanel({
       <div className="bg-white rounded-2xl shadow-xs p-5 sm:p-6 border border-stone-200/80 overflow-hidden">
         <div className="flex justify-between items-center mb-4 gap-2">
           <h4 className="text-base sm:text-lg font-bold text-stone-900">
-            Confirmed Bookings ({bookings.length})
+            Megerősített Résztvevők ({bookings.length})
           </h4>
           {bookings.length === 0 && (
             <span className="text-xs sm:text-sm text-stone-600 font-medium">
-              No bookings yet
+              Még nincs foglalás
             </span>
           )}
         </div>
@@ -251,7 +251,7 @@ export default function SessionAttendeePanel({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-stone-900 truncate">
-                      {booking.user_profiles?.username || 'Unknown'}
+                      {booking.user_profiles?.username || 'Névtelen'}
                     </div>
                     {booking.user_profiles?.full_name && (
                       <div className="text-xs text-stone-600 truncate">
@@ -262,7 +262,7 @@ export default function SessionAttendeePanel({
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-stone-200/70 shrink-0">
                   <div className="text-xs text-stone-600 font-medium sm:text-right">
-                    <span className="sm:block text-stone-600 font-medium">Booked on</span>
+                    <span className="sm:block text-stone-600 font-medium">Foglalás ideje:</span>
                     <span className="font-medium text-stone-700">
                       {formatDate(booking.booked_at)}
                     </span>
@@ -272,7 +272,7 @@ export default function SessionAttendeePanel({
                     onClick={() => onPromptRemoveBooking(booking)}
                     className="bg-rose-50 text-rose-700 hover:bg-rose-100 px-3.5 py-1.5 rounded-lg transition-colors font-semibold text-xs sm:text-sm shrink-0"
                   >
-                    Remove
+                    Eltávolítás
                   </button>
                 </div>
               </div>
@@ -280,7 +280,7 @@ export default function SessionAttendeePanel({
           </div>
         ) : (
           <div className="text-center py-8 text-stone-600 font-medium text-sm">
-            <p>No confirmed bookings for this session</p>
+            <p>Még nincs megerősített foglalás erre az edzésre</p>
           </div>
         )}
       </div>
@@ -289,7 +289,7 @@ export default function SessionAttendeePanel({
       {waitlist.length > 0 && (
         <div className="bg-white rounded-2xl shadow-xs p-5 sm:p-6 border border-stone-200/80 overflow-hidden">
           <h4 className="text-base sm:text-lg font-bold text-stone-900 mb-4">
-            Waitlist ({waitlist.length})
+            Várólista ({waitlist.length})
           </h4>
           <div className="space-y-2">
             {waitlist.map((entry) => (
@@ -303,7 +303,7 @@ export default function SessionAttendeePanel({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-stone-900 truncate">
-                      {entry.user_profiles?.username || 'Unknown'}
+                      {entry.user_profiles?.username || 'Névtelen'}
                     </div>
                     {entry.user_profiles?.full_name && (
                       <div className="text-xs text-stone-600 truncate">
@@ -313,7 +313,7 @@ export default function SessionAttendeePanel({
                   </div>
                 </div>
                 <div className="text-xs text-stone-600 font-medium shrink-0 pl-11 sm:pl-0">
-                  Joined {formatDate(entry.joined_at)}
+                  Feliratkozva: {formatDate(entry.joined_at)}
                 </div>
               </div>
             ))}
@@ -324,7 +324,7 @@ export default function SessionAttendeePanel({
       {/* Session Statistics */}
       <div className="bg-white rounded-2xl shadow-xs p-5 sm:p-6 border border-stone-200/80">
         <h4 className="text-base sm:text-lg font-bold text-stone-900 mb-4">
-          Session Statistics
+          Edzés Statisztika
         </h4>
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <div className="text-center p-3 sm:p-4 bg-stone-100 rounded-xl">
@@ -332,7 +332,7 @@ export default function SessionAttendeePanel({
               {bookings.length}
             </div>
             <div className="text-xs text-stone-600 mt-1 font-medium">
-              Confirmed
+              Lefoglalva
             </div>
           </div>
           <div className="text-center p-3 sm:p-4 bg-amber-50 rounded-xl">
@@ -340,7 +340,7 @@ export default function SessionAttendeePanel({
               {waitlist.length}
             </div>
             <div className="text-xs text-amber-800 mt-1 font-medium">
-              Waitlist
+              Várólistán
             </div>
           </div>
           <div className="text-center p-3 sm:p-4 bg-emerald-50 rounded-xl">
@@ -348,7 +348,7 @@ export default function SessionAttendeePanel({
               {Math.max(0, spotsLeft)}
             </div>
             <div className="text-xs text-emerald-800 mt-1 font-medium">
-              Available
+              Szabad hely
             </div>
           </div>
         </div>
