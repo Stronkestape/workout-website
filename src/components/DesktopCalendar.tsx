@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useMemo, useCallback } from "react";
 import { Calendar, dateFnsLocalizer, type View, type NavigateAction, type Components } from "react-big-calendar";
+import "@/app/calendar/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { toGymLocalTime } from "@/utils/calendarHelpers";

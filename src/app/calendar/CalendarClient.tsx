@@ -4,7 +4,10 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import CalendarToolbar from '@/components/CalendarToolbar';
 import CalendarEvent from '@/components/CalendarEvent';
-import DesktopCalendar from '@/components/DesktopCalendar';
+const DesktopCalendar = dynamic(() => import('@/components/DesktopCalendar'), {
+  ssr: false,
+  loading: () => <DesktopCalendarSkeleton label="Órarend betöltése..." />,
+});
 import {
   CALENDAR_MIN_HOUR,
   CALENDAR_MAX_HOUR,
@@ -14,8 +17,14 @@ import {
 } from '@/utils/constants';
 import { useCalendarSchedule } from './hooks/useCalendarSchedule';
 import CategoryFilterBar from './components/CategoryFilterBar';
-import MobileScheduleView from './components/MobileScheduleView';
-import { DesktopCalendarSkeleton } from './components/CalendarSkeleton';
+const MobileScheduleView = dynamic(
+  () => import('./components/MobileScheduleView'),
+  {
+    ssr: false,
+    loading: () => <MobileCalendarSkeleton />,
+  }
+);
+import { DesktopCalendarSkeleton, MobileCalendarSkeleton } from './components/CalendarSkeleton';
 import type { ScheduleSession } from '@/lib/scheduleServer';
 
 const WorkoutCard = dynamic(() => import('@/components/WorkoutCard'), {
