@@ -97,7 +97,9 @@ export async function getSafeUser() {
   return { user, supabase };
 }
 
-export async function createSupabaseServerClient<T = Database>(existingCookieStore: any = null) {
+export async function createSupabaseServerClient<T = Database>(
+  existingCookieStore: Awaited<ReturnType<typeof cookies>> | null = null
+) {
   const cookieStore = existingCookieStore || (await cookies());
 
   return createServerClient<T>(
@@ -110,7 +112,7 @@ export async function createSupabaseServerClient<T = Database>(existingCookieSto
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }: any) =>
+            cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
           } catch {

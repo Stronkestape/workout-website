@@ -7,7 +7,7 @@ import {
   sendEmail,
   notifySessionDeleted,
   notifySessionUpdated,
-} from '../src/lib/notifications/sessionNotificationService.js';
+} from '../src/lib/notifications/sessionNotificationService.ts';
 
 test('isMeaningfulSessionChange - detects time, instructor, and status modifications', () => {
   const baseSession = {
@@ -177,7 +177,7 @@ test('notifySessionUpdated - builds and dispatches modification notification', a
 
 
 test('notifyParticipantRemoved - sends notification when participant is removed', async () => {
-  const { notifyParticipantRemoved } = await import('../src/lib/notifications/sessionNotificationService.js');
+  const { notifyParticipantRemoved } = await import('../src/lib/notifications/sessionNotificationService.ts');
   const result = await notifyParticipantRemoved({
     participant: { email: 'member@test.com', full_name: 'Member Test' },
     session: {

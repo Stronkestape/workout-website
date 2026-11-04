@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import {
   TEMPLATE_LIMITS,
   validateTemplate,
-} from "../src/utils/templateValidation.js";
+} from "../src/utils/templateValidation.ts";
 import {
   validateSession,
   calculateEndTime,
   formatDateTimeLocal,
-} from "../src/utils/sessionValidation.js";
+} from "../src/utils/sessionValidation.ts";
 
 test("validateTemplate - accepts valid template and enforces exact numeric boundaries", () => {
   const baseValid = {

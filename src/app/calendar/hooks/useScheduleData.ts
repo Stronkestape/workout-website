@@ -3,6 +3,7 @@ import {
   fetchClassSessions,
   fetchUserBookedSessionIds,
   hasSupabaseAuthCookie,
+  type ClassSessionWithDetails,
 } from '@/utils/supabaseQueries';
 
 export interface CalendarEvent {
@@ -22,13 +23,13 @@ export interface CalendarEvent {
 }
 
 export function transformSessionsToEvents(
-  sessions: any[] = [],
+  sessions: ClassSessionWithDetails[] = [],
   userBookedSessions: Set<number> = new Set()
 ): CalendarEvent[] {
   return (sessions || []).map((session) => {
     const spotsLeft = Math.max(
       0,
-      session.workout_classes.max_capacity - (session.current_bookings || 0)
+      (session.workout_classes?.max_capacity ?? 0) - (session.current_bookings || 0)
     );
 
     const instructorName = session.instructor
@@ -37,15 +38,15 @@ export function transformSessionsToEvents(
 
     return {
       id: session.id,
-      title: `${session.workout_classes.title} - ${instructorName}`,
+      title: `${session.workout_classes?.title || 'Edzés'} - ${instructorName}`,
       start: new Date(session.start_time),
       end: new Date(session.end_time),
       resource: {
-        workoutTitle: session.workout_classes.title,
+        workoutTitle: session.workout_classes?.title || 'Edzés',
         instructorId: session.instructor_id,
         instructorName,
         spotsLeft,
-        maxCapacity: session.workout_classes.max_capacity,
+        maxCapacity: session.workout_classes?.max_capacity ?? 0,
         currentBookings: session.current_bookings || 0,
         isBooked: userBookedSessions.has(session.id),
       },
@@ -56,7 +57,7 @@ export function transformSessionsToEvents(
 export function useScheduleData({
   initialSessions = null,
 }: {
-  initialSessions?: any[] | null;
+  initialSessions?: ClassSessionWithDetails[] | null;
 } = {}) {
   const hasInitialSessions = Array.isArray(initialSessions);
 

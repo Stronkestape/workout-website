@@ -7,7 +7,7 @@ import {
   validatePasswordMatch,
   validateFullName,
   sanitizeSearchTerm,
-} from "../src/utils/validators.js";
+} from "../src/utils/validators.ts";
 
 test("isValidEmail - accepts valid standard and plus-tagged emails, including whitespace trimming", () => {
   assert.equal(isValidEmail("user@example.com"), true);

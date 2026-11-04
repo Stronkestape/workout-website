@@ -1,0 +1,93 @@
+import React from 'react';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import type { Metadata } from 'next';
+import { getCookieUserId, createSupabaseServerClient } from '@/lib/server';
+import { fetchUserBookingsServer } from '@/utils/supabaseServerQueries';
+import UserBookingsList from '@/components/UserBookingsList';
+
+export const metadata: Metadata = {
+  title: 'Foglalásaim | Mozgás Központ',
+  description: 'Tekintsd meg és kezeld közelgő megerősített órafoglalásaidat és aktív várólistás pozícióidat.',
+};
+
+export default async function BookingsPage() {
+  const cookieStore = await cookies();
+  const cookieUserId = getCookieUserId(cookieStore);
+
+  if (!cookieUserId) {
+    redirect('/login');
+  }
+
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const [authRes, { bookings, waitlist }] = await Promise.all([
+    supabase.auth.getUser(),
+    fetchUserBookingsServer(supabase, cookieUserId),
+  ]);
+
+  const user = authRes.data?.user;
+  if (!user || user.id !== cookieUserId) {
+    redirect('/login');
+  }
+
+  const serverNow = new Date().toISOString();
+
+  return (
+    <div className="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8 min-h-[85vh]">
+      {/* Header with Title and Action to Calendar */}
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-stone-200/80 pb-6">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#8c3010] mb-1">
+            <span className="w-2 h-2 rounded-full bg-[#8c3010]" aria-hidden="true" />
+            <span>Fiókom</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+            Foglalásaim
+          </h1>
+          <p className="text-sm sm:text-base text-stone-600 mt-1">
+            Tekintsd át a megerősített edzéseidet, aktív várólistáidat és a korábbi edzéstörténetedet.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            href="/calendar"
+            prefetch={false}
+            className="inline-flex items-center gap-2 bg-warm-terracotta hover:bg-warm-terracotta-hover text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm"
+          >
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span>Új Edzés Foglalása</span>
+          </Link>
+          <Link
+            href="/profile"
+            prefetch={false}
+            className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-2xs"
+          >
+            <span>Profil Beállítások</span>
+          </Link>
+        </div>
+      </div>
+
+      <UserBookingsList
+        userId={user.id}
+        initialBookings={bookings}
+        initialWaitlist={waitlist}
+        serverNow={serverNow}
+      />
+    </div>
+  );
+}

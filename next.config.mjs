@@ -8,7 +8,7 @@ const nextConfig = {
     deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920],
   },
   experimental: {
-    inlineCss: true,
+    cpus: 1,
     optimizePackageImports: ['date-fns', 'react-big-calendar'],
   },
   async headers() {
@@ -22,13 +22,22 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/((?!api|_next|admin|bookings|profile).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
     ];
   },
   turbopack: {
     resolveAlias: {
-      'next/dist/build/polyfills/polyfill-module': './src/lib/emptyPolyfill.js',
-      'next/dist/build/polyfills/polyfill-module.js': './src/lib/emptyPolyfill.js',
-      '../build/polyfills/polyfill-module': './src/lib/emptyPolyfill.js',
+      'next/dist/build/polyfills/polyfill-module': './src/lib/emptyPolyfill.ts',
+      'next/dist/build/polyfills/polyfill-module.js': './src/lib/emptyPolyfill.ts',
+      '../build/polyfills/polyfill-module': './src/lib/emptyPolyfill.ts',
     },
   },
   webpack: (config) => {

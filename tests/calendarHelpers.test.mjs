@@ -7,7 +7,7 @@ import {
   getDateLimits,
   formatDateTime,
   toGymLocalTime,
-} from "../src/utils/calendarHelpers.js";
+} from "../src/utils/calendarHelpers.ts";
 
 test("canBookWorkout - strictly enforces the 30-minute booking cutoff window", () => {
   const referenceNow = new Date("2026-11-01T10:00:00.000Z");

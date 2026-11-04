@@ -1,0 +1,134 @@
+'use client';
+
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import WorkoutTemplateManager, { type WorkoutTemplateRecord } from './components/WorkoutTemplateManager';
+import SessionManager, { type ManagerSession } from './components/SessionManager';
+import type { AttendeeSession } from './components/SessionAttendeePanel';
+
+const SessionDetailView = dynamic(
+  () => import('./components/SessionDetailView'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white rounded-2xl shadow-xs border border-stone-200/80 p-8 min-h-[300px] flex items-center justify-center">
+        <div className="text-stone-600 font-medium text-sm">Edzés részleteinek betöltése...</div>
+      </div>
+    ),
+  }
+);
+
+export interface AdminUser {
+  id: string;
+  email?: string;
+  profile?: {
+    id?: string;
+    username?: string | null;
+    full_name?: string | null;
+    user_tier?: string | null;
+  } | null;
+}
+
+export interface AdminDashboardClientProps {
+  initialUser: AdminUser | null;
+  initialSessions?: (ManagerSession & AttendeeSession)[] | null;
+  initialTemplates?: WorkoutTemplateRecord[] | null;
+  serverNow?: string | null;
+}
+
+export default function AdminDashboardClient({
+  initialUser,
+  initialSessions = null,
+  initialTemplates = null,
+  serverNow = null,
+}: AdminDashboardClientProps) {
+  const isInstructor = initialUser?.profile?.user_tier === 'instructor';
+  const [activeTab, setActiveTab] = useState(isInstructor ? 'sessions' : 'templates');
+  const adminUser = initialUser;
+
+  const tabs = [
+    { id: 'templates', label: 'Edzés Sablonok' },
+    {
+      id: 'sessions',
+      label: isInstructor ? 'Saját Edzéseim' : 'Órarend Kezelése',
+    },
+    { id: 'session-details', label: 'Résztvevők & Részletek' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 sm:py-6">
+            <div className="flex items-center justify-between sm:block">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  {isInstructor ? 'Oktatói Műszerfal' : 'Adminisztrációs Vezérlőpult'}
+                </h1>
+                <p className="text-xs sm:text-sm text-stone-600 mt-0.5 sm:mt-1">
+                  Bejelentkezve mint: <span className="font-semibold text-gray-800">{adminUser?.email}</span>
+                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                    {adminUser?.profile?.user_tier === 'instructor' ? 'Oktató' : (adminUser?.profile?.user_tier || 'Admin')}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs - responsive horizontal scroll on mobile */}
+          <div className="border-t border-gray-200 -mb-px flex space-x-2 sm:space-x-8 overflow-x-auto no-scrollbar">
+            {tabs
+              .filter((tab) => !(isInstructor && tab.id === 'templates'))
+              .map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`whitespace-nowrap py-3 px-3 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
+                      isActive
+                        ? 'border-warm-terracotta text-[#8c3010]'
+                        : 'border-transparent text-stone-600 hover:text-stone-900 hover:border-gray-300'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[560px]">
+        {/* Templates Tab */}
+        {!isInstructor && activeTab === 'templates' && (
+          <WorkoutTemplateManager
+            currentUser={adminUser}
+            initialTemplates={initialTemplates}
+          />
+        )}
+
+        {/* Sessions Tab */}
+        {activeTab === 'sessions' && (
+          <SessionManager
+            currentUser={adminUser}
+            initialSessions={initialSessions}
+            initialTemplates={initialTemplates}
+            serverNow={serverNow}
+          />
+        )}
+
+        {/* Session Details Tab */}
+        {activeTab === 'session-details' && (
+          <SessionDetailView
+            currentUser={adminUser}
+            initialSessions={initialSessions}
+            serverNow={serverNow}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
