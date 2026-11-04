@@ -81,15 +81,17 @@ export default function CalendarClient({
         />
 
         {/* Mobile Schedule View (< 768px) */}
-        <MobileScheduleView
-          currentDate={currentDate}
-          today={today}
-          loading={loading}
-          filteredEvents={filteredEvents}
-          selectedWorkoutType={selectedWorkoutType}
-          onNavigate={handleNavigate}
-          onSelectEvent={handleSelectEvent}
-        />
+        <div className="md:hidden">
+          <MobileScheduleView
+            currentDate={currentDate}
+            today={today}
+            loading={loading}
+            filteredEvents={filteredEvents}
+            selectedWorkoutType={selectedWorkoutType}
+            onNavigate={handleNavigate}
+            onSelectEvent={handleSelectEvent}
+          />
+        </div>
 
         {/* Desktop & Tablet Full Calendar Grid (>= 768px) */}
         <div className="hidden md:block">
