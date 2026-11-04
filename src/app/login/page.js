@@ -50,9 +50,9 @@ export default function LoginPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">
+      <h1 className="text-2xl font-bold mb-4 text-center text-stone-900">
         Bejelentkezés | Mozgás Központ
-      </h2>
+      </h1>
       <div className="flex items-center justify-center min-h-[75vh] py-8">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md space-y-6">
           <form ref={formRef} action={formAction} className="space-y-4">
@@ -79,7 +79,7 @@ export default function LoginPage() {
               <div className="flex justify-end mt-1">
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                  className="text-xs text-stone-700 hover:text-stone-900 hover:underline font-semibold"
                 >
                   Elfelejtetted a jelszavad?
                 </Link>
@@ -93,7 +93,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+              className="w-full bg-warm-terracotta hover:bg-warm-terracotta-hover text-white py-2.5 px-4 rounded-xl disabled:bg-stone-400 transition-colors font-semibold shadow-xs"
             >
               {isPending ? 'Bejelentkezés folyamatban...' : 'Bejelentkezés'}
             </button>
@@ -101,7 +101,7 @@ export default function LoginPage() {
 
           {/* 1-Click Demo Access for Portfolio / Recruiters */}
           <div className="pt-4 border-t border-gray-200">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 text-center mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone-700 text-center mb-3">
               Gyors Demó Belépés (1 kattintással)
             </p>
             <div
@@ -113,7 +113,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={isPending}
                 onClick={() => handleDemoLogin('member')}
-                className="px-2.5 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
+                className="px-2.5 py-2 text-xs font-semibold text-stone-800 bg-stone-100 hover:bg-stone-200 rounded-md transition-colors disabled:opacity-50"
               >
                 Demó Vendég
               </button>
@@ -121,7 +121,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={isPending}
                 onClick={() => handleDemoLogin('instructor')}
-                className="px-2.5 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition-colors disabled:opacity-50"
+                className="px-2.5 py-2 text-xs font-semibold text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition-colors disabled:opacity-50"
               >
                 Demó Oktató
               </button>
@@ -130,7 +130,7 @@ export default function LoginPage() {
                   type="button"
                   disabled={isPending}
                   onClick={() => handleDemoLogin('admin')}
-                  className="px-2.5 py-2 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition-colors disabled:opacity-50"
+                  className="px-2.5 py-2 text-xs font-semibold text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition-colors disabled:opacity-50"
                 >
                   Demó Admin
                 </button>
@@ -138,11 +138,11 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
+          <div className="text-center text-sm text-stone-700 pt-2 border-t border-gray-100">
             Még nincs fiókod?{' '}
             <Link
               href="/register"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-warm-terracotta hover:underline font-semibold"
             >
               Regisztrálj most
             </Link>

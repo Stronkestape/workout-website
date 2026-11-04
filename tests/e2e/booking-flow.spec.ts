@@ -23,7 +23,7 @@ test.describe('Booking Flow & Navigation (Hungarian)', () => {
     await page.goto('/calendar');
 
     // Calendar page title
-    const heading = page.locator('h2').first();
+    const heading = page.locator('h1').first();
     await expect(heading).toContainText('Csoportos Órarend & Foglalás');
 
     // Category filter bar
@@ -41,7 +41,7 @@ test.describe('Booking Flow & Navigation (Hungarian)', () => {
   test('Login page offers 1-click Demo accounts with Hungarian role labels', async ({ page }) => {
     await page.goto('/login');
 
-    await expect(page.locator('h2')).toContainText('Bejelentkezés');
+    await expect(page.locator('h1')).toContainText('Bejelentkezés');
 
     // Demo buttons
     const demoMemberBtn = page.getByRole('button', { name: /Demó Vendég/i });

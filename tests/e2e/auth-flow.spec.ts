@@ -4,7 +4,7 @@ test.describe('Auth Flow & Security (Hungarian)', () => {
   test('Registration page renders Hungarian fields and password requirements', async ({ page }) => {
     await page.goto('/register');
 
-    await expect(page.locator('h2')).toContainText('Fiók Létrehozása');
+    await expect(page.locator('h1')).toContainText('Fiók Létrehozása');
 
     // Field labels
     await expect(page.getByLabel('E-mail cím')).toBeVisible();

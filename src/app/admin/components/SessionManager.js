@@ -44,7 +44,6 @@ export default function SessionManager({
 
   useEffect(() => {
     if (hasInitialDataRef.current) {
-      hasInitialDataRef.current = false;
       return;
     }
     if (currentUser?.id) {
@@ -53,9 +52,11 @@ export default function SessionManager({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.id, isInstructor]);
 
-  const loadData = async () => {
+  const loadData = async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
 
       const [sessionsResult, templatesResult] = await Promise.all([
         fetchAllSessions(isInstructor ? currentUser?.id : null),
@@ -72,7 +73,9 @@ export default function SessionManager({
       setError('Nem sikerült betölteni az edzéseket.');
       toast.error('Nem sikerült betölteni az edzéseket.');
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -133,7 +136,7 @@ export default function SessionManager({
     referenceDate
   );
 
-  if (loading) {
+  if (loading && sessions.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">

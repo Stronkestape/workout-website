@@ -9,7 +9,7 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "700"],
+  preload: false,
 });
 
 export const metadata = {

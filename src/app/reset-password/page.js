@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center text-stone-900">Új Jelszó Megadása</h2>
+      <h1 className="text-2xl font-bold mb-4 text-center text-stone-900">Új Jelszó Megadása | Mozgás Központ</h1>
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <div className="bg-white shadow rounded-2xl p-8 w-full max-w-md border border-stone-200">
           {checkingSession ? (

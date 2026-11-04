@@ -34,16 +34,17 @@ export default function WorkoutTemplateManager({
 
   useEffect(() => {
     if (hasInitialTemplatesRef.current) {
-      hasInitialTemplatesRef.current = false;
       return;
     }
     loadTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadTemplates = async () => {
+  const loadTemplates = async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       const { data, error } = await fetchWorkoutTemplates();
 
       if (error) throw error;
@@ -54,7 +55,9 @@ export default function WorkoutTemplateManager({
       setError('Nem sikerült betölteni az edzéssablonokat.');
       toast.error('Nem sikerült betölteni az edzéssablonokat.');
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -130,7 +133,7 @@ export default function WorkoutTemplateManager({
     setEditingTemplate(null);
   };
 
-  if (loading) {
+  if (loading && templates.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-8">
         <div className="flex justify-center items-center">

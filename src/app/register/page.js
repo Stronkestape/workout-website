@@ -11,7 +11,9 @@ export default function RegisterPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Fiók Létrehozása</h2>
+      <h1 className="text-2xl font-bold mb-4 text-center text-stone-900">
+        Fiók Létrehozása | Mozgás Központ
+      </h1>
       <div className="flex items-center justify-center min-h-[75vh] py-8">
         <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
           <form action={formAction} className="space-y-4">
@@ -62,14 +64,14 @@ export default function RegisterPage() {
                         ? `?email=${encodeURIComponent(state.values.email)}`
                         : ''
                     }`}
-                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                    className="text-stone-800 hover:text-stone-900 font-semibold underline"
                   >
                     Jelszó-visszaállító link küldése
                   </Link>
                   <span className="text-amber-400">•</span>
                   <Link
                     href="/login"
-                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                    className="text-stone-800 hover:text-stone-900 font-semibold underline"
                   >
                     Vissza a bejelentkezéshez
                   </Link>
@@ -77,20 +79,22 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {state?.error && <FormMessage type="error" message={state.error} />}
-            {state?.success && <FormMessage type="success" message={state.success} />}
+            <div className="min-h-[24px]">
+              {state?.error && <FormMessage type="error" message={state.error} />}
+              {state?.success && <FormMessage type="success" message={state.success} />}
+            </div>
 
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+              className="w-full bg-warm-terracotta hover:bg-warm-terracotta-hover text-white py-2.5 px-4 rounded-xl disabled:bg-stone-400 transition-colors font-semibold shadow-xs"
             >
               {isPending ? 'Fiók létrehozása folyamatban...' : 'Regisztráció'}
             </button>
 
-            <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
+            <div className="text-center text-sm text-stone-700 pt-2 border-t border-gray-100">
               Már van fiókod?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline font-medium">
+              <Link href="/login" className="text-warm-terracotta hover:underline font-semibold">
                 Jelentkezz be
               </Link>
             </div>

@@ -50,9 +50,9 @@ export default function CalendarClient({
       <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Page Title & Context (Hungarian) */}
         <div className="mb-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
             Csoportos Órarend & Foglalás
-          </h2>
+          </h1>
           <p className="text-sm text-stone-600 mt-1">
             Böngéssz prémium csoportos óráink között, szűrj kategóriák szerint és foglald le a helyed másodpercek alatt!
           </p>
