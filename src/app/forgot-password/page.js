@@ -17,15 +17,14 @@ function ForgotPasswordForm() {
 
   return (
     <form action={formAction} className="space-y-4">
-      <p className="text-sm text-gray-600">
-        Enter the email address associated with your account, and we&apos;ll send
-        you a link to reset your password.
+      <p className="text-sm text-stone-600">
+        Add meg a fiókodhoz tartozó e-mail címet, és küldünk egy biztonságos linket az új jelszavad beállításához.
       </p>
 
       <FormField
         id="email"
         name="email"
-        label="Email Address"
+        label="E-mail cím"
         type="email"
         defaultValue={state?.values?.email ?? initialEmail}
         disabled={isPending}
@@ -39,15 +38,15 @@ function ForgotPasswordForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+        className="w-full bg-warm-terracotta hover:bg-warm-terracotta-hover text-white py-2.5 px-4 rounded-xl disabled:bg-stone-400 transition-colors font-semibold shadow-sm"
       >
-        {isPending ? 'Sending reset link...' : 'Send Reset Link'}
+        {isPending ? 'Link küldése...' : 'Visszaállító Link Küldése'}
       </button>
 
-      <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-100">
-        Remembered your password?{' '}
-        <Link href="/login" className="text-blue-600 hover:underline font-medium">
-          Back to Login
+      <div className="text-center text-sm text-stone-600 pt-2 border-t border-stone-200">
+        Eszembe jutott a jelszavam:{' '}
+        <Link href="/login" className="text-warm-terracotta hover:underline font-semibold">
+          Vissza a bejelentkezéshez
         </Link>
       </div>
     </form>
@@ -57,10 +56,10 @@ function ForgotPasswordForm() {
 export default function ForgotPasswordPage() {
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Reset Your Password</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-stone-900">Jelszó Visszaállítása</h2>
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-        <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
-          <Suspense fallback={<div className="text-sm text-gray-500">Loading...</div>}>
+        <div className="bg-white shadow rounded-2xl p-8 w-full max-w-md border border-stone-200">
+          <Suspense fallback={<div className="text-sm text-stone-500 text-center py-4">Betöltés...</div>}>
             <ForgotPasswordForm />
           </Suspense>
         </div>

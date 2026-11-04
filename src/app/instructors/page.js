@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabasePublicClient } from '@/lib/publicSupabase';
 import { formatTime } from '@/utils/calendarHelpers';
+import { unstable_cache } from 'next/cache';
 
 export const revalidate = 300; // 5-minute Edge ISR caching
 
@@ -47,45 +48,48 @@ const DEFAULT_PROFILE = {
   quote: '„A mozgás öröme mindenkié.”',
 };
 
-export default async function InstructorsPage() {
-  const supabase = createSupabasePublicClient();
-  const nowIso = new Date().toISOString();
 
-  // Parallel database queries executed concurrently
-  const [instructorsResult, sessionsResult] = await Promise.all([
-    supabase
-      .from('user_profiles')
-      .select('id, username, full_name, user_tier')
-      .eq('user_tier', 'instructor')
-      .order('full_name', { ascending: true }),
-    supabase
-      .from('class_sessions')
-      .select(`
-        id,
-        instructor_id,
-        start_time,
-        workout_classes (
+const getCachedInstructorsData = unstable_cache(
+  async () => {
+    const supabase = createSupabasePublicClient();
+    const nowIso = new Date().toISOString();
+
+    const [instructorsResult, sessionsResult] = await Promise.all([
+      supabase
+        .from('user_profiles')
+        .select('id, username, full_name, user_tier')
+        .eq('user_tier', 'instructor')
+        .order('full_name', { ascending: true }),
+      supabase
+        .from('class_sessions')
+        .select(`
           id,
-          title,
-          duration,
-          max_capacity
-        )
-      `)
-      .gte('start_time', nowIso)
-      .eq('is_active', true)
-      .order('start_time', { ascending: true })
-      .limit(30),
-  ]);
+          instructor_id,
+          start_time,
+          workout_classes (
+            id,
+            title,
+            duration,
+            max_capacity
+          )
+        `)
+        .gte('start_time', nowIso)
+        .eq('is_active', true)
+        .order('start_time', { ascending: true })
+        .limit(30),
+    ]);
 
-  if (instructorsResult.error) {
-    console.error('Error fetching instructors:', instructorsResult.error);
-  }
-  if (sessionsResult.error) {
-    console.error('Error fetching sessions:', sessionsResult.error);
-  }
+    return {
+      instructors: instructorsResult.data || [],
+      upcomingSessions: sessionsResult.data || [],
+    };
+  },
+  ['instructors-page-cache'],
+  { revalidate: 300, tags: ['instructors-cache'] }
+);
 
-  const instructors = instructorsResult.data || [];
-  const upcomingSessions = sessionsResult.data || [];
+export default async function InstructorsPage() {
+  const { instructors, upcomingSessions } = await getCachedInstructorsData();
 
   // Group upcoming sessions by instructor_id
   const sessionsByInstructor = {};

@@ -13,9 +13,12 @@ const geistSans = Geist({
 });
 
 export const metadata = {
-  title: "Workout Booking | Mozgás Központ",
+  title: {
+    default: "Mozgás Központ | Csoportos Fitnesz és Edzőterem Budapesten",
+    template: "%s | Mozgás Központ",
+  },
   description:
-    "Premium group functional training, Spinning, and WALKenergie classes in Budapest.",
+    "Prémium csoportos funkcionális edzések, Spinning, WALKenergie és alakformáló órák Budapesten.",
 };
 
 export default function RootLayout({ children }) {

@@ -60,40 +60,40 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Set New Password</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-stone-900">Új Jelszó Megadása</h2>
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-        <div className="bg-white shadow rounded-lg p-8 w-full max-w-md">
+        <div className="bg-white shadow rounded-2xl p-8 w-full max-w-md border border-stone-200">
           {checkingSession ? (
-            <div className="text-center py-6 text-gray-600 text-sm">
-              Verifying password reset link...
+            <div className="text-center py-6 text-stone-600 text-sm">
+              Visszaállító link ellenőrzése...
             </div>
           ) : !hasValidSession ? (
             <div className="space-y-4 text-center">
               <FormMessage
                 type="error"
-                message="This password reset link is invalid or has expired."
+                message="Ez a jelszó-visszaállító link érvénytelen vagy lejárt."
               />
               <Link
                 href="/forgot-password"
-                className="inline-block w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
+                className="inline-block w-full bg-warm-terracotta hover:bg-warm-terracotta-hover text-white py-2.5 px-4 rounded-xl transition-colors font-semibold text-sm shadow-sm"
               >
-                Request a New Reset Link
+                Új Visszaállító Link Kérése
               </Link>
             </div>
           ) : (
             <form action={formAction} className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Please enter and confirm your new password below.
+              <p className="text-sm text-stone-600">
+                Kérjük, add meg az új jelszavadat az alábbi mezőkben.
               </p>
 
               <FormField
                 id="newPassword"
                 name="newPassword"
-                label="New Password"
+                label="Új jelszó"
                 type="password"
                 error={state?.fieldErrors?.newPassword}
                 disabled={isPending}
-                hint="Minimum 6 characters"
+                hint="Legalább 6 karakter"
                 required
                 autoComplete="new-password"
               />
@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
               <FormField
                 id="confirmPassword"
                 name="confirmPassword"
-                label="Confirm New Password"
+                label="Új jelszó megerősítése"
                 type="password"
                 error={state?.fieldErrors?.confirmPassword}
                 disabled={isPending}
@@ -116,9 +116,9 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+                className="w-full bg-warm-terracotta hover:bg-warm-terracotta-hover text-white py-2.5 px-4 rounded-xl disabled:bg-stone-400 transition-colors font-semibold shadow-sm"
               >
-                {isPending ? 'Updating password...' : 'Save New Password'}
+                {isPending ? 'Jelszó mentése...' : 'Új Jelszó Mentése'}
               </button>
             </form>
           )}
